@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { api } from "@/services/api"
 import type { TaskTag } from "@/hooks/useTasks"
@@ -23,6 +23,9 @@ type TaskDetailsState = {
 }
 
 export function useTaskDetails(taskId: string | number | null, initialTags: TaskTag[] = []) {
+  // Use a ref for initialTags to avoid it being a changing dependency
+  const initialTagsRef = useRef(initialTags)
+
   const [state, setState] = useState<TaskDetailsState>({
     comments: [],
     tags: initialTags,
@@ -38,7 +41,7 @@ export function useTaskDetails(taskId: string | number | null, initialTags: Task
       setState({
         comments: (await api.get<{ comments: TaskComment[] }>(`/tasks/${taskId}/comments`)).data
           .comments ?? [],
-        tags: initialTags,
+        tags: initialTagsRef.current,
       })
     } catch (err: unknown) {
       const message =
@@ -49,7 +52,7 @@ export function useTaskDetails(taskId: string | number | null, initialTags: Task
     } finally {
       setIsLoading(false)
     }
-  }, [initialTags, taskId])
+  }, [taskId]) // <-- initialTags removed from deps, accessed via ref instead
 
   const addComment = useCallback(
     async (content: string) => {
@@ -103,12 +106,12 @@ export function useTaskDetails(taskId: string | number | null, initialTags: Task
 
   useEffect(() => {
     if (taskId == null) {
-      setState({ comments: [], tags: initialTags })
+      setState({ comments: [], tags: initialTagsRef.current })
       setError(null)
       return
     }
     void refresh()
-  }, [initialTags, refresh, taskId])
+  }, [refresh, taskId]) // <-- initialTags removed from deps here too
 
   return {
     comments: state.comments,

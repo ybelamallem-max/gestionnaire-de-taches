@@ -172,7 +172,7 @@ export function TaskDetailsPanel({
     return false
   }
 
-  if (!task) return null
+  if (!task && !open) return null
 
   return (
     <>
@@ -186,7 +186,7 @@ export function TaskDetailsPanel({
       <aside
         className={cn(
           "fixed inset-y-0 right-0 z-50 flex w-full max-w-xl transform flex-col border-l border-zinc-800 bg-zinc-950 shadow-2xl transition-transform duration-300",
-          open ? "translate-x-0" : "translate-x-full"
+          open ? "translate-x-0" : "translate-x-full pointer-events-none"
         )}
       >
         <div className="flex items-start justify-between border-b border-zinc-800 px-6 py-5">
