@@ -31,8 +31,8 @@ export function DatePickerField({
           variant="outline"
           disabled={disabled}
           className={cn(
-            "h-10 w-full justify-between border-zinc-800 bg-zinc-950/40 px-3 text-zinc-100 hover:bg-zinc-900",
-            !value && "text-zinc-500"
+            "h-9 w-full justify-between bg-background px-3 text-left font-normal hover:bg-accent",
+            !value && "text-muted-foreground"
           )}
         >
           <span>
@@ -43,7 +43,7 @@ export function DatePickerField({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="z-[100] w-auto border border-zinc-800 bg-zinc-950 p-0"
+        className="z-[100] w-auto border bg-popover p-0 shadow-md"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <Calendar

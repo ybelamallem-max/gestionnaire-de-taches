@@ -47,7 +47,7 @@ export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
 
   return (
     <div className="group issue-line border-b border-border last:border-b-0">
-      <div className="inline-flex size-6 shrink-0 items-center justify-center rounded bg-muted">
+      <div className="inline-flex size-6 shrink-0 items-center justify-center rounded bg-muted/50">
         <FolderKanban className="size-3.5 text-muted-foreground" />
       </div>
 
@@ -71,7 +71,7 @@ export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
         <div className="flex w-16 items-center gap-2">
           <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-emerald-500 transition-all"
+              className="h-full rounded-full bg-foreground/80 transition-all"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -84,7 +84,7 @@ export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
               type="button"
               variant="ghost"
               size="icon"
-              className="size-7 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
+              className="size-7 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
             >
               <MoreHorizontal className="size-4" />
             </Button>

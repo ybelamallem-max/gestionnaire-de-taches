@@ -8,12 +8,16 @@ export default {
       center: true,
     },
     extend: {
+      fontFamily: {
+        sans: ["Geist Variable", "sans-serif"],
+      },
       colors: {
         border: "oklch(var(--border))",
         input: "oklch(var(--input))",
         ring: "oklch(var(--ring))",
         background: "oklch(var(--background))",
         foreground: "oklch(var(--foreground))",
+        container: "var(--container)",
         primary: {
           DEFAULT: "oklch(var(--primary))",
           foreground: "oklch(var(--primary-foreground))",
@@ -58,6 +62,11 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        xs: "0 1px 2px rgba(0, 0, 0, 0.04)",
+        sm: "0 1px 2px rgba(0, 0, 0, 0.06)",
+        md: "0 8px 30px rgba(0, 0, 0, 0.12)",
       },
     },
   },

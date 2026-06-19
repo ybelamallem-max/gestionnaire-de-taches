@@ -85,7 +85,7 @@ export function TaskForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <label htmlFor="task-title" className="text-xs font-medium text-zinc-300">
+        <label htmlFor="task-title" className="text-xs font-medium text-muted-foreground">
           Titre
         </label>
         <Input
@@ -93,7 +93,6 @@ export function TaskForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Titre de la tâche"
-          className="h-10 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
         />
         <FieldError errors={errors?.title} />
       </div>
@@ -101,7 +100,7 @@ export function TaskForm({
       <div className="space-y-1.5">
         <label
           htmlFor="task-description"
-          className="text-xs font-medium text-zinc-300"
+          className="text-xs font-medium text-muted-foreground"
         >
           Description
         </label>
@@ -110,19 +109,19 @@ export function TaskForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Détails (optionnel)"
-          className="min-h-24 w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus-visible:ring-2 focus-visible:ring-zinc-700/40"
+          className="min-h-24 w-full resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
         />
         <FieldError errors={errors?.description} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <div className="text-xs font-medium text-zinc-300">Priorité</div>
+          <div className="text-xs font-medium text-muted-foreground">Priorité</div>
           <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
-            <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 data-[placeholder]:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+            <SelectTrigger className="h-9 w-full">
               <SelectValue placeholder="Choisir une priorité" />
             </SelectTrigger>
-            <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+            <SelectContent>
               <SelectItem value="low">Faible</SelectItem>
               <SelectItem value="medium">Moyenne</SelectItem>
               <SelectItem value="high">Haute</SelectItem>
@@ -132,23 +131,23 @@ export function TaskForm({
         </div>
 
         <div className="space-y-1.5">
-          <div className="text-xs font-medium text-zinc-300">Deadline</div>
+          <div className="text-xs font-medium text-muted-foreground">Deadline</div>
           <DatePickerField value={deadline} onChange={setDeadline} />
           <FieldError errors={errors?.deadline} />
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <div className="text-xs font-medium text-zinc-300">Projet</div>
+        <div className="text-xs font-medium text-muted-foreground">Projet</div>
         <Select
           value={projectId}
           onValueChange={setProjectId}
           disabled={projects.length === 0}
         >
-          <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 data-[placeholder]:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+          <SelectTrigger className="h-9 w-full">
             <SelectValue placeholder={projects.length ? "Choisir un projet" : "Aucun projet"} />
           </SelectTrigger>
-          <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+          <SelectContent>
             <SelectItem value="none" disabled>
               Choisir un projet
             </SelectItem>
@@ -166,7 +165,6 @@ export function TaskForm({
         <Button
           type="button"
           variant="outline"
-          className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
           onClick={onCancel}
           disabled={isSubmitting}
         >
@@ -175,7 +173,6 @@ export function TaskForm({
         <Button
           type="submit"
           disabled={isDisabled}
-          className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
         >
           {isSubmitting ? "Enregistrement..." : "Enregistrer"}
         </Button>

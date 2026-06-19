@@ -21,25 +21,30 @@ export default function Notifications() {
   }, [fetchNotifications])
 
   return (
-    <div className="h-full rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <div className="space-y-6">
+    <div className="h-full">
+      <div className="page-header">
         <div className="flex flex-col gap-1">
-          <div className="text-sm font-medium text-zinc-100">Notifications</div>
-          <div className="text-xs text-zinc-400">{items.length} notification{items.length > 1 ? "s" : ""}</div>
+          <div className="page-title">Notifications</div>
+          <div className="page-subtitle">
+            {items.length} notification{items.length > 1 ? "s" : ""}
+          </div>
         </div>
+      </div>
+
+      <div className="page-section space-y-4">
 
         {error ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200">
+          <div className="panel-muted text-destructive">
             {error}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+          <div className="empty-state">
             Chargement...
           </div>
         ) : items.length ? (
-          <div className="space-y-2">
+          <div className="list-shell divide-y">
             {items.map((n) => {
               const isUnread = !n.read_at
               return (
@@ -48,38 +53,35 @@ export default function Notifications() {
                   type="button"
                   onClick={() => void markAsRead(n.id)}
                   className={cn(
-                    "w-full rounded-xl border px-4 py-3 text-left transition-colors",
-                    "border-zinc-800 bg-zinc-950/40 hover:bg-zinc-950/60",
-                    isUnread && "ring-1 ring-zinc-700/60"
+                    "flex w-full items-start justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-sidebar/50",
+                    isUnread && "bg-secondary/30"
                   )}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-zinc-100">
-                        {getTitle(n)}
-                      </div>
-                      {n.message ? (
-                        <div className="mt-1 text-sm text-zinc-400">
-                          {n.message}
-                        </div>
-                      ) : null}
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-foreground">
+                      {getTitle(n)}
                     </div>
-                    {isUnread ? (
-                      <div className="mt-1 shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-950">
-                        Nouveau
+                    {n.message ? (
+                      <div className="mt-1 text-sm text-muted-foreground">
+                        {n.message}
                       </div>
-                    ) : (
-                      <div className="mt-1 shrink-0 text-[10px] text-zinc-500">
-                        Lu
-                      </div>
-                    )}
+                    ) : null}
                   </div>
+                  {isUnread ? (
+                    <div className="mt-0.5 shrink-0 rounded-full border bg-background px-2 py-0.5 text-[10px] font-medium">
+                      Nouveau
+                    </div>
+                  ) : (
+                    <div className="mt-0.5 shrink-0 text-[10px] text-muted-foreground">
+                      Lu
+                    </div>
+                  )}
                 </button>
               )
             })}
           </div>
         ) : (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+          <div className="empty-state">
             Aucune notification.
           </div>
         )}

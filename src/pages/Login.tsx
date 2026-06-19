@@ -80,20 +80,24 @@ export default function Login() {
   return (
     <AuthShell
       title="Connexion"
-      subtitle="Connexion à votre espace"
+      subtitle="Accès à votre espace de travail"
     >
-      <CardHeader className="border-b border-zinc-800/70">
-        <CardTitle className="text-lg">Se connecter</CardTitle>
+      <CardHeader className="border-b bg-card/50">
+        <CardTitle className="text-lg">Connexion</CardTitle>
         <CardDescription>
-          Accédez à vos tâches, projets et notifications.
+          Saisissez vos identifiants pour accéder à l’application.
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="space-y-5 pt-6">
+        <div className="rounded-lg border bg-background px-4 py-3 text-sm text-muted-foreground">
+          Authentification sécurisée sur votre environnement métier.
+        </div>
+
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label
               htmlFor="email"
-              className="text-xs font-medium text-zinc-300"
+              className="text-xs font-medium text-muted-foreground"
             >
               Email
             </label>
@@ -104,7 +108,7 @@ export default function Login() {
               placeholder="you@company.com"
               type="email"
               autoComplete="email"
-              className="h-10 border-zinc-800 bg-zinc-950/50 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
+              className="h-10"
             />
             <FieldError errors={fieldErrors?.email} />
           </div>
@@ -113,15 +117,15 @@ export default function Login() {
             <div className="flex items-center justify-between">
               <label
                 htmlFor="password"
-                className="text-xs font-medium text-zinc-300"
+                className="text-xs font-medium text-muted-foreground"
               >
                 Mot de passe
               </label>
               <button
                 type="button"
-                className="text-xs text-zinc-400 underline underline-offset-4 hover:text-zinc-100"
+                className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
-                Mot de passe oublié
+                Besoin d’aide ?
               </button>
             </div>
             <Input
@@ -131,13 +135,13 @@ export default function Login() {
               placeholder="••••••••"
               type="password"
               autoComplete="current-password"
-              className="h-10 border-zinc-800 bg-zinc-950/50 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
+              className="h-10"
             />
             <FieldError errors={fieldErrors?.password} />
           </div>
 
           {error ? (
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200">
+            <div className="panel-muted text-destructive">
               {error}
             </div>
           ) : null}
@@ -145,17 +149,18 @@ export default function Login() {
           <Button
             type="submit"
             disabled={isDisabled}
-            className="h-10 w-full bg-zinc-100 text-zinc-950 shadow-sm shadow-black/20 hover:bg-zinc-100/90"
+            className="h-10 w-full"
           >
             <span className="flex items-center justify-center gap-2">
-              <span>{isLoading ? "Connexion..." : "Connexion"}</span>
+              <span>{isLoading ? "Connexion..." : "Ouvrir la session"}</span>
               <ArrowRight className="size-4" />
             </span>
           </Button>
         </form>
 
-        <div className="mt-5 text-xs text-zinc-500">
-          En continuant, vous acceptez les conditions d’utilisation.
+        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span>Accès réservé aux utilisateurs autorisés.</span>
+          <span>Support interne</span>
         </div>
       </CardContent>
     </AuthShell>

@@ -84,7 +84,7 @@ export function UserForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label htmlFor="user-name" className="text-xs font-medium text-zinc-300">
+          <label htmlFor="user-name" className="text-xs font-medium text-muted-foreground">
             Nom
           </label>
           <Input
@@ -92,13 +92,12 @@ export function UserForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nom complet"
-            className="h-10 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
           />
           <FieldError errors={errors?.name} />
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="user-email" className="text-xs font-medium text-zinc-300">
+          <label htmlFor="user-email" className="text-xs font-medium text-muted-foreground">
             Email
           </label>
           <Input
@@ -107,7 +106,6 @@ export function UserForm({
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@company.com"
             type="email"
-            className="h-10 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
           />
           <FieldError errors={errors?.email} />
         </div>
@@ -115,7 +113,7 @@ export function UserForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label htmlFor="user-phone" className="text-xs font-medium text-zinc-300">
+          <label htmlFor="user-phone" className="text-xs font-medium text-muted-foreground">
             Téléphone
           </label>
           <Input
@@ -124,13 +122,12 @@ export function UserForm({
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+33 6 12 34 56 78"
             type="tel"
-            className="h-10 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
           />
           <FieldError errors={errors?.phone} />
         </div>
 
         <div className="space-y-1.5">
-          <div className="text-xs font-medium text-zinc-300">Date de naissance</div>
+          <div className="text-xs font-medium text-muted-foreground">Date de naissance</div>
           <DatePickerField value={birthDate} onChange={setBirthDate} />
           <FieldError errors={errors?.birth_date} />
         </div>
@@ -138,12 +135,12 @@ export function UserForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <div className="text-xs font-medium text-zinc-300">Genre</div>
+          <div className="text-xs font-medium text-muted-foreground">Genre</div>
           <Select value={gender} onValueChange={(value) => setGender(value as AdminUserGender)}>
-            <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 data-[placeholder]:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+            <SelectTrigger className="h-9 w-full">
               <SelectValue placeholder="Sélectionner un genre" />
             </SelectTrigger>
-            <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+            <SelectContent>
               <SelectItem value="male">Homme</SelectItem>
               <SelectItem value="female">Femme</SelectItem>
               <SelectItem value="other">Autre</SelectItem>
@@ -153,12 +150,12 @@ export function UserForm({
         </div>
 
         <div className="space-y-1.5">
-          <div className="text-xs font-medium text-zinc-300">Rôle</div>
+          <div className="text-xs font-medium text-muted-foreground">Rôle</div>
           <Select value={role} onValueChange={(value) => setRole(value as AdminUserRole)}>
-            <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 data-[placeholder]:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+            <SelectTrigger className="h-9 w-full">
               <SelectValue placeholder="Sélectionner un rôle" />
             </SelectTrigger>
-            <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+            <SelectContent>
               <SelectItem value="user">Utilisateur</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
@@ -168,7 +165,7 @@ export function UserForm({
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="user-password" className="text-xs font-medium text-zinc-300">
+        <label htmlFor="user-password" className="text-xs font-medium text-muted-foreground">
           Mot de passe
         </label>
         <Input
@@ -180,7 +177,6 @@ export function UserForm({
           }
           type="password"
           autoComplete={isEditing ? "new-password" : "off"}
-          className="h-10 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
         />
         <FieldError errors={errors?.password} />
       </div>
@@ -189,7 +185,6 @@ export function UserForm({
         <Button
           type="button"
           variant="outline"
-          className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
           onClick={onCancel}
           disabled={isSubmitting}
         >
@@ -198,7 +193,6 @@ export function UserForm({
         <Button
           type="submit"
           disabled={isDisabled}
-          className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
         >
           {isSubmitting ? "Enregistrement..." : "Enregistrer"}
         </Button>

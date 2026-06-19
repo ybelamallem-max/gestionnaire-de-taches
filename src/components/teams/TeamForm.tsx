@@ -42,7 +42,7 @@ export function TeamForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <label htmlFor="team-name" className="text-xs font-medium text-zinc-300">
+        <label htmlFor="team-name" className="text-xs font-medium text-muted-foreground">
           Nom
         </label>
         <Input
@@ -50,7 +50,6 @@ export function TeamForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nom de l'équipe"
-          className="h-10 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
         />
         <FieldError errors={errors?.name} />
       </div>
@@ -58,7 +57,7 @@ export function TeamForm({
       <div className="space-y-1.5">
         <label
           htmlFor="team-description"
-          className="text-xs font-medium text-zinc-300"
+          className="text-xs font-medium text-muted-foreground"
         >
           Description
         </label>
@@ -67,7 +66,7 @@ export function TeamForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Description (optionnel)"
-          className="min-h-24 w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus-visible:ring-2 focus-visible:ring-zinc-700/40"
+          className="min-h-24 w-full resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
         />
         <FieldError errors={errors?.description} />
       </div>
@@ -76,7 +75,6 @@ export function TeamForm({
         <Button
           type="button"
           variant="outline"
-          className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
           onClick={onCancel}
           disabled={isSubmitting}
         >
@@ -85,7 +83,6 @@ export function TeamForm({
         <Button
           type="submit"
           disabled={isDisabled}
-          className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
         >
           {isSubmitting ? "Enregistrement..." : "Enregistrer"}
         </Button>

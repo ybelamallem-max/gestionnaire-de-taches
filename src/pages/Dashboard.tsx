@@ -6,32 +6,31 @@ export default function Dashboard() {
   const { stats, isLoading, error, refresh } = useDashboardStats()
 
   return (
-    <div className="h-full rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="text-sm font-medium text-zinc-100">Dashboard</div>
-            <div className="text-xs text-zinc-400">Vue d’ensemble</div>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
-            onClick={() => void refresh()}
-            disabled={isLoading}
-          >
-            Rafraîchir
-          </Button>
+    <div className="h-full">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Dashboard</div>
+          <div className="page-subtitle">Vue d’ensemble</div>
         </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void refresh()}
+          disabled={isLoading}
+        >
+          Rafraîchir
+        </Button>
+      </div>
 
+      <div className="page-section space-y-5">
         {error ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200">
+          <div className="panel-muted text-destructive">
             {error}
           </div>
         ) : null}
 
         {isLoading && !stats ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+          <div className="empty-state">
             Chargement...
           </div>
         ) : (
@@ -42,6 +41,40 @@ export default function Dashboard() {
             <StatCard label="Équipes" value={stats?.teams_total ?? 0} />
           </div>
         )}
+
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Résumé</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span>Tâches ouvertes</span>
+                <span className="font-medium text-foreground">
+                  {(stats?.tasks_total ?? 0) - (stats?.tasks_done ?? 0)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Tâches terminées</span>
+                <span className="font-medium text-foreground">{stats?.tasks_done ?? 0}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Équipes actives</span>
+                <span className="font-medium text-foreground">{stats?.teams_total ?? 0}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Activité</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-muted-foreground">
+              <div>Le tableau de bord reprend un rendu compact et neutre inspiré de Circle.</div>
+              <div>Les indicateurs restent branchés sur les mêmes hooks et les mêmes données.</div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )
@@ -49,12 +82,12 @@ export default function Dashboard() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <Card className="bg-zinc-950/40 ring-zinc-800">
+    <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm text-zinc-100">{label}</CardTitle>
+        <CardTitle className="text-sm">{label}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-semibold text-zinc-100">{value}</div>
+        <div className="text-3xl font-semibold">{value}</div>
       </CardContent>
     </Card>
   )

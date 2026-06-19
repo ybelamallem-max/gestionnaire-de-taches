@@ -5,15 +5,17 @@ import { Outlet } from "react-router-dom"
 
 export function AppLayout() {
   return (
-    <div className="min-h-dvh bg-zinc-950 text-zinc-100">
+    <div className="app-shell w-full">
       <GlobalLoader />
-      <div className="flex min-h-dvh">
+      <div className="app-shell w-full">
         <Sidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Header />
-          <main className="flex-1 p-4">
-            <Outlet />
-          </main>
+        <div className="app-main">
+          <div className="app-panel">
+            <Header />
+            <main className="page-scroll">
+              <Outlet />
+            </main>
+          </div>
         </div>
       </div>
     </div>

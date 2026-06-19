@@ -1,8 +1,8 @@
-import { Bell, Plus, Search } from "lucide-react"
+import { Bell, ChevronRight, Plus, Search } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import { api } from "@/services/api"
 import { useAuthStore } from "@/stores/authStore"
 
@@ -29,6 +30,7 @@ export function Header() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const logout = useAuthStore((s) => s.logout)
+  const user = useAuthStore((s) => s.user)
 
   const title = pathname.startsWith("/tasks")
     ? "Tâches"
@@ -64,51 +66,57 @@ export function Header() {
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-zinc-800 bg-zinc-950/70 px-4 backdrop-blur">
+    <header className="page-header-compact">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium text-zinc-100">
-            {title}
-          </div>
-          <div className="truncate text-xs text-zinc-400">
-            {subtitle}
-          </div>
+        <div className="hidden min-w-0 items-center gap-2 text-sm text-muted-foreground md:flex">
+          <span>Workspace</span>
+          <ChevronRight className="size-3.5" />
+          <span className="truncate font-medium text-foreground">{title}</span>
         </div>
-        <Badge variant="secondary" className="bg-zinc-800/80 text-zinc-100">
-          Alpha
-        </Badge>
+        <div className="md:hidden">
+          <div className="truncate text-sm font-medium">{title}</div>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
-        >
-          <Search />
-        </Button>
+        <div className="hidden w-64 items-center md:flex">
+          <div className="relative w-full">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              readOnly
+              value=""
+              placeholder={`Rechercher dans ${subtitle.toLowerCase()}`}
+              className="h-8 border-border bg-background pl-8 text-sm shadow-none"
+            />
+          </div>
+        </div>
 
         <Button
           variant="ghost"
           size="icon"
-          className="text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
+          className="h-8 w-8"
           onClick={() => navigate("/notifications")}
         >
-          <Bell />
+          <Bell className="size-4" />
         </Button>
+
+        <div className="lg:hidden">
+          <ThemeToggle />
+        </div>
 
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90">
-              <Plus />
+            <Button size="sm">
+              <Plus className="size-4" />
               Nouveau
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-zinc-900 text-zinc-100 ring-zinc-800">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Création rapide</DialogTitle>
               <DialogDescription>
-                Placeholder UI. Les formulaires et la logique viendront plus tard.
+                Accès rapide aux actions de création depuis le header.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -123,10 +131,12 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="rounded-full ring-offset-zinc-950 transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700 focus-visible:ring-offset-2"
+              className="rounded-full transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Avatar className="size-8">
-                <AvatarFallback>TM</AvatarFallback>
+                <AvatarFallback>
+                  {(user?.name || user?.email || "TM").slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
             </button>
           </DropdownMenuTrigger>

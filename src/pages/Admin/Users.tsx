@@ -4,6 +4,7 @@ import { fr } from "date-fns/locale"
 import { Pencil, Plus, Trash2 } from "lucide-react"
 
 import { UserForm } from "@/components/admin/UserForm"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -94,35 +95,36 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="h-full rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="text-sm font-medium text-zinc-100">Administration des utilisateurs</div>
-            <div className="text-xs text-zinc-400">
-              {pagination.total} utilisateur{pagination.total > 1 ? "s" : ""}
-            </div>
+    <div className="h-full">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Administration des utilisateurs</div>
+          <div className="page-subtitle">
+            {pagination.total} utilisateur{pagination.total > 1 ? "s" : ""}
           </div>
+        </div>
 
-          <Button
-            className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
-            onClick={() => setIsCreateOpen(true)}
-          >
-            <Plus />
-            Ajouter un utilisateur
-          </Button>
+        <Button onClick={() => setIsCreateOpen(true)}>
+          <Plus className="size-4" />
+          Ajouter un utilisateur
+        </Button>
+      </div>
+
+      <div className="page-section space-y-5">
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">{pageLabel}</Badge>
         </div>
 
         {error ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200">
+          <div className="panel-muted text-destructive">
             {error}
           </div>
         ) : null}
 
-        <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950/40">
+        <div className="overflow-hidden rounded-lg border bg-card shadow-xs">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-zinc-800 text-sm">
-              <thead className="bg-zinc-950/80 text-left text-xs uppercase tracking-wide text-zinc-400">
+            <table className="min-w-full divide-y text-sm">
+              <thead className="bg-muted/40 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 font-medium">Nom</th>
                   <th className="px-4 py-3 font-medium">Email</th>
@@ -133,21 +135,25 @@ export default function AdminUsers() {
                   <th className="px-4 py-3 text-right font-medium">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800 text-zinc-200">
+              <tbody className="divide-y text-foreground">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-zinc-400">
+                    <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                       Chargement...
                     </td>
                   </tr>
                 ) : users.length ? (
                   users.map((user) => (
-                    <tr key={String(user.id)} className="hover:bg-zinc-900/50">
-                      <td className="px-4 py-3 font-medium text-zinc-100">{user.name}</td>
+                    <tr key={String(user.id)} className="hover:bg-sidebar/40">
+                      <td className="px-4 py-3 font-medium">{user.name}</td>
                       <td className="px-4 py-3">{user.email}</td>
                       <td className="px-4 py-3">{user.phone || "-"}</td>
                       <td className="px-4 py-3">{formatGender(user.gender)}</td>
-                      <td className="px-4 py-3">{formatRole(user.role)}</td>
+                      <td className="px-4 py-3">
+                        <Badge variant={user.role === "admin" ? "secondary" : "outline"}>
+                          {formatRole(user.role)}
+                        </Badge>
+                      </td>
                       <td className="px-4 py-3">{formatDate(user.created_at)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
@@ -155,7 +161,6 @@ export default function AdminUsers() {
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
                             onClick={() => setEditingUser(user)}
                             disabled={isSubmitting}
                           >
@@ -164,9 +169,8 @@ export default function AdminUsers() {
                           </Button>
                           <Button
                             type="button"
-                            variant="outline"
+                            variant="destructive"
                             size="sm"
-                            className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
                             onClick={() => void handleDelete(user)}
                             disabled={isSubmitting}
                           >
@@ -179,7 +183,7 @@ export default function AdminUsers() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-zinc-400">
+                    <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                       Aucun utilisateur trouvé.
                     </td>
                   </tr>
@@ -190,12 +194,11 @@ export default function AdminUsers() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-xs text-zinc-400">{pageLabel}</div>
+          <div className="text-xs text-muted-foreground">{pageLabel}</div>
 
           <Button
             type="button"
             variant="outline"
-            className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
             onClick={() => void refresh()}
             disabled={isLoading}
           >
@@ -211,7 +214,7 @@ export default function AdminUsers() {
           if (open) setCreateErrors(null)
         }}
       >
-        <DialogContent className="max-w-2xl bg-zinc-900 text-zinc-100 ring-zinc-800">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Ajouter un utilisateur</DialogTitle>
           </DialogHeader>
@@ -231,7 +234,7 @@ export default function AdminUsers() {
           if (open) setEditErrors(null)
         }}
       >
-        <DialogContent className="max-w-2xl bg-zinc-900 text-zinc-100 ring-zinc-800">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Modifier un utilisateur</DialogTitle>
           </DialogHeader>

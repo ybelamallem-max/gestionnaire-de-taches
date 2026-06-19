@@ -13,13 +13,9 @@ import { NavLink } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { selectUnreadCount, useNotificationsStore } from "@/stores/notificationsStore"
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 type NavItem = {
   key: string
@@ -57,80 +53,86 @@ export function Sidebar() {
   })
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950">
-      <div className="flex h-14 items-center gap-2 px-3">
-        <div className="flex size-9 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-100">
-          <div className="size-3 rounded-full bg-zinc-100" />
-        </div>
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium text-zinc-100">
-            Task Manager
+    <aside className="hidden h-svh w-[244px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
+      <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex size-8 items-center justify-center rounded-md border bg-background">
+            <div className="size-2 rounded-full bg-foreground/80" />
           </div>
-          <div className="truncate text-xs text-zinc-400">UI Shell</div>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-semibold text-sidebar-foreground">
+              Gestionnaire de tâches
+            </div>
+            <div className="truncate text-xs text-muted-foreground">
+              {currentUser?.email || "Workspace"}
+            </div>
+          </div>
+        </div>
+        <ThemeToggle />
+      </div>
+
+      <Separator />
+
+      <div className="px-3 pb-2">
+        <div className="rounded-lg border bg-background px-3 py-3 shadow-xs">
+          <div className="text-sm font-semibold">{currentUser?.name || "Espace principal"}</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Navigation, tâches, projets et équipes.
+          </div>
         </div>
       </div>
 
-      <Separator className="bg-zinc-800" />
-
-      <nav className="flex flex-1 flex-col gap-1 p-2">
+      <nav className="flex flex-1 flex-col gap-1 px-3 py-2">
         {visibleItems.map((item) => {
           const Icon = item.icon
 
           return (
-            <Tooltip key={item.key}>
-              <TooltipTrigger asChild>
-                {item.to ? (
-                  <NavLink
-                    to={item.to}
-                    className={({ isActive }) =>
-                      cn(
-                        "group flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
-                        "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100",
-                        isActive && "bg-zinc-900 text-zinc-100"
-                      )
-                    }
-                  >
-                    <Icon className="size-4 shrink-0" />
-                    <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                    {item.badge ? (
-                      <Badge
-                        variant="secondary"
-                        className="border-zinc-800 bg-zinc-800/80 text-zinc-100"
-                      >
-                        {item.badge}
-                      </Badge>
-                    ) : null}
-                  </NavLink>
-                ) : (
-                  <button
-                    type="button"
-                    disabled={item.disabled}
-                    className={cn(
-                      "group flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
-                      "text-zinc-500",
-                      item.disabled && "cursor-not-allowed opacity-60"
-                    )}
-                  >
-                    <Icon className="size-4 shrink-0" />
-                    <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                    {item.badge ? (
-                      <Badge
-                        variant="secondary"
-                        className="border-zinc-800 bg-zinc-800/80 text-zinc-100"
-                      >
-                        {item.badge}
-                      </Badge>
-                    ) : null}
-                  </button>
-                )}
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={10}>
-                <span>{item.label}</span>
-              </TooltipContent>
-            </Tooltip>
+            <div key={item.key}>
+              {item.to ? (
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
+                      "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                    )
+                  }
+                >
+                  <Icon className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  {item.badge ? (
+                    <Badge variant="secondary" className="bg-background text-foreground">
+                      {item.badge}
+                    </Badge>
+                  ) : null}
+                </NavLink>
+              ) : (
+                <button
+                  type="button"
+                  disabled={item.disabled}
+                  className={cn(
+                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-left text-sm text-sidebar-foreground/70 transition-colors",
+                    item.disabled && "cursor-not-allowed opacity-60"
+                  )}
+                >
+                  <Icon className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                </button>
+              )}
+            </div>
           )
         })}
       </nav>
+
+      <div className="mt-auto px-3 pb-4 pt-2">
+        <div className="rounded-lg border bg-background p-4 text-sm shadow-xs">
+          <div className="font-semibold">Espace de travail</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Style Circle, logique métier conservée.
+          </div>
+        </div>
+      </div>
     </aside>
   )
 }

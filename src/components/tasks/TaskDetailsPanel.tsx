@@ -185,11 +185,11 @@ export function TaskDetailsPanel({
       />
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-xl transform flex-col border-l border-zinc-800 bg-zinc-950 shadow-2xl transition-transform duration-300",
+          "fixed inset-y-0 right-0 z-50 flex w-full max-w-xl transform flex-col border-l bg-background shadow-md transition-transform duration-300",
           open ? "translate-x-0" : "translate-x-full pointer-events-none"
         )}
       >
-        <div className="flex items-start justify-between border-b border-zinc-800 px-6 py-5">
+        <div className="flex items-start justify-between border-b px-6 py-5">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className={cn("border-0", priorityBadgeClass(task.priority))}>
@@ -199,8 +199,8 @@ export function TaskDetailsPanel({
                 {statusLabel(task.status)}
               </Badge>
             </div>
-            <div className="text-lg font-medium text-zinc-100">{task.title}</div>
-            <div className="text-sm text-zinc-400">
+            <div className="text-lg font-medium text-foreground">{task.title}</div>
+            <div className="text-sm text-muted-foreground">
               Deadline {formatDate(task.deadline)} • Projet {task.project || "—"}
             </div>
           </div>
@@ -208,7 +208,6 @@ export function TaskDetailsPanel({
             type="button"
             variant="ghost"
             size="icon"
-            className="text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
             onClick={onClose}
           >
             <X />
@@ -217,20 +216,20 @@ export function TaskDetailsPanel({
 
         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
           {task.description ? (
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 text-sm text-zinc-300">
+            <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-xs">
               {task.description}
             </div>
           ) : null}
 
           <section className="space-y-3">
-            <div className="text-sm font-medium text-zinc-100">Assignation</div>
+            <div className="text-sm font-medium text-foreground">Assignation</div>
             {assignableUsers.length ? (
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Select value={assigneeId} onValueChange={setAssigneeId}>
-                  <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-900/70 text-zinc-100 data-[placeholder]:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+                  <SelectTrigger className="h-9 w-full">
                     <SelectValue placeholder="Assigner à..." />
                   </SelectTrigger>
-                  <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+                  <SelectContent>
                     <SelectItem value="none" disabled>
                       Assigner à...
                     </SelectItem>
@@ -244,27 +243,27 @@ export function TaskDetailsPanel({
                 <Button
                   type="button"
                   disabled={isAssigning || assigneeId === "none"}
-                  className="h-10 bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
+                  className="h-9"
                   onClick={() => void handleAssign()}
                 >
                   {isAssigning ? "Assignation..." : "Assigner"}
                 </Button>
               </div>
             ) : (
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 text-sm text-zinc-400">
+              <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-xs">
                 Aucun membre disponible pour assigner cette tâche.
               </div>
             )}
           </section>
 
           {error ? (
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 text-sm text-zinc-300">
+            <div className="rounded-lg border bg-card p-4 text-sm text-destructive shadow-xs">
               {error}
             </div>
           ) : null}
 
           <section className="space-y-3">
-            <div className="text-sm font-medium text-zinc-100">Tags</div>
+            <div className="text-sm font-medium text-foreground">Tags</div>
             <div className="flex flex-wrap gap-2">
               {tags.length ? (
                 tags.map((tag) => (
@@ -280,7 +279,7 @@ export function TaskDetailsPanel({
                   </button>
                 ))
               ) : (
-                <div className="text-sm text-zinc-500">Aucun tag</div>
+                <div className="text-sm text-muted-foreground">Aucun tag</div>
               )}
             </div>
             <form onSubmit={handleAddTag} className="flex flex-col gap-3 sm:flex-row">
@@ -288,9 +287,8 @@ export function TaskDetailsPanel({
                 value={tagName}
                 onChange={(e) => setTagName(e.target.value)}
                 placeholder="Nom du tag"
-                className="h-10 border-zinc-800 bg-zinc-900/70 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
               />
-              <label className="flex h-10 w-full items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/70 px-3 text-sm text-zinc-300 sm:w-36">
+              <label className="flex h-9 w-full items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-xs sm:w-36">
                 <span>Couleur</span>
                 <input
                   value={tagColor}
@@ -302,7 +300,6 @@ export function TaskDetailsPanel({
               <Button
                 type="submit"
                 disabled={isSubmittingTag || !tagName.trim()}
-                className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
               >
                 {isSubmittingTag ? "Ajout..." : "Ajouter"}
               </Button>
@@ -310,22 +307,22 @@ export function TaskDetailsPanel({
           </section>
 
           <section className="space-y-4">
-            <div className="text-sm font-medium text-zinc-100">Commentaires</div>
+            <div className="text-sm font-medium text-foreground">Commentaires</div>
             <form onSubmit={handleCommentSubmit} className="space-y-3">
               <div className="relative">
                 <textarea
                   value={commentContent}
                   onChange={(e) => setCommentContent(e.target.value)}
                   placeholder="Écrire un commentaire. Tapez @ pour mentionner quelqu’un."
-                  className="min-h-28 w-full resize-none rounded-xl border border-zinc-800 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus-visible:ring-2 focus-visible:ring-zinc-700/40"
+                  className="min-h-28 w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 />
                 {mentionQuery != null && filteredMentionUsers.length ? (
-                  <div className="absolute left-0 right-0 top-full z-10 mt-2 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-xl">
+                  <div className="absolute left-0 right-0 top-full z-10 mt-2 overflow-hidden rounded-lg border bg-popover shadow-md">
                     {filteredMentionUsers.slice(0, 6).map((user) => (
                       <button
                         key={user.id}
                         type="button"
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-200 transition-colors hover:bg-zinc-900"
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-accent"
                         onClick={() => setCommentContent((prev) => applyMention(prev, user.label))}
                       >
                         <Avatar className="size-7">
@@ -341,7 +338,6 @@ export function TaskDetailsPanel({
                 <Button
                   type="submit"
                   disabled={isSubmittingComment || !commentContent.trim()}
-                  className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
                 >
                   <Send />
                   {isSubmittingComment ? "Envoi..." : "Commenter"}
@@ -351,14 +347,14 @@ export function TaskDetailsPanel({
 
             <div className="space-y-3">
               {isLoading ? (
-                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 text-sm text-zinc-400">
+                <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-xs">
                   Chargement...
                 </div>
               ) : comments.length ? (
                 comments.map((comment) => (
                   <div
                     key={String(comment.id)}
-                    className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4"
+                    className="rounded-lg border bg-card p-4 shadow-xs"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
@@ -368,10 +364,10 @@ export function TaskDetailsPanel({
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="text-sm font-medium text-zinc-100">
+                          <div className="text-sm font-medium text-foreground">
                             {getAuthorName(comment)}
                           </div>
-                          <div className="text-xs text-zinc-500">
+                          <div className="text-xs text-muted-foreground">
                             {formatDate(comment.created_at)}
                           </div>
                         </div>
@@ -380,20 +376,19 @@ export function TaskDetailsPanel({
                         <Button
                           type="button"
                           variant="ghost"
-                          className="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
                           onClick={() => void deleteComment(comment.id)}
                         >
                           Supprimer
                         </Button>
                       ) : null}
                     </div>
-                    <div className="mt-3 whitespace-pre-wrap text-sm text-zinc-300">
+                    <div className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
                       {comment.content}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 text-sm text-zinc-400">
+                <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-xs">
                   Aucun commentaire pour le moment.
                 </div>
               )}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
-import { Plus } from "lucide-react"
+import { LayoutGrid, LayoutList, Plus } from "lucide-react"
 
+import { TaskBoard } from "@/components/tasks/TaskBoard"
 import { TaskDetailsPanel } from "@/components/tasks/TaskDetailsPanel"
 import { TaskFilters } from "@/components/tasks/TaskFilters"
 import type {
@@ -9,6 +10,7 @@ import type {
 } from "@/components/tasks/TaskFilters"
 import { TaskForm } from "@/components/tasks/TaskForm"
 import { TaskList } from "@/components/tasks/TaskList"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -52,6 +54,7 @@ export default function Tasks() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createErrors, setCreateErrors] = useState<ApiValidationErrors | null>(null)
   const [editErrors, setEditErrors] = useState<ApiValidationErrors | null>(null)
+  const [view, setView] = useState<"list" | "board">("list")
 
   const remainingCount = useMemo(() => {
     return tasks.filter((t) => t.status !== "done").length
@@ -155,18 +158,53 @@ export default function Tasks() {
     }
   }
 
+  async function handleMoveTask(task: Task, status: Task["status"]) {
+    const updated = await updateTask(task.id, {
+      title: task.title,
+      description: task.description ?? "",
+      priority: task.priority,
+      deadline: task.deadline ?? null,
+      project_id: task.project_id ?? "",
+      status,
+    })
+
+    if (updated) {
+      replaceTask(updated)
+      setSelectedTask((prev) => (prev && prev.id === task.id ? updated : prev))
+    }
+  }
+
   return (
-    <div className="h-full rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <div className="truncate text-sm font-medium text-zinc-100">
-              Tâches
-            </div>
-            <div className="truncate text-xs text-zinc-400">
-              {remainingCount} tâche{remainingCount > 1 ? "s" : ""} restante
-              {remainingCount > 1 ? "s" : ""}
-            </div>
+    <div className="h-full w-full">
+      <div className="page-header">
+        <div className="min-w-0">
+          <div className="page-title">Tâches</div>
+          <div className="page-subtitle">
+            {remainingCount} tâche{remainingCount > 1 ? "s" : ""} restante
+            {remainingCount > 1 ? "s" : ""}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center rounded-md border bg-card p-1 shadow-xs">
+            <Button
+              type="button"
+              variant={view === "list" ? "secondary" : "ghost"}
+              size="xs"
+              onClick={() => setView("list")}
+            >
+              <LayoutList className="size-4" />
+              Liste
+            </Button>
+            <Button
+              type="button"
+              variant={view === "board" ? "secondary" : "ghost"}
+              size="xs"
+              onClick={() => setView("board")}
+            >
+              <LayoutGrid className="size-4" />
+              Board
+            </Button>
           </div>
 
           <Dialog
@@ -177,17 +215,17 @@ export default function Tasks() {
             }}
           >
             <DialogTrigger asChild>
-              <Button className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90">
-                <Plus />
+              <Button>
+                <Plus className="size-4" />
                 Nouvelle tâche
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg bg-zinc-900 text-zinc-100 ring-zinc-800">
+            <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle>Nouvelle tâche</DialogTitle>
               </DialogHeader>
               <TaskForm
-              projects={projects}
+                projects={projects}
                 isSubmitting={isSubmitting}
                 errors={createErrors}
                 onCancel={() => setIsCreateOpen(false)}
@@ -196,19 +234,35 @@ export default function Tasks() {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
+
+      <div className="page-section space-y-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge variant="secondary">{tasks.length} total</Badge>
+          <Badge variant="outline">{remainingCount} restantes</Badge>
+        </div>
 
         <TaskFilters value={filters} onChange={setFilters} />
 
         {error ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200">
+          <div className="panel-muted text-destructive">
             {error}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+          <div className="empty-state">
             Chargement...
           </div>
+        ) : view === "board" ? (
+          <TaskBoard
+            tasks={filteredTasks}
+            onMove={(task, status) => void handleMoveTask(task, status)}
+            onToggle={(id) => void toggleTask(id)}
+            onDelete={(id) => void deleteTask(id)}
+            onEdit={(task) => setEditingTask(task)}
+            onOpenDetails={(task) => setSelectedTask(task)}
+          />
         ) : (
           <TaskList
             tasks={filteredTasks}
@@ -226,7 +280,7 @@ export default function Tasks() {
             if (open) setEditErrors(null)
           }}
         >
-          <DialogContent className="max-w-lg bg-zinc-900 text-zinc-100 ring-zinc-800">
+          <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>Modifier la tâche</DialogTitle>
             </DialogHeader>
@@ -241,6 +295,7 @@ export default function Tasks() {
           </DialogContent>
         </Dialog>
       </div>
+
       <TaskDetailsPanel
         task={selectedTask}
         open={!!selectedTask}

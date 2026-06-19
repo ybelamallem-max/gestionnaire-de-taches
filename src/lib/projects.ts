@@ -7,9 +7,9 @@ export function projectStatusLabel(status: ProjectStatus) {
 }
 
 export function projectStatusBadgeClass(status: ProjectStatus) {
-  if (status === "completed") return "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/25"
-  if (status === "archived") return "bg-zinc-500/15 text-zinc-200 ring-1 ring-zinc-500/25"
-  return "bg-sky-500/15 text-sky-300 ring-1 ring-sky-500/25"
+  if (status === "completed") return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+  if (status === "archived") return "bg-secondary text-secondary-foreground"
+  return "bg-amber-500/10 text-amber-700 dark:text-amber-300"
 }
 
 export function getProjectProgress(project: Project) {

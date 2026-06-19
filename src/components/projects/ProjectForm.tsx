@@ -79,7 +79,7 @@ export function ProjectForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <label htmlFor="project-name" className="text-xs font-medium text-zinc-300">
+        <label htmlFor="project-name" className="text-xs font-medium text-muted-foreground">
           Nom
         </label>
         <Input
@@ -87,7 +87,6 @@ export function ProjectForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nom du projet"
-          className="h-10 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
         />
         <FieldError errors={errors?.name} />
       </div>
@@ -95,7 +94,7 @@ export function ProjectForm({
       <div className="space-y-1.5">
         <label
           htmlFor="project-description"
-          className="text-xs font-medium text-zinc-300"
+          className="text-xs font-medium text-muted-foreground"
         >
           Description
         </label>
@@ -104,19 +103,19 @@ export function ProjectForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Description (optionnel)"
-          className="min-h-24 w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus-visible:ring-2 focus-visible:ring-zinc-700/40"
+          className="min-h-24 w-full resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
         />
         <FieldError errors={errors?.description} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <div className="text-xs font-medium text-zinc-300">Statut</div>
+          <div className="text-xs font-medium text-muted-foreground">Statut</div>
           <Select value={status} onValueChange={(value) => setStatus(value as ProjectStatus)}>
-            <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+            <SelectTrigger className="h-9 w-full">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+            <SelectContent>
               <SelectItem value="active">Actif</SelectItem>
               <SelectItem value="completed">Terminé</SelectItem>
               <SelectItem value="archived">Archivé</SelectItem>
@@ -126,19 +125,19 @@ export function ProjectForm({
         </div>
 
         <div className="space-y-1.5">
-          <div className="text-xs font-medium text-zinc-300">Deadline</div>
+          <div className="text-xs font-medium text-muted-foreground">Deadline</div>
           <DatePickerField value={deadline} onChange={setDeadline} />
           <FieldError errors={errors?.deadline} />
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <div className="text-xs font-medium text-zinc-300">Équipe</div>
+        <div className="text-xs font-medium text-muted-foreground">Équipe</div>
         <Select value={teamId} onValueChange={setTeamId}>
-          <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+          <SelectTrigger className="h-9 w-full">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+          <SelectContent>
             <SelectItem value="none" disabled>
               Choisir une équipe
             </SelectItem>
@@ -156,7 +155,6 @@ export function ProjectForm({
         <Button
           type="button"
           variant="outline"
-          className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
           onClick={onCancel}
           disabled={isSubmitting}
         >
@@ -165,7 +163,6 @@ export function ProjectForm({
         <Button
           type="submit"
           disabled={isDisabled}
-          className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
         >
           {isSubmitting ? "Enregistrement..." : "Enregistrer"}
         </Button>

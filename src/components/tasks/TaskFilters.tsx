@@ -22,19 +22,19 @@ type TaskFiltersProps = {
 
 export function TaskFilters({ value, onChange }: TaskFiltersProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <div className="flex flex-1 flex-col gap-1.5">
-        <div className="text-xs font-medium text-zinc-300">Statut</div>
+        <div className="text-xs font-medium text-muted-foreground">Statut</div>
         <Select
           value={value.status}
           onValueChange={(v) =>
             onChange({ ...value, status: v as TaskStatusFilter })
           }
         >
-          <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 data-[placeholder]:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+          <SelectTrigger className="h-9 w-full">
             <SelectValue placeholder="Toutes" />
           </SelectTrigger>
-          <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+          <SelectContent>
             <SelectItem value="toutes">Toutes</SelectItem>
             <SelectItem value="todo">À faire</SelectItem>
             <SelectItem value="in_progress">En cours</SelectItem>
@@ -44,17 +44,17 @@ export function TaskFilters({ value, onChange }: TaskFiltersProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-1.5">
-        <div className="text-xs font-medium text-zinc-300">Priorité</div>
+        <div className="text-xs font-medium text-muted-foreground">Priorité</div>
         <Select
           value={value.priority}
           onValueChange={(v) =>
             onChange({ ...value, priority: v as TaskPriorityFilter })
           }
         >
-          <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 data-[placeholder]:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+          <SelectTrigger className="h-9 w-full">
             <SelectValue placeholder="Toutes" />
           </SelectTrigger>
-          <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
+          <SelectContent>
             <SelectItem value="toutes">Toutes</SelectItem>
             <SelectItem value="low">Faible</SelectItem>
             <SelectItem value="medium">Moyenne</SelectItem>

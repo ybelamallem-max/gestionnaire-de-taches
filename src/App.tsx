@@ -1,4 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout"
+import { ThemeProvider } from "@/components/layout/theme-provider"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import AdminUsers from "@/pages/Admin/Users"
@@ -13,7 +14,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 export default function App() {
   return (
     <TooltipProvider>
-      <div className="theme">
+      <ThemeProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -32,7 +33,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
-      </div>
+      </ThemeProvider>
     </TooltipProvider>
   )
 }

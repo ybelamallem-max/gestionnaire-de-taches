@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import type { ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -26,6 +27,7 @@ type TeamMembersDialogProps = {
   onAddMember: (teamId: Team["id"], payload: { user_id: string; role: TeamRole }) => Promise<void>
   onUpdateRole: (teamId: Team["id"], userId: string | number, role: TeamRole) => Promise<void>
   onRemoveMember: (teamId: Team["id"], userId: string | number) => Promise<void>
+  trigger?: ReactNode
 }
 
 function getMemberName(member: TeamMember) {
@@ -41,6 +43,7 @@ export function TeamMembersDialog({
   onAddMember,
   onUpdateRole,
   onRemoveMember,
+  trigger,
 }: TeamMembersDialogProps) {
   const [open, setOpen] = useState(false)
   const [userId, setUserId] = useState("")
@@ -69,15 +72,13 @@ export function TeamMembersDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
-        >
-          Membres
-        </Button>
+        {trigger ?? (
+          <Button type="button" variant="outline">
+            Membres
+          </Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl bg-zinc-900 text-zinc-100 ring-zinc-800">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Membres de {team.name}</DialogTitle>
         </DialogHeader>
@@ -89,20 +90,19 @@ export function TeamMembersDialog({
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 placeholder="ID utilisateur"
-                className="h-10 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-700/40"
               />
               <FieldError errors={fieldErrors?.user_id} />
             </div>
             <div className="space-y-1">
               <Select value={role} onValueChange={(value) => setRole(value as TeamRole)}>
-                <SelectTrigger className="h-10 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 focus-visible:ring-2 focus-visible:ring-zinc-700/40">
+                <SelectTrigger className="h-9 w-full">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
-                  <SelectItem value="member">Member</SelectItem>
+                <SelectContent>
+                  <SelectItem value="member">Membre</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="owner" disabled>
-                    Owner
+                    Propriétaire
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -111,7 +111,6 @@ export function TeamMembersDialog({
             <Button
               type="submit"
               disabled={isSubmitting || !userId.trim()}
-              className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
             >
               {isSubmitting ? "Ajout..." : "Ajouter"}
             </Button>
@@ -124,13 +123,13 @@ export function TeamMembersDialog({
                 return (
                   <div
                     key={getMemberKey(member)}
-                    className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-950/40 p-4 md:flex-row md:items-center md:justify-between"
+                    className="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-xs md:flex-row md:items-center md:justify-between"
                   >
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-zinc-100">
+                      <div className="truncate text-sm font-medium text-foreground">
                         {getMemberName(member)}
                       </div>
-                      <div className="truncate text-xs text-zinc-400">
+                      <div className="truncate text-xs text-muted-foreground">
                         {member.user?.email || member.email || "Aucun email"}
                       </div>
                     </div>
@@ -145,21 +144,20 @@ export function TeamMembersDialog({
                         }
                         disabled={member.role === "owner"}
                       >
-                        <SelectTrigger className="h-9 w-full border-zinc-800 bg-zinc-950/40 text-zinc-100 sm:w-36">
+                        <SelectTrigger className="h-9 w-full sm:w-36">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border border-zinc-800 bg-zinc-950 text-zinc-100">
-                          <SelectItem value="member">Member</SelectItem>
+                        <SelectContent>
+                          <SelectItem value="member">Membre</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="owner" disabled>
-                            Owner
+                            Propriétaire
                           </SelectItem>
                         </SelectContent>
                       </Select>
                       <Button
                         type="button"
                         variant="destructive"
-                        className="bg-destructive/15 text-destructive hover:bg-destructive/25"
                         disabled={memberId == null}
                         onClick={() =>
                           memberId != null ? void onRemoveMember(team.id, memberId) : undefined
@@ -173,7 +171,7 @@ export function TeamMembersDialog({
               })}
             </div>
           ) : (
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4 text-sm text-zinc-400">
+            <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-xs">
               Aucun membre dans cette équipe.
             </div>
           )}

@@ -1,5 +1,5 @@
 import type { Task } from "@/hooks/useTasks"
-import { TaskCard } from "@/components/tasks/TaskCard"
+import { TaskLine } from "@/components/tasks/TaskLine"
 
 type TaskListProps = {
   tasks: Task[]
@@ -17,25 +17,31 @@ export function TaskList({
   onOpenDetails,
 }: TaskListProps) {
   if (!tasks.length) {
-    return (
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
-        Aucune tâche pour le moment.
-      </div>
-    )
+    return <div className="empty-state">Aucune tâche pour le moment.</div>
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4">
-      {tasks.map((task) => (
-        <TaskCard
-          key={String(task.id)}
-          task={task}
-          onToggle={onToggle}
-          onDelete={onDelete}
-          onEdit={onEdit}
-          onOpenDetails={onOpenDetails}
-        />
-      ))}
+    <div className="list-shell">
+      <div className="hidden items-center gap-3 border-b px-6 py-2 text-[11px] uppercase tracking-wide text-muted-foreground sm:flex">
+        <span className="w-7 shrink-0" />
+        <span className="min-w-0 flex-1">Tâche</span>
+        <span className="w-[120px] shrink-0">Projet</span>
+        <span className="w-14 shrink-0 text-right">Deadline</span>
+        <span className="w-6 shrink-0" />
+        <span className="w-7 shrink-0" />
+      </div>
+      <div className="divide-y">
+        {tasks.map((task) => (
+          <TaskLine
+            key={String(task.id)}
+            task={task}
+            onToggle={onToggle}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            onOpenDetails={onOpenDetails}
+          />
+        ))}
+      </div>
     </div>
   )
 }

@@ -53,6 +53,10 @@ export type TaskUpsertPayload = {
   project_id: string | number
 }
 
+export type TaskUpdatePayload = Partial<TaskUpsertPayload> & {
+  status?: TaskStatus
+}
+
 function normalizeTask(task: ApiTask): Task {
   return {
     id: task.id,
@@ -117,13 +121,12 @@ export function useTasks() {
   )
 
   const updateTask = useCallback(
-    async (id: Task["id"], payload: TaskUpsertPayload) => {
+    async (id: Task["id"], payload: TaskUpdatePayload) => {
       setError(null)
       try {
         const res = await api.put<{ task: ApiTask }>(`/tasks/${id}`, payload)
         const updated = res.data.task ? normalizeTask(res.data.task) : null
         if (updated?.id != null) setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
-        await refresh()
         return updated
       } catch (err: unknown) {
         const message =
@@ -134,7 +137,7 @@ export function useTasks() {
         throw err
       }
     },
-    [refresh]
+    []
   )
 
   const deleteTask = useCallback(async (id: Task["id"]) => {
@@ -159,7 +162,6 @@ export function useTasks() {
         const res = await api.patch<{ task: ApiTask }>(`/tasks/${id}/toggle`)
         const updated = res.data.task ? normalizeTask(res.data.task) : null
         if (updated?.id != null) setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
-        await refresh()
         return updated
       } catch (err: unknown) {
         const message =
@@ -170,7 +172,7 @@ export function useTasks() {
         throw err
       }
     },
-    [refresh]
+    []
   )
 
   const assignTask = useCallback(

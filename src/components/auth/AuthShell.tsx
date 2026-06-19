@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom"
-import { CheckCircle2, Sparkles, Timer } from "lucide-react"
+import { BriefcaseBusiness, KeyRound, ShieldCheck } from "lucide-react"
 import type { ComponentType, ReactNode } from "react"
 
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { cn } from "@/lib/utils"
 
 type AuthShellProps = {
@@ -18,93 +19,116 @@ export function AuthShell({
   children,
 }: AuthShellProps) {
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-zinc-950 text-zinc-100">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(63,63,70,0.28),transparent_55%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(63,63,70,0.18),transparent_55%)]" />
-
-      <div className="relative mx-auto grid min-h-dvh max-w-5xl items-stretch px-4 py-10 md:grid-cols-2 md:gap-8">
-        <div className="hidden md:flex">
-          <div className="relative w-full overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_10%,rgba(39,39,42,0.55),transparent_55%)]" />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(24,24,27,0.5),transparent_30%,rgba(9,9,11,1))]" />
-
-            <div className="relative flex h-full flex-col p-7">
-              <div className="flex items-center gap-3">
-                <div className="relative size-11 rounded-2xl border border-zinc-800 bg-zinc-900/70">
-                  <div className="absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-100" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-zinc-100">
-                    Task Manager
-                  </div>
-                  <div className="text-sm text-zinc-400">
-                    Interface sombre inspirée de Linear
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <div className="text-2xl font-semibold tracking-tight">
-                  Une base UI propre, rapide et lisible.
-                </div>
-                <div className="mt-2 max-w-sm text-sm text-zinc-400">
-                  Auth frontend uniquement, prêt à être connecté au backend.
-                </div>
-              </div>
-
-              <div className="mt-8 space-y-3">
-                <Feature
-                  title="Clair et dense"
-                  description="Grille, espacements, contrastes et bordures subtiles."
-                  icon={Sparkles}
-                />
-                <Feature
-                  title="Prêt pour la prod"
-                  description="Layouts cohérents, composants shadcn/ui, routing."
-                  icon={CheckCircle2}
-                />
-                <Feature
-                  title="Rapide"
-                  description="Vite + React + Tailwind pour itérer sans friction."
-                  icon={Timer}
-                />
-              </div>
-
-              <div className="mt-auto pt-8 text-xs text-zinc-500">
-                © {new Date().getFullYear()} Task Manager
-              </div>
+    <div className="min-h-dvh bg-background text-foreground">
+      <div className="mx-auto flex min-h-dvh max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex size-8 items-center justify-center rounded-md border bg-card">
+              <div className="size-2 rounded-full bg-foreground/80" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold">Gestionnaire de tâches</div>
+              <div className="text-xs text-muted-foreground">{subtitle}</div>
             </div>
           </div>
+          <ThemeToggle />
         </div>
 
-        <div className="flex items-center">
-          <div className="w-full">
-            <div className="mb-7 flex items-center justify-between">
-              <div className="md:hidden">
-                <div className="text-sm font-medium text-zinc-100">
-                  Task Manager
+        <div className="flex flex-1 items-center justify-center">
+          <div className="grid w-full max-w-6xl items-stretch gap-6 lg:grid-cols-[minmax(0,1.2fr)_460px]">
+            <div className="hidden lg:flex">
+              <div className="flex w-full flex-col rounded-lg border bg-container shadow-xs">
+                <div className="page-header-compact border-b">
+                  <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+                    <span>Portail</span>
+                    <span>/</span>
+                    <span className="font-medium text-foreground">Accès sécurisé</span>
+                  </div>
                 </div>
-                <div className="text-sm text-zinc-400">{subtitle}</div>
-              </div>
 
-              <div className="hidden md:block">
-                <div className="text-sm font-medium text-zinc-100">{title}</div>
-                <div className="text-sm text-zinc-400">{subtitle}</div>
-              </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <div className="max-w-xl">
+                    <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                      Gestion interne
+                    </div>
+                    <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
+                      Accès à l’espace de travail
+                    </h1>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      Connectez-vous pour retrouver vos tâches, vos projets, vos équipes et vos notifications
+                      dans une interface unifiée.
+                    </p>
+                  </div>
 
-              {switchLink ? (
-                <Link
-                  to={switchLink.to}
-                  className="text-sm text-zinc-400 underline underline-offset-4 hover:text-zinc-100"
-                >
-                  {switchLink.label}
-                </Link>
-              ) : null}
+                  <div className="mt-8 grid gap-4 xl:grid-cols-3">
+                    <Feature
+                      title="Organisation"
+                      description="Suivi centralisé des tâches, équipes et projets."
+                      icon={BriefcaseBusiness}
+                    />
+                    <Feature
+                      title="Sécurité"
+                      description="Accès réservé aux comptes autorisés de l’application."
+                      icon={ShieldCheck}
+                    />
+                    <Feature
+                      title="Connexion"
+                      description="Authentification directe sur votre backend Laravel."
+                      icon={KeyRound}
+                    />
+                    </div>
+
+                  <div className="mt-8 rounded-lg border bg-card p-5 shadow-xs">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <div className="text-sm font-semibold">Environnement de travail</div>
+                        <div className="mt-1 text-sm text-muted-foreground">
+                          Utilisez vos identifiants professionnels pour accéder à votre espace.
+                        </div>
+                      </div>
+                      <div className="hidden rounded-md border bg-background px-3 py-2 text-xs text-muted-foreground xl:block">
+                        Support interne
+                      </div>
+                    </div>
+
+                    <div className="mt-5 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
+                      <div className="rounded-md border bg-background px-4 py-3">
+                        Vue dédiée au suivi quotidien et à la coordination des équipes.
+                      </div>
+                      <div className="rounded-md border bg-background px-4 py-3">
+                        Interface sobre, cohérente avec le reste de l’application.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-auto pt-8 text-xs text-muted-foreground">
+                    © {new Date().getFullYear()} Gestionnaire de tâches
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="relative rounded-3xl bg-gradient-to-b from-zinc-700/25 via-zinc-800/10 to-transparent p-[1px]">
-              <div className="rounded-3xl border border-zinc-800/70 bg-zinc-900/55 shadow-[0_30px_80px_-45px_rgba(0,0,0,0.9)] backdrop-blur">
-                {children}
+            <div className="flex items-center justify-center">
+              <div className="w-full max-w-xl">
+                <div className="mb-5 flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold">{title}</div>
+                    <div className="text-sm text-muted-foreground">{subtitle}</div>
+                  </div>
+
+                  {switchLink ? (
+                    <Link
+                      to={switchLink.to}
+                      className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+                    >
+                      {switchLink.label}
+                    </Link>
+                  ) : null}
+                </div>
+
+                <div className="rounded-lg border bg-card shadow-xs">
+                  {children}
+                </div>
               </div>
             </div>
           </div>
@@ -124,13 +148,13 @@ function Feature({
   icon: ComponentType<{ className?: string }>
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/30 p-4">
-      <div className="mt-0.5 flex size-8 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950">
-        <Icon className={cn("size-4 text-zinc-200")} />
+    <div className="flex items-start gap-3 rounded-lg border bg-card p-4 shadow-xs">
+      <div className="mt-0.5 flex size-8 items-center justify-center rounded-md border bg-background">
+        <Icon className={cn("size-4 text-foreground")} />
       </div>
       <div>
-        <div className="text-sm font-medium text-zinc-100">{title}</div>
-        <div className="mt-0.5 text-sm text-zinc-400">{description}</div>
+        <div className="text-sm font-medium text-foreground">{title}</div>
+        <div className="mt-0.5 text-sm text-muted-foreground">{description}</div>
       </div>
     </div>
   )

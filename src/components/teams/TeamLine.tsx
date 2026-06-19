@@ -54,7 +54,7 @@ export function TeamLine({
               type="button"
               variant="ghost"
               size="icon"
-              className="size-7 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+              className="size-7 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
             >
               <MoreHorizontal className="size-4" />
             </Button>

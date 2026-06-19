@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { Plus } from "lucide-react"
 
-import { ProjectCard } from "@/components/projects/ProjectCard"
 import { ProjectForm } from "@/components/projects/ProjectForm"
+import { ProjectLine } from "@/components/projects/ProjectLine"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -56,58 +57,62 @@ export default function Projects() {
   }
 
   return (
-    <div className="h-full rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="text-sm font-medium text-zinc-100">Projets</div>
-            <div className="text-xs text-zinc-400">
-              {projects.length} projet{projects.length > 1 ? "s" : ""}
-            </div>
+    <div className="h-full">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Projets</div>
+          <div className="page-subtitle">
+            {projects.length} projet{projects.length > 1 ? "s" : ""}
           </div>
+        </div>
 
-          <Dialog
-            open={isCreateOpen}
-            onOpenChange={(open) => {
-              setIsCreateOpen(open)
-              if (open) setCreateErrors(null)
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90">
-                <Plus />
-                Nouveau projet
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg bg-zinc-900 text-zinc-100 ring-zinc-800">
-              <DialogHeader>
-                <DialogTitle>Nouveau projet</DialogTitle>
-              </DialogHeader>
-              <ProjectForm
-                teams={teams}
-                isSubmitting={isSubmitting}
-                errors={createErrors}
-                onCancel={() => setIsCreateOpen(false)}
-                onSubmit={handleCreate}
-              />
-            </DialogContent>
-          </Dialog>
+        <Dialog
+          open={isCreateOpen}
+          onOpenChange={(open) => {
+            setIsCreateOpen(open)
+            if (open) setCreateErrors(null)
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="size-4" />
+              Nouveau projet
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Nouveau projet</DialogTitle>
+            </DialogHeader>
+            <ProjectForm
+              teams={teams}
+              isSubmitting={isSubmitting}
+              errors={createErrors}
+              onCancel={() => setIsCreateOpen(false)}
+              onSubmit={handleCreate}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="page-section space-y-5">
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">{projects.length} total</Badge>
         </div>
 
         {error ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200">
+          <div className="panel-muted text-destructive">
             {error}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+          <div className="empty-state">
             Chargement...
           </div>
         ) : projects.length ? (
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="list-shell divide-y">
             {projects.map((project) => (
-              <ProjectCard
+              <ProjectLine
                 key={String(project.id)}
                 project={project}
                 onEdit={setEditingProject}
@@ -116,7 +121,7 @@ export default function Projects() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+          <div className="empty-state">
             Aucun projet pour le moment.
           </div>
         )}
@@ -128,7 +133,7 @@ export default function Projects() {
             if (open) setEditErrors(null)
           }}
         >
-          <DialogContent className="max-w-lg bg-zinc-900 text-zinc-100 ring-zinc-800">
+          <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>Modifier le projet</DialogTitle>
             </DialogHeader>
