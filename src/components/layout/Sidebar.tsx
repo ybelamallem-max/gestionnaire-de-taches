@@ -1,13 +1,15 @@
 import {
   Bell,
+  ChevronDown,
   FolderKanban,
   LayoutDashboard,
   Shield,
+  User,
   Users,
   CheckSquare2,
 } from "lucide-react"
 import type { ComponentType } from "react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { NavLink } from "react-router-dom"
 
 import { useAuthStore } from "@/stores/authStore"
@@ -28,8 +30,6 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/" },
-  { key: "tasks", label: "Tâches", icon: CheckSquare2, to: "/tasks" },
-  { key: "projects", label: "Projets", icon: FolderKanban, to: "/projects" },
   { key: "teams", label: "Équipes", icon: Users, to: "/teams" },
   { key: "notifications", label: "Notifications", icon: Bell, to: "/notifications" },
   { key: "admin", label: "Admin", icon: Shield, to: "/admin/users" },
@@ -39,6 +39,7 @@ export function Sidebar() {
   const currentUser = useAuthStore((s) => s.user)
   const unreadCount = useNotificationsStore(selectUnreadCount)
   const fetchNotifications = useNotificationsStore((s) => s.fetchNotifications)
+  const [openAccordion, setOpenAccordion] = useState<"tasks" | "projects" | null>(null)
 
   useEffect(() => {
     void fetchNotifications()
@@ -83,6 +84,133 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 px-3 py-2">
+        {/* Dashboard */}
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            cn(
+              "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
+              "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+            )
+          }
+        >
+          <LayoutDashboard className="size-4 shrink-0" />
+          <span className="min-w-0 flex-1 truncate">Dashboard</span>
+        </NavLink>
+
+        {/* Tâches Accordion */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setOpenAccordion(openAccordion === "tasks" ? null : "tasks")}
+            className={cn(
+              "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-left text-sm transition-colors",
+              "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            )}
+          >
+            <CheckSquare2 className="size-4 shrink-0" />
+            <span className="min-w-0 flex-1 truncate">Tâches</span>
+            <ChevronDown
+              className={cn(
+                "size-4 shrink-0 transition-transform duration-200",
+                openAccordion === "tasks" && "rotate-180"
+              )}
+            />
+          </button>
+          <div
+            className={cn(
+              "overflow-hidden transition-all duration-200",
+              openAccordion === "tasks" ? "max-h-40" : "max-h-0"
+            )}
+          >
+            <div className="flex flex-col gap-1 py-1 pl-6">
+              <NavLink
+                to="/tasks/me"
+                className={({ isActive }) =>
+                  cn(
+                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
+                    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                  )
+                }
+              >
+                <User className="size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">Mes tâches</span>
+              </NavLink>
+              <NavLink
+                to="/tasks/team"
+                className={({ isActive }) =>
+                  cn(
+                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
+                    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                  )
+                }
+              >
+                <Users className="size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">Tâches équipe</span>
+              </NavLink>
+            </div>
+          </div>
+        </div>
+
+        {/* Projets Accordion */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setOpenAccordion(openAccordion === "projects" ? null : "projects")}
+            className={cn(
+              "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-left text-sm transition-colors",
+              "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            )}
+          >
+            <FolderKanban className="size-4 shrink-0" />
+            <span className="min-w-0 flex-1 truncate">Projets</span>
+            <ChevronDown
+              className={cn(
+                "size-4 shrink-0 transition-transform duration-200",
+                openAccordion === "projects" && "rotate-180"
+              )}
+            />
+          </button>
+          <div
+            className={cn(
+              "overflow-hidden transition-all duration-200",
+              openAccordion === "projects" ? "max-h-40" : "max-h-0"
+            )}
+          >
+            <div className="flex flex-col gap-1 py-1 pl-6">
+              <NavLink
+                to="/projects/me"
+                className={({ isActive }) =>
+                  cn(
+                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
+                    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                  )
+                }
+              >
+                <User className="size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">Mes projets</span>
+              </NavLink>
+              <NavLink
+                to="/projects/team"
+                className={({ isActive }) =>
+                  cn(
+                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
+                    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                  )
+                }
+              >
+                <Users className="size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">Projets équipe</span>
+              </NavLink>
+            </div>
+          </div>
+        </div>
+
         {visibleItems.map((item) => {
           const Icon = item.icon
 

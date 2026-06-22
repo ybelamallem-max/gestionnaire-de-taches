@@ -21,8 +21,12 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route index element={<Dashboard />} />
-                <Route path="tasks" element={<Tasks />} />
-                <Route path="projects" element={<Projects />} />
+                <Route path="tasks" element={<Navigate to="/tasks/me" replace />} />
+                <Route path="tasks/me" element={<Tasks scope="me" />} />
+                <Route path="tasks/team" element={<Tasks scope="team" />} />
+                <Route path="projects" element={<Navigate to="/projects/me" replace />} />
+                <Route path="projects/me" element={<Projects scope="me" />} />
+                <Route path="projects/team" element={<Projects scope="team" />} />
                 <Route path="teams" element={<Teams />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route element={<ProtectedRoute requiredRole="admin" />}>

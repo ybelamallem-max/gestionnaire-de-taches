@@ -11,7 +11,7 @@ import type {
 import { normalizeProject } from "@/types/project"
 
 
-export function useProjects() {
+export function useProjects(scope?: "me" | "team") {
   const [projects, setProjects] = useState<Project[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -20,14 +20,15 @@ export function useProjects() {
     setIsLoading(true)
     setError(null)
     try {
-      const res = await api.get<{ projects: ApiProject[] }>("/projects")
+      const params = scope ? { scope } : {}
+      const res = await api.get<{ projects: ApiProject[] }>("/projects", { params })
       setProjects((res.data.projects ?? []).map(normalizeProject))
     } catch (err: unknown) {
       setError(getApiMessage(err, "Erreur lors du chargement des projets."))
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [scope])
 
   const createProject = useCallback(
     async (payload: ProjectPayload) => {

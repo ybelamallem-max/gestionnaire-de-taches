@@ -27,7 +27,11 @@ import type { ApiValidationErrors } from "@/services/apiErrors"
 import { getValidationErrors } from "@/services/apiErrors"
 import { useAuthStore } from "@/stores/authStore"
 
-export default function Tasks() {
+type TasksProps = {
+  scope?: "me" | "team"
+}
+
+export default function Tasks({ scope }: TasksProps) {
   const {
     tasks,
     isLoading,
@@ -38,7 +42,7 @@ export default function Tasks() {
     toggleTask,
     assignTask,
     replaceTask,
-  } = useTasks()
+  } = useTasks(scope)
   const { projects } = useProjects()
   const { teams } = useTeams()
   const currentUser = useAuthStore((state) => state.user)
@@ -171,7 +175,7 @@ export default function Tasks() {
     <div className="h-full w-full">
       <div className="page-header">
         <div className="min-w-0">
-          <div className="page-title">Tâches</div>
+          <div className="page-title">{scope === "me" ? "Mes tâches" : scope === "team" ? "Tâches équipe" : "Tâches"}</div>
           <div className="page-subtitle">
             {remainingCount} tâche{remainingCount > 1 ? "s" : ""} restante
             {remainingCount > 1 ? "s" : ""}

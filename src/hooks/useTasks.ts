@@ -15,7 +15,7 @@ import type {
 import { normalizeTask } from "@/types/task"
 
 
-export function useTasks() {
+export function useTasks(scope?: "me" | "team") {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -24,14 +24,15 @@ export function useTasks() {
     setIsLoading(true)
     setError(null)
     try {
-      const res = await api.get<{ tasks: ApiTask[] }>("/tasks")
+      const params = scope ? { scope } : {}
+      const res = await api.get<{ tasks: ApiTask[] }>("/tasks", { params })
       setTasks((res.data.tasks ?? []).map(normalizeTask))
     } catch (err: unknown) {
       setError(getApiMessage(err, "Erreur lors du chargement des tâches."))
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [scope])
 
   const replaceTask = useCallback((nextTask: Task) => {
     setTasks((prev) => prev.map((task) => (task.id === nextTask.id ? nextTask : task)))

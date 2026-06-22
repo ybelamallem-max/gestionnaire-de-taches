@@ -12,15 +12,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import type { Project, ProjectPayload } from "@/hooks/useProjects"
+import type { Project, ProjectPayload } from "@/types/project"
 import { useProjects } from "@/hooks/useProjects"
 import { useTeams } from "@/hooks/useTeams"
 import type { ApiValidationErrors } from "@/services/apiErrors"
 import { getValidationErrors } from "@/services/apiErrors"
 
-export default function Projects() {
+type ProjectsProps = {
+  scope?: "me" | "team"
+}
+
+export default function Projects({ scope }: ProjectsProps) {
   const { projects, isLoading, error, createProject, updateProject, deleteProject } =
-    useProjects()
+    useProjects(scope)
   const { teams } = useTeams()
 
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -60,7 +64,7 @@ export default function Projects() {
     <div className="h-full">
       <div className="page-header">
         <div>
-          <div className="page-title">Projets</div>
+          <div className="page-title">{scope === "me" ? "Mes projets" : scope === "team" ? "Projets équipe" : "Projets"}</div>
           <div className="page-subtitle">
             {projects.length} projet{projects.length > 1 ? "s" : ""}
           </div>
