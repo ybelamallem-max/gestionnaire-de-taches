@@ -47,7 +47,7 @@ export type TaskUpsertPayload = {
   priority?: TaskPriority
   status?: TaskStatus
   deadline?: string | null
-  project_id?: string | number | null
+  project_id?: string | number
 }
 
 export type TaskUpdatePayload = Partial<TaskUpsertPayload>

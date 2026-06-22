@@ -70,8 +70,7 @@ export default function Dashboard() {
               <CardTitle>Activité</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <div>Le tableau de bord reprend un rendu compact et neutre inspiré de Circle.</div>
-              <div>Les indicateurs restent branchés sur les mêmes hooks et les mêmes données.</div>
+              <div>Aucune activité récente.</div>
             </CardContent>
           </Card>
         </div>

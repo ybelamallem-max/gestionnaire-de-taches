@@ -31,7 +31,7 @@ export type ProjectPayload = {
   description?: string
   status?: ProjectStatus
   deadline?: string | null
-  team_id?: string | number
+  team_id?: string | number | null
 }
 
 export function normalizeProject(project: ApiProject): Project {

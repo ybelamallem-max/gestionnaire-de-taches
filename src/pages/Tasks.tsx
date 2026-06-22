@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import type { Task, TaskTag, TaskUpsertPayload } from "@/hooks/useTasks"
+import type { Task, TaskTag, TaskUpsertPayload } from "@/types/task"
 import { useProjects } from "@/hooks/useProjects"
 import { useTasks } from "@/hooks/useTasks"
 import { useTeams } from "@/hooks/useTeams"
@@ -159,14 +159,7 @@ export default function Tasks() {
   }
 
   async function handleMoveTask(task: Task, status: Task["status"]) {
-    const updated = await updateTask(task.id, {
-      title: task.title,
-      description: task.description ?? "",
-      priority: task.priority,
-      deadline: task.deadline ?? null,
-      project_id: task.project_id ?? "",
-      status,
-    })
+    const updated = await updateTask(task.id, { status })
 
     if (updated) {
       replaceTask(updated)
