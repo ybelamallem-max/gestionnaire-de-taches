@@ -1,5 +1,7 @@
 import { create } from "zustand"
 
+import type { AppRole } from "@/lib/roles"
+
 export type AuthUser = {
   id?: string | number
   name?: string
@@ -8,7 +10,7 @@ export type AuthUser = {
   birth_date?: string
   gender?: string
   avatar?: string
-  role?: "user" | "admin"
+  role?: AppRole
 }
 
 type AuthState = {

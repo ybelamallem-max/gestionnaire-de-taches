@@ -1,5 +1,6 @@
 import {
   Bell,
+  Eye,
   ChevronDown,
   FolderKanban,
   LayoutDashboard,
@@ -13,6 +14,7 @@ import { useEffect, useState } from "react"
 import { NavLink } from "react-router-dom"
 
 import { useAuthStore } from "@/stores/authStore"
+import { canViewAll } from "@/lib/roles"
 import { selectUnreadCount, useNotificationsStore } from "@/stores/notificationsStore"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
@@ -29,7 +31,6 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/" },
   { key: "teams", label: "Équipes", icon: Users, to: "/teams" },
   { key: "notifications", label: "Notifications", icon: Bell, to: "/notifications" },
   { key: "admin", label: "Admin", icon: Shield, to: "/admin/users" },
@@ -52,6 +53,8 @@ export function Sidebar() {
     if (item.key !== "notifications") return item
     return { ...item, badge: unreadCount > 0 ? String(unreadCount) : undefined }
   })
+
+  const showAllScope = canViewAll(currentUser?.role)
 
   return (
     <aside className="hidden h-svh w-[244px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
@@ -121,7 +124,7 @@ export function Sidebar() {
           <div
             className={cn(
               "overflow-hidden transition-all duration-200",
-              openAccordion === "tasks" ? "max-h-40" : "max-h-0"
+              openAccordion === "tasks" ? "max-h-52" : "max-h-0"
             )}
           >
             <div className="flex flex-col gap-1 py-1 pl-6">
@@ -151,6 +154,21 @@ export function Sidebar() {
                 <Users className="size-4 shrink-0" />
                 <span className="min-w-0 flex-1 truncate">Tâches équipe</span>
               </NavLink>
+              {showAllScope ? (
+                <NavLink
+                  to="/tasks/all"
+                  className={({ isActive }) =>
+                    cn(
+                      "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
+                      "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                    )
+                  }
+                >
+                  <Eye className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">Toutes les tâches</span>
+                </NavLink>
+              ) : null}
             </div>
           </div>
         </div>
@@ -177,7 +195,7 @@ export function Sidebar() {
           <div
             className={cn(
               "overflow-hidden transition-all duration-200",
-              openAccordion === "projects" ? "max-h-40" : "max-h-0"
+              openAccordion === "projects" ? "max-h-52" : "max-h-0"
             )}
           >
             <div className="flex flex-col gap-1 py-1 pl-6">
@@ -207,6 +225,21 @@ export function Sidebar() {
                 <Users className="size-4 shrink-0" />
                 <span className="min-w-0 flex-1 truncate">Projets équipe</span>
               </NavLink>
+              {showAllScope ? (
+                <NavLink
+                  to="/projects/all"
+                  className={({ isActive }) =>
+                    cn(
+                      "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
+                      "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                    )
+                  }
+                >
+                  <Eye className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">Tous les projets</span>
+                </NavLink>
+              ) : null}
             </div>
           </div>
         </div>

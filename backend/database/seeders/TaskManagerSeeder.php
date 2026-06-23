@@ -26,6 +26,16 @@ class TaskManagerSeeder extends Seeder
             ]
         );
 
+        $responsable = User::firstOrCreate(
+            ['email' => 'responsable@taskmanager.com'],
+            [
+                'name' => 'Marie Responsable',
+                'password' => 'password',
+                'role' => 'responsable',
+                'gender' => 'female',
+            ]
+        );
+
         $alice = User::firstOrCreate(
             ['email' => 'alice@taskmanager.com'],
             [

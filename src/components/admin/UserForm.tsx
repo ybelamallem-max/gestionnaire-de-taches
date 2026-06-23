@@ -157,6 +157,7 @@ export function UserForm({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="user">Utilisateur</SelectItem>
+              <SelectItem value="responsable">Responsable</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
           </Select>

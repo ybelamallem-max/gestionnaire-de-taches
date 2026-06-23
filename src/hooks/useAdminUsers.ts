@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { api } from "@/services/api"
 
-export type AdminUserRole = "user" | "admin"
+export type AdminUserRole = "user" | "admin" | "responsable"
 export type AdminUserGender = "male" | "female" | "other"
 
 export type AdminUser = {

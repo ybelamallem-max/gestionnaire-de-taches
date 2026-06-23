@@ -11,6 +11,10 @@ class TaskController extends Controller
 {
     private function canAccessTask(Request $request, Task $task): bool
     {
+        if ($request->user()->canViewAll()) {
+            return true;
+        }
+
         $userId = $request->user()->id;
 
         return $task->created_by === $userId || $task->assigned_to === $userId;
@@ -30,16 +34,28 @@ class TaskController extends Controller
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'scope' => ['sometimes', 'string', 'in:me,team,all'],
             'status' => ['sometimes', 'string', 'in:todo,in_progress,done'],
             'priority' => ['sometimes', 'string', 'in:low,medium,high'],
         ]);
 
-        $userId = $request->user()->id;
+        $user = $request->user();
+        $scope = $validated['scope'] ?? 'me';
 
-        $query = Task::with($this->taskRelations())
-            ->where(function ($q) use ($userId) {
-                $q->where('created_by', $userId)->orWhere('assigned_to', $userId);
-            });
+        if ($scope === 'all') {
+            if (! $user->canViewAll()) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+
+            $query = Task::with($this->taskRelations());
+        } else {
+            $userId = $user->id;
+
+            $query = Task::with($this->taskRelations())
+                ->where(function ($q) use ($userId) {
+                    $q->where('created_by', $userId)->orWhere('assigned_to', $userId);
+                });
+        }
 
         if (array_key_exists('status', $validated)) {
             $query->where('status', $validated['status']);

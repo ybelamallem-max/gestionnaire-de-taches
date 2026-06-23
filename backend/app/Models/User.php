@@ -90,4 +90,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notification::class);
     }
+
+    public function isResponsable(): bool
+    {
+        return $this->role === 'responsable';
+    }
+
+    public function canViewAll(): bool
+    {
+        return in_array($this->role, ['responsable', 'admin'], true);
+    }
 }

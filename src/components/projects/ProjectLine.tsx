@@ -1,6 +1,7 @@
 import { format, isValid, parseISO } from "date-fns"
 import { fr } from "date-fns/locale"
 import { FolderKanban, MoreHorizontal } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -41,12 +42,16 @@ function formatDeadline(deadline: string | null | undefined) {
 }
 
 export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
+  const navigate = useNavigate()
   const teamName = getProjectTeamName(project)
   const { done, total } = getProjectProgress(project)
   const progressPercent = total > 0 ? Math.round((done / total) * 100) : 0
 
   return (
-    <div className="group issue-line border-b border-border last:border-b-0">
+    <div
+      className="group issue-line border-b border-border last:border-b-0 cursor-pointer hover:bg-muted/50"
+      onClick={() => navigate(`/projects/${project.id}`)}
+    >
       <div className="inline-flex size-6 shrink-0 items-center justify-center rounded bg-muted/50">
         <FolderKanban className="size-3.5 text-muted-foreground" />
       </div>
@@ -85,16 +90,23 @@ export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
               variant="ghost"
               size="icon"
               className="size-7 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
+              onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="size-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={() => onEdit(project)}>Modifier</DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => {
+              e.stopPropagation()
+              onEdit(project)
+            }}>Modifier</DropdownMenuItem>
             <DropdownMenuSeparator />
             <Dialog>
               <DialogTrigger asChild>
-                <DropdownMenuItem variant="destructive" onSelect={(e) => e.preventDefault()}>
+                <DropdownMenuItem variant="destructive" onSelect={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}>
                   Supprimer
                 </DropdownMenuItem>
               </DialogTrigger>

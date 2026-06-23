@@ -11,7 +11,9 @@ import type {
 import { normalizeProject } from "@/types/project"
 
 
-export function useProjects(scope?: "me" | "team") {
+export type DataScope = "me" | "team" | "all"
+
+export function useProjects(scope?: DataScope) {
   const [projects, setProjects] = useState<Project[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

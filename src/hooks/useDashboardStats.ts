@@ -3,11 +3,31 @@ import { useCallback, useEffect, useState } from "react"
 import { api } from "@/services/api"
 import { getApiMessage } from "@/services/apiErrors"
 
-export type DashboardStats = {
+export type ProjectSummary = {
+  id: string | number
+  name: string
+  status: string
+  team_name?: string | null
+  due_date?: string | null
   tasks_total: number
   tasks_done: number
   tasks_in_progress: number
+  tasks_todo: number
+  progress_percent: number
+}
+
+export type DashboardStats = {
+  scope: "personal" | "global"
+  tasks_total: number
+  tasks_done: number
+  tasks_in_progress: number
+  tasks_todo?: number
   teams_total: number
+  projects_total?: number
+  projects_active?: number
+  projects_completed?: number
+  projects_archived?: number
+  projects_summary?: ProjectSummary[]
 }
 
 export function useDashboardStats() {
@@ -34,4 +54,3 @@ export function useDashboardStats() {
 
   return { stats, isLoading, error, refresh }
 }
-

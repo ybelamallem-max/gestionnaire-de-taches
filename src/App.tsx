@@ -6,6 +6,7 @@ import AdminUsers from "@/pages/Admin/Users"
 import Dashboard from "@/pages/Dashboard"
 import Login from "@/pages/Login"
 import Notifications from "@/pages/Notifications"
+import ProjectDetail from "@/pages/ProjectDetail"
 import Projects from "@/pages/Projects"
 import Tasks from "@/pages/Tasks"
 import Teams from "@/pages/Teams"
@@ -24,9 +25,12 @@ export default function App() {
                 <Route path="tasks" element={<Navigate to="/tasks/me" replace />} />
                 <Route path="tasks/me" element={<Tasks scope="me" />} />
                 <Route path="tasks/team" element={<Tasks scope="team" />} />
+                <Route path="tasks/all" element={<Tasks scope="all" />} />
                 <Route path="projects" element={<Navigate to="/projects/me" replace />} />
                 <Route path="projects/me" element={<Projects scope="me" />} />
                 <Route path="projects/team" element={<Projects scope="team" />} />
+                <Route path="projects/all" element={<Projects scope="all" />} />
+                <Route path="projects/:id" element={<ProjectDetail />} />
                 <Route path="teams" element={<Teams />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route element={<ProtectedRoute requiredRole="admin" />}>

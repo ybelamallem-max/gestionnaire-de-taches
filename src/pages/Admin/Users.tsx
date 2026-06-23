@@ -27,7 +27,9 @@ function formatDate(value: string | null | undefined) {
 }
 
 function formatRole(role: AdminUser["role"] | undefined) {
-  return role === "admin" ? "Admin" : "Utilisateur"
+  if (role === "admin") return "Admin"
+  if (role === "responsable") return "Responsable"
+  return "Utilisateur"
 }
 
 function formatGender(gender: AdminUser["gender"] | null | undefined) {

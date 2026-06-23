@@ -1,6 +1,7 @@
 import { format, isValid, parseISO } from "date-fns"
 import { fr } from "date-fns/locale"
 import { Pencil, Trash2 } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import type { Project } from "@/hooks/useProjects"
+import type { Project } from "@/types/project"
 import {
   getProjectProgress,
   getProjectTeamName,
@@ -44,13 +45,17 @@ function formatDeadline(deadline: string | null | undefined) {
 }
 
 export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
+  const navigate = useNavigate()
   const deadline = formatDeadline(project.deadline)
   const teamName = getProjectTeamName(project)
   const { done, total } = getProjectProgress(project)
   const progressPercent = total > 0 ? Math.round((done / total) * 100) : 0
 
   return (
-    <Card className="bg-zinc-950/40 ring-zinc-800">
+    <Card
+      className="bg-zinc-950/40 ring-zinc-800 cursor-pointer transition-colors hover:bg-zinc-950/60"
+      onClick={() => navigate(`/projects/${project.id}`)}
+    >
       <CardHeader className="gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Badge className={cn("border-0", projectStatusBadgeClass(project.status))}>
@@ -97,7 +102,10 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
           type="button"
           variant="outline"
           className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
-          onClick={() => onEdit(project)}
+          onClick={(e) => {
+            e.stopPropagation()
+            onEdit(project)
+          }}
         >
           <Pencil />
           Modifier
@@ -109,6 +117,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
               type="button"
               variant="destructive"
               className="bg-destructive/15 text-destructive hover:bg-destructive/25"
+              onClick={(e) => e.stopPropagation()}
             >
               <Trash2 />
               Supprimer

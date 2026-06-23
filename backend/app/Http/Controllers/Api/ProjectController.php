@@ -21,6 +21,10 @@ class ProjectController extends Controller
 
     private function canAccessProject(Request $request, Project $project): bool
     {
+        if ($request->user()->canViewAll()) {
+            return true;
+        }
+
         $userId = $request->user()->id;
 
         if ($project->owner_id === $userId) {
@@ -69,14 +73,31 @@ class ProjectController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $userId = $request->user()->id;
+        $validated = $request->validate([
+            'scope' => ['sometimes', 'string', 'in:me,team,all'],
+        ]);
 
-        $projects = Project::with($this->projectRelations())
-            ->where('owner_id', $userId)
-            ->orWhereHas('team', fn ($t) => $t->where('owner_id', $userId))
-            ->orWhereHas('team.members', fn ($m) => $m->where('users.id', $userId))
-            ->orderByDesc('created_at')
-            ->get();
+        $user = $request->user();
+        $scope = $validated['scope'] ?? 'me';
+
+        if ($scope === 'all') {
+            if (! $user->canViewAll()) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+
+            $projects = Project::with($this->projectRelations())
+                ->orderByDesc('created_at')
+                ->get();
+        } else {
+            $userId = $user->id;
+
+            $projects = Project::with($this->projectRelations())
+                ->where('owner_id', $userId)
+                ->orWhereHas('team', fn ($t) => $t->where('owner_id', $userId))
+                ->orWhereHas('team.members', fn ($m) => $m->where('users.id', $userId))
+                ->orderByDesc('created_at')
+                ->get();
+        }
 
         return response()->json([
             'projects' => $projects,
@@ -177,4 +198,3 @@ class ProjectController extends Controller
         ]);
     }
 }
-

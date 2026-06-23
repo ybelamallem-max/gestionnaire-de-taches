@@ -13,13 +13,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import type { Project, ProjectPayload } from "@/types/project"
+import type { DataScope } from "@/hooks/useProjects"
 import { useProjects } from "@/hooks/useProjects"
 import { useTeams } from "@/hooks/useTeams"
 import type { ApiValidationErrors } from "@/services/apiErrors"
 import { getValidationErrors } from "@/services/apiErrors"
 
 type ProjectsProps = {
-  scope?: "me" | "team"
+  scope?: DataScope
 }
 
 export default function Projects({ scope }: ProjectsProps) {
@@ -64,7 +65,15 @@ export default function Projects({ scope }: ProjectsProps) {
     <div className="h-full">
       <div className="page-header">
         <div>
-          <div className="page-title">{scope === "me" ? "Mes projets" : scope === "team" ? "Projets équipe" : "Projets"}</div>
+          <div className="page-title">
+            {scope === "all"
+              ? "Tous les projets"
+              : scope === "me"
+                ? "Mes projets"
+                : scope === "team"
+                  ? "Projets équipe"
+                  : "Projets"}
+          </div>
           <div className="page-subtitle">
             {projects.length} projet{projects.length > 1 ? "s" : ""}
           </div>

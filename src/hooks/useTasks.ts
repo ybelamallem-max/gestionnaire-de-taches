@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 
+import type { DataScope } from "@/hooks/useProjects"
 import { api } from "@/services/api"
 import { getApiMessage } from "@/services/apiErrors"
 import type {
@@ -15,7 +16,7 @@ import type {
 import { normalizeTask } from "@/types/task"
 
 
-export function useTasks(scope?: "me" | "team") {
+export function useTasks(scope?: DataScope) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

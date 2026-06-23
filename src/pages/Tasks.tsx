@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import type { Task, TaskTag, TaskUpsertPayload } from "@/types/task"
-import { useProjects } from "@/hooks/useProjects"
+import { useProjects, type DataScope } from "@/hooks/useProjects"
 import { useTasks } from "@/hooks/useTasks"
 import { useTeams } from "@/hooks/useTeams"
 import type { ApiValidationErrors } from "@/services/apiErrors"
@@ -28,7 +28,7 @@ import { getValidationErrors } from "@/services/apiErrors"
 import { useAuthStore } from "@/stores/authStore"
 
 type TasksProps = {
-  scope?: "me" | "team"
+  scope?: DataScope
 }
 
 export default function Tasks({ scope }: TasksProps) {
@@ -43,7 +43,7 @@ export default function Tasks({ scope }: TasksProps) {
     assignTask,
     replaceTask,
   } = useTasks(scope)
-  const { projects } = useProjects()
+  const { projects } = useProjects(scope === "all" ? "all" : undefined)
   const { teams } = useTeams()
   const currentUser = useAuthStore((state) => state.user)
 
@@ -175,7 +175,15 @@ export default function Tasks({ scope }: TasksProps) {
     <div className="h-full w-full">
       <div className="page-header">
         <div className="min-w-0">
-          <div className="page-title">{scope === "me" ? "Mes tâches" : scope === "team" ? "Tâches équipe" : "Tâches"}</div>
+          <div className="page-title">
+            {scope === "all"
+              ? "Toutes les tâches"
+              : scope === "me"
+                ? "Mes tâches"
+                : scope === "team"
+                  ? "Tâches équipe"
+                  : "Tâches"}
+          </div>
           <div className="page-subtitle">
             {remainingCount} tâche{remainingCount > 1 ? "s" : ""} restante
             {remainingCount > 1 ? "s" : ""}
