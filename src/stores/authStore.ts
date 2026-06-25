@@ -6,6 +6,7 @@ export type AuthUser = {
   id?: string | number
   name?: string
   email?: string
+  tag?: string
   phone?: string
   birth_date?: string
   gender?: string
@@ -18,6 +19,7 @@ type AuthState = {
   token: string | null
   login: (user: AuthUser | null, token: string) => void
   logout: () => void
+  setUser: (user: AuthUser | null) => void
 }
 
 const storageKey = "tm_auth"
@@ -43,7 +45,7 @@ function writeStoredAuth(payload: { user: AuthUser | null; token: string | null 
 
 const initialAuth = typeof window === "undefined" ? { user: null, token: null } : readStoredAuth()
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: initialAuth.user,
   token: initialAuth.token,
   login: (user, token) => {
@@ -53,5 +55,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     writeStoredAuth({ user: null, token: null })
     set({ user: null, token: null })
+  },
+  setUser: (user) => {
+    writeStoredAuth({ user, token: get().token })
+    set({ user })
   },
 }))

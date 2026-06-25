@@ -1,11 +1,14 @@
 import { AppLayout } from "@/components/layout/AppLayout"
 import { ThemeProvider } from "@/components/layout/theme-provider"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { UserDataRefresher } from "@/components/auth/UserDataRefresher"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import AdminUsers from "@/pages/Admin/Users"
 import Dashboard from "@/pages/Dashboard"
 import Login from "@/pages/Login"
+import Register from "@/pages/Register"
 import Notifications from "@/pages/Notifications"
+import Profile from "@/pages/Profile"
 import ProjectDetail from "@/pages/ProjectDetail"
 import Projects from "@/pages/Projects"
 import Tasks from "@/pages/Tasks"
@@ -17,8 +20,10 @@ export default function App() {
     <TooltipProvider>
       <ThemeProvider>
         <BrowserRouter>
+          <UserDataRefresher />
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route index element={<Dashboard />} />
@@ -33,6 +38,7 @@ export default function App() {
                 <Route path="projects/:id" element={<ProjectDetail />} />
                 <Route path="teams" element={<Teams />} />
                 <Route path="notifications" element={<Notifications />} />
+                <Route path="profile" element={<Profile />} />
                 <Route element={<ProtectedRoute requiredRole="admin" />}>
                   <Route path="admin/users" element={<AdminUsers />} />
                 </Route>

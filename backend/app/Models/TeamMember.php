@@ -16,6 +16,7 @@ class TeamMember extends Model
         'team_id',
         'user_id',
         'role',
+        'status',
     ];
 
     public function team(): BelongsTo

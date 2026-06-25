@@ -12,13 +12,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import type { TeamPayload, TeamRole } from "@/hooks/useTeams"
+import type { TeamPayload, TeamRole } from "@/types/team"
 import { useTeams } from "@/hooks/useTeams"
 import type { ApiValidationErrors } from "@/services/apiErrors"
 import { getValidationErrors } from "@/services/apiErrors"
 
 export default function Teams() {
-  const { teams, isLoading, error, createTeam, addMember, updateMemberRole, removeMember } =
+  const { teams, isLoading, error, createTeam, addMember, updateMemberRole, removeMember, requestToJoin, invite, acceptMembership, rejectMembership, deleteTeam } =
     useTeams()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -54,6 +54,28 @@ export default function Teams() {
 
   async function handleRemoveMember(teamId: string | number, userId: string | number) {
     await removeMember(teamId, userId)
+  }
+
+  async function handleRequestToJoin(teamId: string | number) {
+    await requestToJoin(teamId)
+  }
+
+  async function handleInvite(teamId: string | number, identifier: string) {
+    await invite(teamId, identifier)
+  }
+
+  async function handleAcceptMembership(teamId: string | number, userId: string | number) {
+    await acceptMembership(teamId, userId)
+  }
+
+  async function handleRejectMembership(teamId: string | number, userId: string | number) {
+    await rejectMembership(teamId, userId)
+  }
+
+  async function handleDeleteTeam(teamId: string | number) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette équipe ?")) {
+      await deleteTeam(teamId)
+    }
   }
 
   return (
@@ -117,6 +139,11 @@ export default function Teams() {
                 onAddMember={handleAddMember}
                 onUpdateRole={handleUpdateRole}
                 onRemoveMember={handleRemoveMember}
+                onRequestToJoin={handleRequestToJoin}
+                onInvite={handleInvite}
+                onAcceptMembership={handleAcceptMembership}
+                onRejectMembership={handleRejectMembership}
+                onDeleteTeam={handleDeleteTeam}
               />
             ))}
           </div>

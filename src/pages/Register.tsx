@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { ArrowRight } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -11,34 +11,32 @@ import { getApiMessage, getValidationErrors } from "@/services/apiErrors"
 import { useAuthStore } from "@/stores/authStore"
 import { FieldError } from "@/components/ui/field-error"
 
-type LoginResponse = {
+type RegisterResponse = {
   token?: string
   access_token?: string
   user?: { id?: string | number; name?: string; email?: string }
   data?: { token?: string; access_token?: string; user?: { id?: string | number; name?: string; email?: string } }
 }
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate()
-  const location = useLocation()
   const login = useAuthStore((s) => s.login)
 
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<ApiValidationErrors | null>(null)
 
-  useEffect(() => {
-    const state = location.state as { email?: unknown } | null
-    if (typeof state?.email === "string" && state.email.trim()) {
-      setEmail(state.email)
-    }
-  }, [location.state])
-
   const isDisabled = useMemo(() => {
-    return isLoading || !email.trim() || !password
-  }, [email, isLoading, password])
+    return isLoading || !name.trim() || !email.trim() || !password || !confirmPassword
+  }, [name, email, password, confirmPassword, isLoading])
+
+  const passwordMismatch = useMemo(() => {
+    return confirmPassword && password !== confirmPassword
+  }, [password, confirmPassword])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -46,8 +44,18 @@ export default function Login() {
     setFieldErrors(null)
     setIsLoading(true)
 
+    if (password !== confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.")
+      setIsLoading(false)
+      return
+    }
+
     try {
-      const res = await api.post<LoginResponse>("/login", { email, password })
+      const res = await api.post<RegisterResponse>("/register", {
+        name,
+        email,
+        password,
+      })
       const token =
         res.data.token ??
         res.data.access_token ??
@@ -56,7 +64,7 @@ export default function Login() {
 
       if (!token) throw new Error("Token manquant dans la réponse.")
 
-      const user = res.data.user ?? res.data.data?.user ?? { email }
+      const user = res.data.user ?? res.data.data?.user ?? { email, name }
       login(user, token)
       navigate("/", { replace: true })
     } catch (err: unknown) {
@@ -64,7 +72,7 @@ export default function Login() {
       if (validation) {
         setFieldErrors(validation)
       } else {
-        setError(getApiMessage(err, "Erreur lors de la connexion."))
+        setError(getApiMessage(err, "Erreur lors de l'inscription."))
       }
     } finally {
       setIsLoading(false)
@@ -74,7 +82,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
-        {/* Left side - Login form */}
+        {/* Left side - Register form */}
         <div className="flex w-full flex-col justify-center px-8 py-12 lg:w-1/2 lg:px-16">
           {/* Logo with theme toggle */}
           <div className="mb-12 flex items-center justify-between">
@@ -90,15 +98,34 @@ export default function Login() {
           {/* Welcome text */}
           <div className="mb-8">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Bienvenue
+              Créer un compte
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Connectez-vous pour accéder à votre espace de travail
+              Rejoignez-nous pour gérer vos projets efficacement
             </p>
           </div>
 
-          {/* Email form */}
+          {/* Register form */}
           <form onSubmit={onSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label
+                htmlFor="name"
+                className="text-xs font-medium text-muted-foreground"
+              >
+                Nom complet
+              </label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Entrez votre nom"
+                type="text"
+                autoComplete="name"
+                className="h-11"
+              />
+              <FieldError errors={fieldErrors?.name} />
+            </div>
+
             <div className="space-y-1.5">
               <label
                 htmlFor="email"
@@ -131,10 +158,31 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 className="h-11"
               />
               <FieldError errors={fieldErrors?.password} />
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="confirmPassword"
+                className="text-xs font-medium text-muted-foreground"
+              >
+                Confirmer le mot de passe
+              </label>
+              <Input
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                type="password"
+                autoComplete="new-password"
+                className="h-11"
+              />
+              {passwordMismatch ? (
+                <p className="text-xs text-destructive">Les mots de passe ne correspondent pas.</p>
+              ) : null}
             </div>
 
             {error ? (
@@ -145,23 +193,23 @@ export default function Login() {
 
             <Button
               type="submit"
-              disabled={isDisabled}
+              disabled={isDisabled || passwordMismatch}
               className="h-11 w-full"
             >
               <span className="flex items-center justify-center gap-2">
-                <span>{isLoading ? "Connexion..." : "Connexion"}</span>
+                <span>{isLoading ? "Inscription..." : "S'inscrire"}</span>
                 <ArrowRight className="size-4" />
               </span>
             </Button>
 
             <div className="text-center text-sm text-muted-foreground">
-              Pas encore de compte ?{" "}
+              Déjà un compte ?{" "}
               <button
                 type="button"
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/login")}
                 className="font-medium text-primary hover:underline"
               >
-                S'inscrire
+                Se connecter
               </button>
             </div>
           </form>

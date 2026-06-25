@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { formatDisplayName } from "@/lib/users"
 
 type NavItem = {
   key: string
@@ -68,7 +69,7 @@ export function Sidebar() {
               Gestionnaire de tâches
             </div>
             <div className="truncate text-xs text-muted-foreground">
-              {currentUser?.email || "Workspace"}
+              {formatDisplayName(currentUser) || "Workspace"}
             </div>
           </div>
         </div>

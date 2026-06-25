@@ -25,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { api } from "@/services/api"
 import { useAuthStore } from "@/stores/authStore"
+import { formatDisplayName, getAvatarInitials } from "@/lib/users"
 
 export function Header() {
   const { pathname } = useLocation()
@@ -135,15 +136,15 @@ export function Header() {
             >
               <Avatar className="size-8">
                 <AvatarFallback>
-                  {(user?.name || user?.email || "TM").slice(0, 2).toUpperCase()}
+                  {getAvatarInitials(user)}
                 </AvatarFallback>
               </Avatar>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Compte</DropdownMenuLabel>
+            <DropdownMenuLabel>{formatDisplayName(user)}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profil</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/profile")}>Profil</DropdownMenuItem>
             <DropdownMenuItem>Paramètres</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={() => void handleLogout()}>
@@ -155,3 +156,8 @@ export function Header() {
     </header>
   )
 }
+
+
+
+
+

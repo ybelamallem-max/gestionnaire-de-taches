@@ -4,6 +4,7 @@ export type AuthUser = {
   id?: string | number
   name?: string
   email?: string
+  tag?: string
   phone?: string
   birth_date?: string
   gender?: string

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\Api\TagController;
@@ -22,12 +23,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
   Route::get('/stats', [StatsController::class, 'index']);
+
+    Route::get('/profile', [ProfileController::class, 'index']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar']);
 
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'store']);
@@ -45,7 +52,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/teams', [TeamController::class, 'index']);
     Route::post('/teams', [TeamController::class, 'store']);
+    Route::delete('/teams/{team}', [TeamController::class, 'destroy']);
     Route::post('/teams/{team}/members', [TeamController::class, 'addMember']);
+    Route::post('/teams/{team}/invite', [TeamController::class, 'invite']);
+    Route::post('/teams/{team}/request', [TeamController::class, 'requestToJoin']);
+    Route::put('/teams/{team}/members/{userId}/accept', [TeamController::class, 'acceptMembership']);
+    Route::put('/teams/{team}/members/{userId}/reject', [TeamController::class, 'rejectMembership']);
     Route::delete('/teams/{team}/members/{userId}', [TeamController::class, 'removeMember']);
     Route::patch('/teams/{team}/members/{userId}/role', [TeamController::class, 'updateMemberRole']);
 

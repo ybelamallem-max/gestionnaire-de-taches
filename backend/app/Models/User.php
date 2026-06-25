@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -21,6 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'tag',
         'phone',
         'birth_date',
         'gender',
@@ -52,7 +54,8 @@ class User extends Authenticatable
     public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'team_members')
-            ->withPivot('role')
+            ->withPivot('role', 'status')
+            ->wherePivot('status', 'accepted')
             ->withTimestamps();
     }
 
@@ -99,5 +102,44 @@ class User extends Authenticatable
     public function canViewAll(): bool
     {
         return in_array($this->role, ['responsable', 'admin'], true);
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->name . '#' . str_pad($this->tag ?? '000', 3, '0', STR_PAD_LEFT);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (empty($user->tag)) {
+                $user->tag = self::generateUniqueTag($user->name);
+            }
+        });
+    }
+
+    public static function generateUniqueTag(string $name): string
+    {
+        $maxAttempts = 1000;
+        $attempts = 0;
+
+        while ($attempts < $maxAttempts) {
+            $tag = str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
+
+            $exists = DB::table('users')
+                ->where('name', $name)
+                ->where('tag', $tag)
+                ->exists();
+
+            if (!$exists) {
+                return $tag;
+            }
+
+            $attempts++;
+        }
+
+        throw new \RuntimeException('Unable to generate a unique tag after ' . $maxAttempts . ' attempts');
     }
 }

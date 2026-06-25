@@ -12,6 +12,10 @@ class CommentController extends Controller
 {
     private function canAccessTask(Request $request, Task $task): bool
     {
+        if ($request->user()->canViewAll()) {
+            return true;
+        }
+
         $userId = $request->user()->id;
 
         return $task->created_by === $userId || $task->assigned_to === $userId;
