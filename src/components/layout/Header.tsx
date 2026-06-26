@@ -1,19 +1,9 @@
-import { Bell, ChevronRight, Plus, Search } from "lucide-react"
+import { Bell, ChevronRight, Search } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,12 +16,26 @@ import { Input } from "@/components/ui/input"
 import { api } from "@/services/api"
 import { useAuthStore } from "@/stores/authStore"
 import { formatDisplayName, getAvatarInitials } from "@/lib/users"
+import { useState, useEffect } from "react"
+import { GlobalSearch } from "./GlobalSearch"
 
 export function Header() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const logout = useAuthStore((s) => s.logout)
   const user = useAuthStore((s) => s.user)
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const title = pathname.startsWith("/tasks")
     ? "Tâches"
@@ -80,18 +84,20 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="hidden w-64 items-center md:flex">
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="hidden w-64 items-center md:flex"
+        >
           <div className="relative w-full">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              readOnly
-              value=""
-              placeholder={`Rechercher dans ${subtitle.toLowerCase()}`}
-              className="h-8 border-border bg-background pl-8 text-sm shadow-none"
-            />
+            <div className="flex h-8 w-full items-center rounded-md border border-border bg-background px-8 text-sm text-muted-foreground shadow-sm">
+              Rechercher...
+            </div>
+            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+              Ctrl+K
+            </span>
           </div>
-        </div>
+        </button>
 
         <Button
           variant="ghost"
@@ -105,28 +111,6 @@ export function Header() {
         <div className="lg:hidden">
           <ThemeToggle />
         </div>
-
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="size-4" />
-              Nouveau
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Création rapide</DialogTitle>
-              <DialogDescription>
-                Accès rapide aux actions de création depuis le header.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Fermer</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -145,7 +129,7 @@ export function Header() {
             <DropdownMenuLabel>{formatDisplayName(user)}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate("/profile")}>Profil</DropdownMenuItem>
-            <DropdownMenuItem>Paramètres</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>Paramètres</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={() => void handleLogout()}>
               Déconnexion
@@ -153,6 +137,7 @@ export function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   )
 }
