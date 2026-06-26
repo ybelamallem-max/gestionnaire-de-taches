@@ -26,6 +26,7 @@ import type { Project, ProjectPayload } from "@/types/project"
 import { useProjects } from "@/hooks/useProjects"
 import { useTasks } from "@/hooks/useTasks"
 import { useTeams } from "@/hooks/useTeams"
+import { useUsers } from "@/hooks/useUsers"
 import { canViewAll } from "@/lib/roles"
 import { useAuthStore } from "@/stores/authStore"
 import type { ApiValidationErrors } from "@/services/apiErrors"
@@ -47,6 +48,7 @@ export default function ProjectDetail() {
   const { projects, isLoading: projectsLoading, updateProject } = useProjects(dataScope)
   const { tasks, createTask, updateTask, deleteTask, toggleTask, assignTask, replaceTask } = useTasks(dataScope)
   const { teams } = useTeams()
+  const { users } = useUsers()
 
   const project = useMemo(() => {
     if (!id) return null
@@ -83,25 +85,28 @@ export default function ProjectDetail() {
   }, [filters.priority, filters.status, projectTasks])
 
   const mentionUsers = useMemo(() => {
-    const map = new Map<string, { id: string; label: string }>()
-    for (const task of projectTasks) {
-      const assignee = task.assignee
-      const label = assignee?.name || assignee?.email
-      if (label) map.set(String(assignee?.id ?? label), { id: String(assignee?.id ?? label), label })
-    }
-    return Array.from(map.values())
-  }, [projectTasks])
+    return users.map((user) => ({
+      id: String(user.id),
+      label: user.tag ? `${user.name}#${user.tag}` : user.name,
+    }))
+  }, [users])
 
   const assignableUsers = useMemo(() => {
     if (!selectedTask || !project) return []
 
     const map = new Map<string, { id: string; label: string }>()
 
+    if (currentUser?.id != null && (currentUser.name || currentUser.email)) {
+      const label = currentUser.name || currentUser.email || "Moi"
+      map.set(String(currentUser.id), { id: String(currentUser.id), label })
+    }
+
     const team = project?.team_id
       ? teams.find((t) => String(t.id) === String(project.team_id))
       : null
 
-    for (const member of team?.members ?? []) {
+    for (const member of team?.allMembers ?? []) {
+      if (member.status !== 'accepted') continue
       const id = member.user?.id ?? member.user_id
       const label = member.user?.name || member.user?.email || member.name || member.email
       if (id != null && label) {
@@ -110,7 +115,7 @@ export default function ProjectDetail() {
     }
 
     return Array.from(map.values())
-  }, [project, selectedTask, teams])
+  }, [currentUser?.email, currentUser?.id, currentUser?.name, project, selectedTask, teams])
 
   function syncTaskTags(taskId: Task["id"], tags: TaskTag[]) {
     const task = projectTasks.find((item) => item.id === taskId)

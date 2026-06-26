@@ -44,5 +44,14 @@ class NotificationController extends Controller
             'notification' => $notification->load($this->notificationRelations()),
         ]);
     }
+
+    public function readAll(Request $request): JsonResponse
+    {
+        Notification::where('user_id', $request->user()->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        return response()->json(['message' => 'OK']);
+    }
 }
 

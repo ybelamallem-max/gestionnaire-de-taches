@@ -2,6 +2,7 @@ import { create } from "zustand"
 
 import { api } from "@/services/api"
 import { getApiMessage } from "@/services/apiErrors"
+import { useAuthStore } from "./authStore"
 
 export type NotificationItem = {
   id: string | number
@@ -25,6 +26,9 @@ type NotificationsState = {
   error: string | null
   fetchNotifications: () => Promise<void>
   markAsRead: (id: NotificationItem["id"]) => Promise<void>
+  markAllAsRead: () => Promise<void>
+  acceptTeamInvite: (teamId: string | number) => Promise<void>
+  rejectTeamInvite: (teamId: string | number) => Promise<void>
 }
 
 export const useNotificationsStore = create<NotificationsState>((set, get) => ({
@@ -52,6 +56,36 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
       })
     } catch (err: unknown) {
       set({ error: getApiMessage(err, "Erreur lors de la mise à jour de la notification.") })
+    }
+  },
+  markAllAsRead: async () => {
+    try {
+      await api.patch("/notifications/read-all")
+      set({
+        items: get().items.map((item) => ({ ...item, read_at: new Date().toISOString() })),
+      })
+    } catch (err: unknown) {
+      set({ error: getApiMessage(err, "Erreur lors de la mise à jour des notifications.") })
+    }
+  },
+  acceptTeamInvite: async (teamId) => {
+    try {
+      const userId = useAuthStore.getState().user?.id
+      if (!userId) return
+      await api.put(`/teams/${teamId}/members/${userId}/accept`)
+      await get().fetchNotifications()
+    } catch (err: unknown) {
+      set({ error: getApiMessage(err, "Erreur lors de l'acceptation de l'invitation.") })
+    }
+  },
+  rejectTeamInvite: async (teamId) => {
+    try {
+      const userId = useAuthStore.getState().user?.id
+      if (!userId) return
+      await api.put(`/teams/${teamId}/members/${userId}/reject`)
+      await get().fetchNotifications()
+    } catch (err: unknown) {
+      set({ error: getApiMessage(err, "Erreur lors du rejet de l'invitation.") })
     }
   },
 }))

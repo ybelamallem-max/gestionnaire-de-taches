@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -129,8 +130,30 @@ class TaskController extends Controller
             }
         }
 
+        $oldStatus = $task->status;
         $task->fill($attributes);
         $task->save();
+
+        if ($oldStatus !== 'done' && $task->status === 'done') {
+            $task->load('project');
+            if ($task->project && $task->project->team_id) {
+                $members = \App\Models\TeamMember::where('team_id', $task->project->team_id)
+                    ->where('user_id', '!=', $request->user()->id)
+                    ->get();
+                
+                foreach ($members as $member) {
+                    Notification::create([
+                        'user_id' => $member->user_id,
+                        'task_id' => $task->id,
+                        'project_id' => $task->project_id,
+                        'type' => 'task_completed',
+                        'title' => 'Tâche terminée',
+                        'message' => "La tâche \"{$task->title}\" a été terminée",
+                        'data' => json_encode(['task_id' => $task->id, 'task_title' => $task->title, 'project_id' => $task->project_id]),
+                    ]);
+                }
+            }
+        }
 
         return response()->json([
             'task' => $task->load($this->taskRelations()),
@@ -185,6 +208,17 @@ class TaskController extends Controller
 
         $task->assigned_to = $validated['user_id'];
         $task->save();
+
+        if ($task->assigned_to && $task->assigned_to !== $request->user()->id) {
+            Notification::create([
+                'user_id' => $task->assigned_to,
+                'task_id' => $task->id,
+                'type' => 'task_assigned',
+                'title' => 'Tâche assignée',
+                'message' => "La tâche \"{$task->title}\" vous a été assignée",
+                'data' => json_encode(['task_id' => $task->id, 'task_title' => $task->title]),
+            ]);
+        }
 
         return response()->json([
             'task' => $task->load($this->taskRelations()),

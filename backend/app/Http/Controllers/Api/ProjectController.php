@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Project;
 use App\Models\TeamMember;
 use Illuminate\Http\JsonResponse;
@@ -176,8 +177,28 @@ class ProjectController extends Controller
             unset($attributes['deadline']);
         }
 
+        $oldStatus = $project->status;
         $project->fill($attributes);
         $project->save();
+
+        if (array_key_exists('status', $validated) && $validated['status'] === 'completed' && $oldStatus !== 'completed') {
+            if ($project->team_id) {
+                $members = TeamMember::where('team_id', $project->team_id)
+                    ->where('user_id', '!=', $request->user()->id)
+                    ->get();
+                
+                foreach ($members as $member) {
+                    Notification::create([
+                        'user_id' => $member->user_id,
+                        'project_id' => $project->id,
+                        'type' => 'project_completed',
+                        'title' => 'Projet terminé',
+                        'message' => "Le projet \"{$project->name}\" a été terminé",
+                        'data' => json_encode(['project_id' => $project->id, 'project_name' => $project->name]),
+                    ]);
+                }
+            }
+        }
 
         return response()->json([
             'project' => $project->load($this->projectRelations()),

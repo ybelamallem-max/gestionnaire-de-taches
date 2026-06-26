@@ -71,6 +71,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read']);
+    Route::patch('/notifications/read-all', [NotificationController::class, 'readAll']);
+
+    Route::get('/users', [AdminUserController::class, 'index']);
 
     Route::prefix('admin')->middleware('role:admin')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index']);

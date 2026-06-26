@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
+use App\Models\Notification;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -52,6 +54,25 @@ class CommentController extends Controller
             'user_id' => $request->user()->id,
             'content' => $validated['content'],
         ]);
+
+        $content = $validated['content'];
+        preg_match_all('/@([\w\s]+)#(\d{3})/', $content, $matches);
+        if (!empty($matches[1])) {
+            foreach ($matches[1] as $index => $name) {
+                $tag = $matches[2][$index] ?? null;
+                $user = User::where('name', $name)->first();
+                if ($user && $user->id !== $request->user()->id) {
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'task_id' => $task->id,
+                        'type' => 'comment_mention',
+                        'title' => 'Mention dans un commentaire',
+                        'message' => "Vous avez été mentionné dans un commentaire sur la tâche \"{$task->title}\"",
+                        'data' => json_encode(['task_id' => $task->id, 'task_title' => $task->title]),
+                    ]);
+                }
+            }
+        }
 
         return response()->json([
             'comment' => $comment->load(['user', 'task']),

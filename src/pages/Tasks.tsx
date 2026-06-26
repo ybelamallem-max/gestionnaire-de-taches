@@ -23,6 +23,7 @@ import type { Task, TaskTag, TaskUpsertPayload } from "@/types/task"
 import { useProjects, type DataScope } from "@/hooks/useProjects"
 import { useTasks } from "@/hooks/useTasks"
 import { useTeams } from "@/hooks/useTeams"
+import { useUsers } from "@/hooks/useUsers"
 import type { ApiValidationErrors } from "@/services/apiErrors"
 import { getValidationErrors } from "@/services/apiErrors"
 import { useAuthStore } from "@/stores/authStore"
@@ -45,6 +46,7 @@ export default function Tasks({ scope }: TasksProps) {
   } = useTasks(scope)
   const { projects } = useProjects(scope === "all" ? "all" : undefined)
   const { teams } = useTeams()
+  const { users } = useUsers()
   const currentUser = useAuthStore((state) => state.user)
 
   const [filters, setFilters] = useState<{
@@ -74,24 +76,11 @@ export default function Tasks({ scope }: TasksProps) {
   }, [filters.priority, filters.status, tasks])
 
   const mentionUsers = useMemo(() => {
-    const map = new Map<string, { id: string; label: string }>()
-
-    if (currentUser?.name || currentUser?.email) {
-      const label = currentUser.name || currentUser.email || "Moi"
-      map.set(String(currentUser.id ?? label), {
-        id: String(currentUser.id ?? label),
-        label,
-      })
-    }
-
-    for (const task of tasks) {
-      const assignee = task.assignee
-      const label = assignee?.name || assignee?.email
-      if (label) map.set(String(assignee?.id ?? label), { id: String(assignee?.id ?? label), label })
-    }
-
-    return Array.from(map.values())
-  }, [currentUser, tasks])
+    return users.map((user) => ({
+      id: String(user.id),
+      label: user.tag ? `${user.name}#${user.tag}` : user.name,
+    }))
+  }, [users])
 
   const assignableUsers = useMemo(() => {
     if (!selectedTask) return []
@@ -108,7 +97,8 @@ export default function Tasks({ scope }: TasksProps) {
       ? teams.find((t) => String(t.id) === String(project.team_id))
       : null
 
-    for (const member of team?.members ?? []) {
+    for (const member of team?.allMembers ?? []) {
+      if (member.status !== 'accepted') continue
       const id = member.user?.id ?? member.user_id
       const label = member.user?.name || member.user?.email || member.name || member.email
       if (id != null && label) {
