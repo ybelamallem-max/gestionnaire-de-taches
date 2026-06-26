@@ -2,7 +2,9 @@ import { format, isValid, parseISO } from "date-fns"
 import { fr } from "date-fns/locale"
 import { FolderKanban, MoreHorizontal } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useState } from "react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -25,6 +27,7 @@ import type { Project } from "@/types/project"
 import {
   getProjectProgress,
   getProjectTeamName,
+  getProjectOwnerName,
   projectStatusLabel,
 } from "@/lib/projects"
 
@@ -43,21 +46,42 @@ function formatDeadline(deadline: string | null | undefined) {
 
 export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
   const navigate = useNavigate()
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const teamName = getProjectTeamName(project)
+  const ownerName = getProjectOwnerName(project)
+  const displayName = (project.team_id === null || project.team === null) ? ownerName : teamName
   const { done, total } = getProjectProgress(project)
   const progressPercent = total > 0 ? Math.round((done / total) * 100) : 0
 
+  function handleDelete() {
+    onDelete(project.id)
+    setIsDeleteDialogOpen(false)
+  }
+
+  function handleLineClick(e: React.MouseEvent) {
+    if (isMenuOpen || isDeleteDialogOpen) {
+      e.stopPropagation()
+      return
+    }
+    navigate(`/projects/${project.id}`)
+  }
+
   return (
-    <div
-      className="group issue-line border-b border-border last:border-b-0 cursor-pointer hover:bg-muted/50"
-      onClick={() => navigate(`/projects/${project.id}`)}
-    >
+    <>
+      <div
+        className="group issue-line border-b border-border last:border-b-0 cursor-pointer hover:bg-muted/50"
+        onClick={handleLineClick}
+      >
       <div className="inline-flex size-6 shrink-0 items-center justify-center rounded bg-muted/50">
         <FolderKanban className="size-3.5 text-muted-foreground" />
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium text-foreground">{project.name}</div>
+        {(project.team_id === null || project.team === null) && (
+          <Badge variant="outline" className="text-xs">Personnel</Badge>
+        )}
         {project.description ? (
           <div className="truncate text-xs text-muted-foreground">{project.description}</div>
         ) : null}
@@ -68,7 +92,7 @@ export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
           {projectStatusLabel(project.status)}
         </span>
         <span className="hidden w-24 truncate text-xs text-muted-foreground lg:inline-block">
-          {teamName}
+          {displayName}
         </span>
         <span className="hidden w-20 text-right text-xs text-muted-foreground sm:inline-block">
           {formatDeadline(project.deadline)}
@@ -83,7 +107,7 @@ export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
           <span className="text-[10px] text-muted-foreground">{progressPercent}%</span>
         </div>
 
-        <DropdownMenu>
+        <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               type="button"
@@ -101,43 +125,45 @@ export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
               onEdit(project)
             }}>Modifier</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <Dialog>
-              <DialogTrigger asChild>
-                <DropdownMenuItem variant="destructive" onSelect={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                }}>
-                  Supprimer
-                </DropdownMenuItem>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Supprimer le projet</DialogTitle>
-                  <DialogDescription>
-                    Cette action est irréversible. Voulez-vous supprimer « {project.name} » ?
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button type="button" variant="outline">
-                      Annuler
-                    </Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => onDelete(project.id)}
-                    >
-                      Supprimer
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setIsDeleteDialogOpen(true)
+              }}
+            >
+              Supprimer
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Supprimer le projet</DialogTitle>
+          <DialogDescription>
+            Cette action est irréversible. Voulez-vous supprimer « {project.name} » ?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Annuler
+            </Button>
+          </DialogClose>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+          >
+            Supprimer
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }

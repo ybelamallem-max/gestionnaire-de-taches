@@ -62,7 +62,13 @@ class ProjectController extends Controller
 
     private function canAccessTeam(Request $request, int $teamId): bool
     {
-        $userId = $request->user()->id;
+        $user = $request->user();
+
+        if ($user->canViewAll() || $user->role === 'responsable') {
+            return \App\Models\Team::where('id', $teamId)->exists();
+        }
+
+        $userId = $user->id;
 
         return \App\Models\Team::where('id', $teamId)
             ->where(function ($q) use ($userId) {
@@ -88,13 +94,24 @@ class ProjectController extends Controller
             $projects = Project::with($this->projectRelations())
                 ->orderByDesc('created_at')
                 ->get();
+        } elseif ($scope === 'team') {
+            $userId = $user->id;
+
+            $projects = Project::with($this->projectRelations())
+                ->whereNotNull('team_id')
+                ->whereHas('team', fn ($t) => $t->where('owner_id', $userId))
+                ->orWhereHas('team.members', fn ($m) => $m->where('users.id', $userId))
+                ->orderByDesc('created_at')
+                ->get();
         } else {
             $userId = $user->id;
 
             $projects = Project::with($this->projectRelations())
-                ->where('owner_id', $userId)
-                ->orWhereHas('team', fn ($t) => $t->where('owner_id', $userId))
-                ->orWhereHas('team.members', fn ($m) => $m->where('users.id', $userId))
+                ->where(function ($q) use ($userId) {
+                    $q->whereNull('team_id')->where('owner_id', $userId)
+                      ->orWhereHas('team', fn ($t) => $t->where('owner_id', $userId))
+                      ->orWhereHas('team.members', fn ($m) => $m->where('users.id', $userId));
+                })
                 ->orderByDesc('created_at')
                 ->get();
         }
@@ -111,15 +128,15 @@ class ProjectController extends Controller
             'description' => ['nullable', 'string'],
             'status' => ['nullable', 'string', 'in:active,completed,archived'],
             'deadline' => ['nullable', 'date'],
-            'team_id' => ['required', 'integer', 'exists:teams,id'],
+            'team_id' => ['nullable', 'integer', 'exists:teams,id'],
         ]);
 
-        if (! $this->canAccessTeam($request, (int) $validated['team_id'])) {
+        if ($validated['team_id'] && ! $this->canAccessTeam($request, (int) $validated['team_id'])) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
         $project = Project::create([
-            'team_id' => $validated['team_id'],
+            'team_id' => $validated['team_id'] ?? null,
             'owner_id' => $request->user()->id,
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,

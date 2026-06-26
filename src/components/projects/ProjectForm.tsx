@@ -61,8 +61,8 @@ export function ProjectForm({
   }, [initialProject])
 
   const isDisabled = useMemo(
-    () => isSubmitting || !name.trim() || teamId === "none",
-    [isSubmitting, name, teamId]
+    () => isSubmitting || !name.trim(),
+    [isSubmitting, name]
   )
 
   async function handleSubmit(e: React.FormEvent) {
@@ -72,7 +72,7 @@ export function ProjectForm({
       description: description.trim() || undefined,
       status,
       deadline: deadline ? format(deadline, "yyyy-MM-dd") : null,
-      team_id: teamId,
+      team_id: teamId === "none" ? null : teamId,
     })
   }
 
@@ -138,9 +138,7 @@ export function ProjectForm({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none" disabled>
-              Choisir une équipe
-            </SelectItem>
+            <SelectItem value="none">Aucune équipe — projet personnel</SelectItem>
             {teams.map((team) => (
               <SelectItem key={String(team.id)} value={String(team.id)}>
                 {team.name}
@@ -149,6 +147,11 @@ export function ProjectForm({
           </SelectContent>
         </Select>
         <FieldError errors={errors?.team_id} />
+        {teamId === "none" && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Ce projet sera uniquement visible par vous.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">

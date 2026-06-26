@@ -41,3 +41,8 @@ export function getProjectTeamName(project: Project) {
   if (typeof project.team === "object" && project.team?.name) return project.team.name
   return "—"
 }
+
+export function getProjectOwnerName(project: Project) {
+  if (typeof project.owner === "object" && project.owner?.name) return project.owner.name
+  return "—"
+}

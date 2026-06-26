@@ -33,6 +33,7 @@ import { getValidationErrors } from "@/services/apiErrors"
 import {
   getProjectProgress,
   getProjectTeamName,
+  getProjectOwnerName,
   projectStatusBadgeClass,
   projectStatusLabel,
 } from "@/lib/projects"
@@ -196,6 +197,8 @@ export default function ProjectDetail() {
   }
 
   const teamName = getProjectTeamName(project)
+  const ownerName = getProjectOwnerName(project)
+  const displayName = (project.team_id === null || project.team === null) ? ownerName : teamName
   const { done, total } = getProjectProgress(project)
   const progressPercent = total > 0 ? Math.round((done / total) * 100) : 0
 
@@ -262,8 +265,8 @@ export default function ProjectDetail() {
           )}
           <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/50 px-3 py-2">
-              <span className="text-muted-foreground">Équipe</span>
-              <span className="truncate font-medium">{teamName}</span>
+              <span className="text-muted-foreground">{project.team_id === null || project.team === null ? 'Propriétaire' : 'Équipe'}</span>
+              <span className="truncate font-medium">{displayName}</span>
             </div>
             {project.deadline && (
               <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/50 px-3 py-2">
