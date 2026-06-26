@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { User, Mail, Shield, Camera, Key, Save, Upload } from "lucide-react"
+import { User, Mail, Shield, Camera, Key, Save, Upload, Settings } from "lucide-react"
+import { Link } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -152,6 +153,15 @@ export default function Profile() {
           Gérez vos informations personnelles et votre sécurité.
         </p>
       </div>
+
+      <Card>
+        <CardContent className="p-4">
+          <Link to="/settings" className="flex items-center gap-3 text-sm font-medium hover:text-primary transition-colors">
+            <Settings className="size-4" />
+            Paramètres de l'application
+          </Link>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList>

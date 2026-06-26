@@ -13,6 +13,7 @@ import ProjectDetail from "@/pages/ProjectDetail"
 import Projects from "@/pages/Projects"
 import Tasks from "@/pages/Tasks"
 import Teams from "@/pages/Teams"
+import Settings from "@/pages/Settings"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
                 <Route path="projects/all" element={<Projects scope="all" />} />
                 <Route path="projects/:id" element={<ProjectDetail />} />
                 <Route path="teams" element={<Teams />} />
+                <Route path="settings" element={<Settings />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route path="profile" element={<Profile />} />
                 <Route element={<ProtectedRoute requiredRole="admin" />}>

@@ -41,11 +41,18 @@ export function Sidebar() {
   const currentUser = useAuthStore((s) => s.user)
   const unreadCount = useNotificationsStore(selectUnreadCount)
   const fetchNotifications = useNotificationsStore((s) => s.fetchNotifications)
-  const [openAccordion, setOpenAccordion] = useState<"tasks" | "projects" | null>(null)
+  const [openAccordion, setOpenAccordion] = useState<"tasks" | "projects" | null>(() => {
+    const saved = localStorage.getItem('sidebar_accordion')
+    return saved === 'tasks' || saved === 'projects' ? saved : null
+  })
 
   useEffect(() => {
     void fetchNotifications()
   }, [fetchNotifications])
+
+  useEffect(() => {
+    localStorage.setItem('sidebar_accordion', openAccordion || 'null')
+  }, [openAccordion])
 
   const visibleItems = navItems.filter((item) => {
     if (item.key === "admin") return currentUser?.role === "admin"
