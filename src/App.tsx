@@ -28,8 +28,9 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route index element={<Dashboard />} />
-                <Route path="tasks" element={<Navigate to="/tasks/me" replace />} />
+                <Route path="tasks" element={<Navigate to="/tasks/mine" replace />} />
                 <Route path="tasks/me" element={<Tasks scope="me" />} />
+                <Route path="tasks/mine" element={<Tasks scope="mine" />} />
                 <Route path="tasks/team" element={<Tasks scope="team" />} />
                 <Route path="tasks/all" element={<Tasks scope="all" />} />
                 <Route path="projects" element={<Navigate to="/projects/me" replace />} />

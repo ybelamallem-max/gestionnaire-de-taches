@@ -34,7 +34,7 @@ class TaskController extends Controller
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'scope' => ['sometimes', 'string', 'in:me,team,all'],
+            'scope' => ['sometimes', 'string', 'in:me,mine,team,all'],
             'status' => ['sometimes', 'string', 'in:todo,in_progress,done'],
             'priority' => ['sometimes', 'string', 'in:low,medium,high'],
         ]);
@@ -51,10 +51,15 @@ class TaskController extends Controller
         } else {
             $userId = $user->id;
 
-            $query = Task::with($this->taskRelations())
-                ->where(function ($q) use ($userId) {
-                    $q->where('created_by', $userId)->orWhere('assigned_to', $userId);
-                });
+            if ($scope === 'mine') {
+                $query = Task::with($this->taskRelations())
+                    ->where('assigned_to', $userId);
+            } else {
+                $query = Task::with($this->taskRelations())
+                    ->where(function ($q) use ($userId) {
+                        $q->where('created_by', $userId)->orWhere('assigned_to', $userId);
+                    });
+            }
         }
 
         if (array_key_exists('status', $validated)) {

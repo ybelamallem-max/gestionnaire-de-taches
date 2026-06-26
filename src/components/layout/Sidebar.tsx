@@ -137,7 +137,7 @@ export function Sidebar() {
           >
             <div className="flex flex-col gap-1 py-1 pl-6">
               <NavLink
-                to="/tasks/me"
+                to="/tasks/mine"
                 className={({ isActive }) =>
                   cn(
                     "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",

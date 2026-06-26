@@ -180,9 +180,11 @@ export default function Tasks({ scope }: TasksProps) {
               ? "Toutes les tâches"
               : scope === "me"
                 ? "Mes tâches"
-                : scope === "team"
-                  ? "Tâches équipe"
-                  : "Tâches"}
+                : scope === "mine"
+                  ? "Mes tâches assignées"
+                  : scope === "team"
+                    ? "Tâches équipe"
+                    : "Tâches"}
           </div>
           <div className="page-subtitle">
             {remainingCount} tâche{remainingCount > 1 ? "s" : ""} restante
@@ -258,6 +260,10 @@ export default function Tasks({ scope }: TasksProps) {
         {isLoading ? (
           <div className="empty-state">
             Chargement...
+          </div>
+        ) : filteredTasks.length === 0 ? (
+          <div className="empty-state">
+            {scope === 'mine' ? 'Aucune tâche ne vous est assignée pour le moment.' : 'Aucune tâche trouvée.'}
           </div>
         ) : view === "board" ? (
           <TaskBoard
