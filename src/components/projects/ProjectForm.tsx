@@ -12,9 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { Project, ProjectPayload, ProjectStatus } from "@/hooks/useProjects"
-import type { Team } from "@/hooks/useTeams"
+import type { Project, ProjectPayload, ProjectStatus } from "@/types/project"
+import type { Team } from "@/types/team"
 import type { ApiValidationErrors } from "@/services/apiErrors"
+import { useAuthStore } from "@/stores/authStore"
 
 type ProjectFormProps = {
   teams: Team[]
@@ -46,11 +47,22 @@ export function ProjectForm({
   onCancel,
   onSubmit,
 }: ProjectFormProps) {
+  const currentUser = useAuthStore(s => s.user)
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [status, setStatus] = useState<ProjectStatus>("active")
   const [deadline, setDeadline] = useState<Date | undefined>(undefined)
   const [teamId, setTeamId] = useState("none")
+
+  const filteredTeams = useMemo(() => {
+    const isAdmin = currentUser?.role === 'admin'
+    if (isAdmin) return teams
+    
+    return teams.filter(team => 
+      team.user_membership?.status === 'accepted' && 
+      (team.user_membership?.role === 'owner' || team.user_membership?.role === 'admin')
+    )
+  }, [teams, currentUser?.role])
 
   useEffect(() => {
     setName(initialProject?.name ?? "")
@@ -139,7 +151,7 @@ export function ProjectForm({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">Aucune équipe — projet personnel</SelectItem>
-            {teams.map((team) => (
+            {filteredTeams.map((team) => (
               <SelectItem key={String(team.id)} value={String(team.id)}>
                 {team.name}
               </SelectItem>

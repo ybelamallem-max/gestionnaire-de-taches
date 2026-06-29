@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { LayoutGrid, LayoutList, Plus } from "lucide-react"
+import { LayoutGrid, LayoutList, Plus, Search } from "lucide-react"
 
 import { TaskBoard } from "@/components/tasks/TaskBoard"
 import { TaskDetailsPanel } from "@/components/tasks/TaskDetailsPanel"
@@ -12,6 +12,7 @@ import { TaskForm } from "@/components/tasks/TaskForm"
 import { TaskList } from "@/components/tasks/TaskList"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
@@ -54,6 +55,8 @@ export default function Tasks({ scope }: TasksProps) {
     priority: TaskPriorityFilter
   }>({ status: "toutes", priority: "toutes" })
 
+  const [searchQuery, setSearchQuery] = useState("")
+
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -71,9 +74,12 @@ export default function Tasks({ scope }: TasksProps) {
       const okStatus = filters.status === "toutes" ? true : t.status === filters.status
       const okPriority =
         filters.priority === "toutes" ? true : t.priority === filters.priority
-      return okStatus && okPriority
+      const okSearch = searchQuery === "" || 
+        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      return okStatus && okPriority && okSearch
     })
-  }, [filters.priority, filters.status, tasks])
+  }, [filters.priority, filters.status, tasks, searchQuery])
 
   const mentionUsers = useMemo(() => {
     return users.map((user) => ({
@@ -237,6 +243,15 @@ export default function Tasks({ scope }: TasksProps) {
         <div className="flex flex-wrap items-center gap-3">
           <Badge variant="secondary">{tasks.length} total</Badge>
           <Badge variant="outline">{remainingCount} restantes</Badge>
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher une tâche..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
 
         <TaskFilters value={filters} onChange={setFilters} />

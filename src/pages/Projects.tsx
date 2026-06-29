@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { Plus } from "lucide-react"
+import { Plus, Search } from "lucide-react"
 
 import { ProjectForm } from "@/components/projects/ProjectForm"
 import { ProjectLine } from "@/components/projects/ProjectLine"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,12 @@ export default function Projects({ scope }: ProjectsProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createErrors, setCreateErrors] = useState<ApiValidationErrors | null>(null)
   const [editErrors, setEditErrors] = useState<ApiValidationErrors | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
 
   async function handleCreate(payload: ProjectPayload) {
     setIsSubmitting(true)
@@ -110,6 +117,15 @@ export default function Projects({ scope }: ProjectsProps) {
       <div className="page-section space-y-5">
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{projects.length} total</Badge>
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un projet..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
 
         {error ? (
@@ -122,9 +138,9 @@ export default function Projects({ scope }: ProjectsProps) {
           <div className="empty-state">
             Chargement...
           </div>
-        ) : projects.length ? (
+        ) : filteredProjects.length ? (
           <div className="list-shell divide-y">
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <ProjectLine
                 key={String(project.id)}
                 project={project}
@@ -135,7 +151,7 @@ export default function Projects({ scope }: ProjectsProps) {
           </div>
         ) : (
           <div className="empty-state">
-            Aucun projet pour le moment.
+            {searchQuery ? "Aucun projet ne correspond à votre recherche." : "Aucun projet pour le moment."}
           </div>
         )}
 

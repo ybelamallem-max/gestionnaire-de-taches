@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { Plus } from "lucide-react"
+import { Plus, Search } from "lucide-react"
 
 import { TeamForm } from "@/components/teams/TeamForm"
 import { TeamLine } from "@/components/teams/TeamLine"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,12 @@ export default function Teams() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createErrors, setCreateErrors] = useState<ApiValidationErrors | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const filteredTeams = teams.filter(team =>
+    team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (team.description && team.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
 
   async function handleCreate(payload: TeamPayload) {
     setIsSubmitting(true)
@@ -118,6 +125,15 @@ export default function Teams() {
       <div className="page-section space-y-5">
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{teams.length} total</Badge>
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher une équipe..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
 
         {error ? (
@@ -130,9 +146,9 @@ export default function Teams() {
           <div className="empty-state">
             Chargement...
           </div>
-        ) : teams.length ? (
+        ) : filteredTeams.length ? (
           <div className="list-shell divide-y">
-            {teams.map((team) => (
+            {filteredTeams.map((team) => (
               <TeamLine
                 key={String(team.id)}
                 team={team}
@@ -149,7 +165,7 @@ export default function Teams() {
           </div>
         ) : (
           <div className="empty-state">
-            Aucune équipe pour le moment.
+            {searchQuery ? "Aucune équipe ne correspond à votre recherche." : "Aucune équipe pour le moment."}
           </div>
         )}
       </div>

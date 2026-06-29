@@ -1,9 +1,10 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { formatDistanceToNow, parseISO } from "date-fns"
 import { fr } from "date-fns/locale"
-import { UserPlus, UserCheck, UserMinus, Users, ClipboardList, AtSign, FolderCheck, CheckCircle, CheckCheck } from "lucide-react"
+import { UserPlus, UserCheck, UserMinus, Users, ClipboardList, AtSign, FolderCheck, CheckCircle, CheckCheck, Search } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useNotificationsStore } from "@/stores/notificationsStore"
 
@@ -23,6 +24,8 @@ function getNotificationIcon(type?: string | null) {
       return UserMinus
     case 'team_member_added':
       return Users
+    case 'team_removed':
+      return UserMinus
     case 'task_assigned':
       return ClipboardList
     case 'comment_mention':
@@ -56,6 +59,13 @@ export default function Notifications() {
   const acceptTeamInvite = useNotificationsStore((s) => s.acceptTeamInvite)
   const rejectTeamInvite = useNotificationsStore((s) => s.rejectTeamInvite)
 
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const filteredItems = items.filter(item =>
+    (item.title && item.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (item.message && item.message.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
+
   useEffect(() => {
     void fetchNotifications()
   }, [fetchNotifications])
@@ -71,15 +81,26 @@ export default function Notifications() {
             {items.length} notification{items.length > 1 ? "s" : ""}
           </div>
         </div>
-        {hasUnread && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void markAllAsRead()}
-          >
-            Tout marquer comme lu
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {hasUnread && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void markAllAsRead()}
+            >
+              Tout marquer comme lu
+            </Button>
+          )}
+          <div className="relative max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="page-section space-y-4">
@@ -94,9 +115,9 @@ export default function Notifications() {
           <div className="empty-state">
             Chargement...
           </div>
-        ) : items.length ? (
+        ) : filteredItems.length ? (
           <div className="list-shell divide-y">
-            {items.map((n) => {
+            {filteredItems.map((n) => {
               const isUnread = !n.read_at
               const Icon = getNotificationIcon(n.type)
               const data = n.data as { team_id?: string | number } | null
@@ -131,7 +152,7 @@ export default function Notifications() {
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">
-                    {n.type === 'team_invite' && teamId && (
+                    {(n.type === 'team_invite' || n.type === 'team_request') && teamId && (
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
@@ -167,7 +188,7 @@ export default function Notifications() {
           </div>
         ) : (
           <div className="empty-state">
-            Aucune notification.
+            {searchQuery ? "Aucune notification ne correspond à votre recherche." : "Aucune notification."}
           </div>
         )}
       </div>

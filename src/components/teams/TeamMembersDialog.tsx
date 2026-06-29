@@ -176,30 +176,32 @@ export function TeamMembersDialog({
                     </div>
 
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                      <Select
-                        value={member.role}
-                        onValueChange={(value) =>
-                          memberId != null
-                            ? void onUpdateRole(team.id, memberId, value as TeamRole)
-                            : undefined
-                        }
-                        disabled={member.role === "owner"}
-                      >
-                        <SelectTrigger className="h-9 w-full sm:w-36">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="member">Membre</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="owner" disabled>
-                            Propriétaire
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      {canManage && (
+                        <Select
+                          value={member.role}
+                          onValueChange={(value) =>
+                            memberId != null
+                              ? void onUpdateRole(team.id, memberId, value as TeamRole)
+                              : undefined
+                          }
+                          disabled={member.role === "owner"}
+                        >
+                          <SelectTrigger className="h-9 w-full sm:w-36">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="member">Membre</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="owner" disabled>
+                              Propriétaire
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
                       <Button
                         type="button"
                         variant="destructive"
-                        disabled={memberId == null}
+                        disabled={memberId == null || !canManage}
                         onClick={() =>
                           memberId != null ? void onRemoveMember(team.id, memberId) : undefined
                         }

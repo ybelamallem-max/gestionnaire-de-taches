@@ -42,7 +42,9 @@ export function TeamLine({
   const membership = team.user_membership
 
   const isMember = membership?.status === "accepted"
-  const isPending = membership?.status === "pending_invite" || membership?.status === "pending_request"
+  const isPendingInvite = membership?.status === "pending_invite"
+  const isPendingRequest = membership?.status === "pending_request"
+  const isPending = isPendingInvite || isPendingRequest
   const isOwner = membership?.role === "owner"
   const canDelete = isOwner && memberCount === 1
   const canManage = currentUser?.role === 'admin' || membership?.role === 'owner' || membership?.role === 'admin'
@@ -61,9 +63,14 @@ export function TeamLine({
               Membre
             </Badge>
           )}
-          {isPending && (
+          {isPendingRequest && (
             <Badge variant="outline" className="text-xs">
-              En attente
+              Demande en attente
+            </Badge>
+          )}
+          {isPendingInvite && (
+            <Badge variant="outline" className="text-xs">
+              Invitation en attente
             </Badge>
           )}
         </div>
