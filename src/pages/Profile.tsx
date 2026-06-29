@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { User, Mail, Shield, Camera, Key, Save, Upload, Settings } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { User, Mail, Shield, Camera, Key, Save, Upload, Settings, Eye, EyeOff } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,8 @@ export default function Profile() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({
@@ -179,29 +181,34 @@ export default function Profile() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-6">
-                <Avatar className="size-24">
-                  <AvatarImage src={avatarPreview || user?.avatar} alt={formatDisplayName(user)} />
-                  <AvatarFallback className="text-2xl">
-                    {getAvatarInitials(user)}
-                  </AvatarFallback>
-                </Avatar>
+                <div 
+                  className="relative cursor-pointer"
+                  onClick={() => inputRef.current?.click()}
+                >
+                  <Avatar className="size-24">
+                    <AvatarImage src={avatarPreview || user?.avatar} alt={formatDisplayName(user)} />
+                    <AvatarFallback className="text-2xl">
+                      {getAvatarInitials(user)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute bottom-0 right-0 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Camera className="size-3.5" />
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <div>
                     <Input
+                      ref={inputRef}
                       id="avatar"
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
                       onChange={handleAvatarChange}
                       className="hidden"
                     />
-                    <Label htmlFor="avatar">
-                      <Button variant="outline" asChild>
-                        <span>
-                          <Upload className="mr-2 size-4" />
-                          Choisir une photo
-                        </span>
-                      </Button>
-                    </Label>
+                    <Button variant="outline" onClick={() => inputRef.current?.click()}>
+                      <Upload className="mr-2 size-4" />
+                      Choisir une photo
+                    </Button>
                   </div>
                   {avatarPreview && (
                     <Button onClick={handleAvatarUpload} disabled={loading}>
@@ -233,6 +240,9 @@ export default function Profile() {
                       disabled
                       className="bg-muted"
                     />
+                    {user?.tag && (
+                      <span className="text-sm text-muted-foreground">#{user.tag}</span>
+                    )}
                   </div>
                 </div>
 
@@ -265,15 +275,24 @@ export default function Profile() {
 
                 <div className="space-y-2">
                   <Label htmlFor="current-password-profile">Mot de passe actuel (confirmation)</Label>
-                  <div className="flex items-center gap-2">
+                  <div className="relative flex items-center gap-2">
                     <Key className="size-4 text-muted-foreground" />
                     <Input
                       id="current-password-profile"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={profileForm.current_password}
                       onChange={(e) => setProfileForm({ ...profileForm, current_password: e.target.value })}
                       required
                     />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 size-8"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </Button>
                   </div>
                 </div>
 

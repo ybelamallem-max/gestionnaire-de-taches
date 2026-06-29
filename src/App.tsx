@@ -4,6 +4,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { UserDataRefresher } from "@/components/auth/UserDataRefresher"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import AdminUsers from "@/pages/Admin/Users"
+import Archive from "@/pages/Archive"
 import Dashboard from "@/pages/Dashboard"
 import Login from "@/pages/Login"
 import Register from "@/pages/Register"
@@ -39,6 +40,7 @@ export default function App() {
                 <Route path="projects/all" element={<Projects scope="all" />} />
                 <Route path="projects/:id" element={<ProjectDetail />} />
                 <Route path="teams" element={<Teams />} />
+                <Route path="archive" element={<Archive />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route path="profile" element={<Profile />} />

@@ -33,6 +33,7 @@ type TasksProps = {
 }
 
 export default function Tasks({ scope }: TasksProps) {
+  const { projects, refresh: refreshProjects } = useProjects(scope === "all" ? "all" : undefined)
   const {
     tasks,
     isLoading,
@@ -43,8 +44,7 @@ export default function Tasks({ scope }: TasksProps) {
     toggleTask,
     assignTask,
     replaceTask,
-  } = useTasks(scope)
-  const { projects } = useProjects(scope === "all" ? "all" : undefined)
+  } = useTasks(scope, refreshProjects)
   const { teams } = useTeams()
   const { users } = useUsers()
   const currentUser = useAuthStore((state) => state.user)

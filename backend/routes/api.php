@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/projects/{project}', [ProjectController::class, 'update']);
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy']);
     Route::get('/projects/{project}/progress', [ProjectController::class, 'progress']);
+    Route::get('/projects/archive', [ProjectController::class, 'archive']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read']);

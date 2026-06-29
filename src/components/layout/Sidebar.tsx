@@ -8,6 +8,7 @@ import {
   User,
   Users,
   CheckSquare2,
+  Archive,
 } from "lucide-react"
 import type { ComponentType } from "react"
 import { useEffect, useState } from "react"
@@ -33,6 +34,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { key: "teams", label: "Équipes", icon: Users, to: "/teams" },
+  { key: "archive", label: "Archive", icon: Archive, to: "/archive" },
   { key: "notifications", label: "Notifications", icon: Bell, to: "/notifications" },
   { key: "admin", label: "Admin", icon: Shield, to: "/admin/users" },
 ]

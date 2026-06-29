@@ -136,6 +136,8 @@ class TaskController extends Controller
 
         if ($oldStatus !== 'done' && $task->status === 'done') {
             $task->load('project');
+            
+            // Send task completion notification to team members
             if ($task->project && $task->project->team_id) {
                 $members = \App\Models\TeamMember::where('team_id', $task->project->team_id)
                     ->where('user_id', '!=', $request->user()->id)
@@ -153,11 +155,68 @@ class TaskController extends Controller
                     ]);
                 }
             }
+
+            // Check if all tasks in the project are completed
+            if ($task->project) {
+                $totalTasks = $task->project->tasks()->count();
+                $completedTasks = $task->project->tasks()->where('status', 'done')->count();
+                
+                if ($totalTasks > 0 && $totalTasks === $completedTasks && $task->project->status !== 'completed') {
+                    $task->project->status = 'completed';
+                    $task->project->save();
+
+                    // Send project completion notification to all relevant users
+                    $notifiedUsers = [];
+                    
+                    // Notify project owner if not the current user
+                    if ($task->project->owner_id && $task->project->owner_id != $request->user()->id) {
+                        Notification::create([
+                            'user_id' => $task->project->owner_id,
+                            'project_id' => $task->project->id,
+                            'type' => 'project_completed',
+                            'title' => 'Projet terminé',
+                            'message' => "Le projet \"{$task->project->name}\" a été automatiquement terminé car toutes ses tâches sont complétées",
+                            'data' => json_encode(['project_id' => $task->project->id, 'project_name' => $task->project->name]),
+                        ]);
+                        $notifiedUsers[] = $task->project->owner_id;
+                    }
+
+                    // Notify all team members (including the current user)
+                    if ($task->project->team_id) {
+                        $allMembers = \App\Models\TeamMember::where('team_id', $task->project->team_id);
+                        
+                        // Exclude already notified users
+                        if (!empty($notifiedUsers)) {
+                            $allMembers->whereNotIn('user_id', $notifiedUsers);
+                        }
+                        
+                        $members = $allMembers->get();
+                        
+                        foreach ($members as $member) {
+                            Notification::create([
+                                'user_id' => $member->user_id,
+                                'project_id' => $task->project->id,
+                                'type' => 'project_completed',
+                                'title' => 'Projet terminé',
+                                'message' => "Le projet \"{$task->project->name}\" a été automatiquement terminé car toutes ses tâches sont complétées",
+                                'data' => json_encode(['project_id' => $task->project->id, 'project_name' => $task->project->name]),
+                            ]);
+                        }
+                    }
+                }
+            }
         }
 
-        return response()->json([
+        $response = [
             'task' => $task->load($this->taskRelations()),
-        ]);
+        ];
+
+        // Include project in response if it was marked as completed
+        if ($task->project && $task->project->status === 'completed') {
+            $response['project'] = $task->project->load($task->project->team ? 'team' : null);
+        }
+
+        return response()->json($response);
     }
 
     public function destroy(Request $request, Task $task): JsonResponse
@@ -181,6 +240,8 @@ class TaskController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
+        $oldStatus = $task->status;
+
         if ($task->status === 'in_progress') {
             $task->status = 'done';
             $task->completed_at = now();
@@ -191,9 +252,71 @@ class TaskController extends Controller
 
         $task->save();
 
-        return response()->json([
+        // Check if task was just marked as done
+        if ($oldStatus !== 'done' && $task->status === 'done') {
+            $task->load('project');
+            
+            // Check if all tasks in the project are completed
+            if ($task->project) {
+                $totalTasks = $task->project->tasks()->count();
+                $completedTasks = $task->project->tasks()->where('status', 'done')->count();
+                
+                if ($totalTasks > 0 && $totalTasks === $completedTasks && $task->project->status !== 'completed') {
+                    $task->project->status = 'completed';
+                    $task->project->save();
+
+                    // Send project completion notification to all relevant users
+                    $notifiedUsers = [];
+                    
+                    // Notify project owner if not the current user
+                    if ($task->project->owner_id && $task->project->owner_id != $request->user()->id) {
+                        Notification::create([
+                            'user_id' => $task->project->owner_id,
+                            'project_id' => $task->project->id,
+                            'type' => 'project_completed',
+                            'title' => 'Projet terminé',
+                            'message' => "Le projet \"{$task->project->name}\" a été automatiquement terminé car toutes ses tâches sont complétées",
+                            'data' => json_encode(['project_id' => $task->project->id, 'project_name' => $task->project->name]),
+                        ]);
+                        $notifiedUsers[] = $task->project->owner_id;
+                    }
+
+                    // Notify all team members (including the current user)
+                    if ($task->project->team_id) {
+                        $allMembers = \App\Models\TeamMember::where('team_id', $task->project->team_id);
+                        
+                        // Exclude already notified users
+                        if (!empty($notifiedUsers)) {
+                            $allMembers->whereNotIn('user_id', $notifiedUsers);
+                        }
+                        
+                        $members = $allMembers->get();
+                        
+                        foreach ($members as $member) {
+                            Notification::create([
+                                'user_id' => $member->user_id,
+                                'project_id' => $task->project->id,
+                                'type' => 'project_completed',
+                                'title' => 'Projet terminé',
+                                'message' => "Le projet \"{$task->project->name}\" a été automatiquement terminé car toutes ses tâches sont complétées",
+                                'data' => json_encode(['project_id' => $task->project->id, 'project_name' => $task->project->name]),
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        $response = [
             'task' => $task->load($this->taskRelations()),
-        ]);
+        ];
+
+        // Include project in response if it was marked as completed
+        if ($task->project && $task->project->status === 'completed') {
+            $response['project'] = $task->project->load($task->project->team ? 'team' : null);
+        }
+
+        return response()->json($response);
     }
 
     public function assign(Request $request, Task $task): JsonResponse

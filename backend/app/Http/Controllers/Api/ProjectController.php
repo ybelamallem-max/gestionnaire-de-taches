@@ -93,21 +93,26 @@ class ProjectController extends Controller
             }
 
             $projects = Project::with($this->projectRelations())
+                ->where('status', '!=', 'completed')
                 ->orderByDesc('created_at')
                 ->get();
         } elseif ($scope === 'team') {
             $userId = $user->id;
 
             $projects = Project::with($this->projectRelations())
+                ->where('status', '!=', 'completed')
                 ->whereNotNull('team_id')
-                ->whereHas('team', fn ($t) => $t->where('owner_id', $userId))
-                ->orWhereHas('team.members', fn ($m) => $m->where('users.id', $userId))
+                ->where(function ($q) use ($userId) {
+                    $q->whereHas('team', fn ($t) => $t->where('owner_id', $userId))
+                      ->orWhereHas('team.members', fn ($m) => $m->where('users.id', $userId));
+                })
                 ->orderByDesc('created_at')
                 ->get();
         } else {
             $userId = $user->id;
 
             $projects = Project::with($this->projectRelations())
+                ->where('status', '!=', 'completed')
                 ->where(function ($q) use ($userId) {
                     $q->whereNull('team_id')->where('owner_id', $userId)
                       ->orWhereHas('team', fn ($t) => $t->where('owner_id', $userId))
@@ -233,6 +238,39 @@ class ProjectController extends Controller
             'project' => $project->load($this->projectRelations()),
             'completed_tasks' => $completed,
             'total_tasks' => $total,
+        ]);
+    }
+
+    public function archive(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->role === 'admin') {
+            $projects = Project::with($this->projectRelations())
+                ->where('status', 'completed')
+                ->orderByDesc('created_at')
+                ->get();
+        } elseif ($user->role === 'responsable') {
+            $projects = Project::with($this->projectRelations())
+                ->where('status', 'completed')
+                ->orderByDesc('created_at')
+                ->get();
+        } else {
+            $userId = $user->id;
+
+            $projects = Project::with($this->projectRelations())
+                ->where('status', 'completed')
+                ->where(function ($q) use ($userId) {
+                    $q->whereNull('team_id')->where('owner_id', $userId)
+                      ->orWhereHas('team', fn ($t) => $t->where('owner_id', $userId))
+                      ->orWhereHas('team.members', fn ($m) => $m->where('users.id', $userId));
+                })
+                ->orderByDesc('created_at')
+                ->get();
+        }
+
+        return response()->json([
+            'projects' => $projects,
         ]);
     }
 }

@@ -16,7 +16,7 @@ import type {
 import { normalizeTask } from "@/types/task"
 
 
-export function useTasks(scope?: DataScope) {
+export function useTasks(scope?: DataScope, onProjectCompleted?: () => void) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,16 +59,22 @@ export function useTasks(scope?: DataScope) {
     async (id: Task["id"], payload: TaskUpdatePayload) => {
       setError(null)
       try {
-        const res = await api.put<{ task: ApiTask }>(`/tasks/${id}`, payload)
+        const res = await api.put<{ task: ApiTask; project?: any }>(`/tasks/${id}`, payload)
         const updated = res.data.task ? normalizeTask(res.data.task) : null
         if (updated?.id != null) setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
+        
+        // If project was marked as completed, trigger refresh callback
+        if (res.data.project && onProjectCompleted) {
+          onProjectCompleted()
+        }
+        
         return updated
       } catch (err: unknown) {
         setError(getApiMessage(err, "Erreur lors de la mise à jour de la tâche."))
         throw err
       }
     },
-    []
+    [onProjectCompleted]
   )
 
   const deleteTask = useCallback(async (id: Task["id"]) => {
@@ -86,16 +92,22 @@ export function useTasks(scope?: DataScope) {
     async (id: Task["id"]) => {
       setError(null)
       try {
-        const res = await api.patch<{ task: ApiTask }>(`/tasks/${id}/toggle`)
+        const res = await api.patch<{ task: ApiTask; project?: any }>(`/tasks/${id}/toggle`)
         const updated = res.data.task ? normalizeTask(res.data.task) : null
         if (updated?.id != null) setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
+        
+        // If project was marked as completed, trigger refresh callback
+        if (res.data.project && onProjectCompleted) {
+          onProjectCompleted()
+        }
+        
         return updated
       } catch (err: unknown) {
         setError(getApiMessage(err, "Erreur lors de la mise à jour du statut."))
         throw err
       }
     },
-    []
+    [onProjectCompleted]
   )
 
   const assignTask = useCallback(

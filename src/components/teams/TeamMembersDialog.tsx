@@ -24,13 +24,13 @@ import { getValidationErrors } from "@/services/apiErrors"
 
 type TeamMembersDialogProps = {
   team: Team
-  onAddMember: (teamId: Team["id"], payload: { user_id: string; role: TeamRole }) => Promise<void>
   onInvite?: (teamId: Team["id"], identifier: string) => Promise<void>
   onUpdateRole: (teamId: Team["id"], userId: string | number, role: TeamRole) => Promise<void>
   onRemoveMember: (teamId: Team["id"], userId: string | number) => Promise<void>
   onAcceptMembership?: (teamId: Team["id"], userId: string | number) => Promise<void>
   onRejectMembership?: (teamId: Team["id"], userId: string | number) => Promise<void>
   trigger?: ReactNode
+  canManage: boolean
 }
 
 function getMemberName(member: TeamMember) {
@@ -43,40 +43,22 @@ function getMemberKey(member: TeamMember) {
 
 export function TeamMembersDialog({
   team,
-  onAddMember,
   onInvite,
   onUpdateRole,
   onRemoveMember,
   onAcceptMembership,
   onRejectMembership,
   trigger,
+  canManage,
 }: TeamMembersDialogProps) {
   const [open, setOpen] = useState(false)
-  const [userId, setUserId] = useState("")
   const [identifier, setIdentifier] = useState("")
-  const [role, setRole] = useState<TeamRole>("member")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<ApiValidationErrors | null>(null)
 
   const members = useMemo(() => team.allMembers ?? team.members ?? [], [team.allMembers, team.members])
   const acceptedMembers = useMemo(() => members.filter(m => m.status === "accepted" || !m.status), [members])
   const pendingMembers = useMemo(() => members.filter(m => m.status && m.status !== "accepted"), [members])
-
-  async function handleAddMember(e: React.FormEvent) {
-    e.preventDefault()
-    if (!userId.trim()) return
-    setIsSubmitting(true)
-    setFieldErrors(null)
-    try {
-      await onAddMember(team.id, { user_id: userId.trim(), role })
-      setUserId("")
-      setRole("member")
-    } catch (err: unknown) {
-      setFieldErrors(getValidationErrors(err))
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault()
@@ -108,7 +90,7 @@ export function TeamMembersDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          {onInvite && (
+          {canManage && onInvite && (
             <form onSubmit={handleInvite} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto]">
               <div className="space-y-1">
                 <Input
@@ -116,6 +98,7 @@ export function TeamMembersDialog({
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="Nom#Tag (ex: Mohamed#247)"
                 />
+                <p className="text-xs text-muted-foreground">Format : Prénom Nom#tag — ex : Alice Dupont#042</p>
                 <FieldError errors={fieldErrors?.identifier} />
               </div>
               <Button
@@ -146,7 +129,7 @@ export function TeamMembersDialog({
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      {onAcceptMembership && memberId != null && (
+                      {canManage && onAcceptMembership && memberId != null && (
                         <Button
                           type="button"
                           size="sm"
@@ -156,7 +139,7 @@ export function TeamMembersDialog({
                           Accepter
                         </Button>
                       )}
-                      {onRejectMembership && memberId != null && (
+                      {canManage && onRejectMembership && memberId != null && (
                         <Button
                           type="button"
                           size="sm"

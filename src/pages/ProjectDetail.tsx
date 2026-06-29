@@ -45,8 +45,8 @@ export default function ProjectDetail() {
   const navigate = useNavigate()
   const currentUser = useAuthStore((s) => s.user)
   const dataScope = canViewAll(currentUser?.role) ? "all" : undefined
-  const { projects, isLoading: projectsLoading, updateProject } = useProjects(dataScope)
-  const { tasks, createTask, updateTask, deleteTask, toggleTask, assignTask, replaceTask } = useTasks(dataScope)
+  const { projects, isLoading: projectsLoading, updateProject, refresh: refreshProjects } = useProjects(dataScope)
+  const { tasks, createTask, updateTask, deleteTask, toggleTask, assignTask, replaceTask } = useTasks(dataScope, refreshProjects)
   const { teams } = useTeams()
   const { users } = useUsers()
 

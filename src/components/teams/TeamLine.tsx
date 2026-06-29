@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { formatDisplayName } from "@/lib/users"
 import type { Team, TeamRole } from "@/types/team"
+import { useAuthStore } from "@/stores/authStore"
 
 type TeamLineProps = {
   team: Team
@@ -36,6 +37,7 @@ export function TeamLine({
   onRejectMembership,
   onDeleteTeam,
 }: TeamLineProps) {
+  const currentUser = useAuthStore(s => s.user)
   const memberCount = team.members_count ?? team.members?.length ?? 0
   const membership = team.user_membership
 
@@ -43,6 +45,7 @@ export function TeamLine({
   const isPending = membership?.status === "pending_invite" || membership?.status === "pending_request"
   const isOwner = membership?.role === "owner"
   const canDelete = isOwner && memberCount === 1
+  const canManage = currentUser?.role === 'admin' || membership?.role === 'owner' || membership?.role === 'admin'
 
   return (
     <div className="group issue-line border-b border-border last:border-b-0">
@@ -107,12 +110,12 @@ export function TeamLine({
 
         <TeamMembersDialog
           team={team}
-          onAddMember={onAddMember}
           onUpdateRole={onUpdateRole}
           onRemoveMember={onRemoveMember}
           onInvite={onInvite}
           onAcceptMembership={onAcceptMembership}
           onRejectMembership={onRejectMembership}
+          canManage={canManage}
           trigger={
             <Button
               type="button"
