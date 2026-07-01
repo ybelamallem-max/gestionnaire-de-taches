@@ -1,0 +1,166 @@
+{
+  "root": {
+    "nodeId": "gen-project-shell",
+    "kind": "project-shell",
+    "pageIds": [
+      "page-sign-in",
+      "page-dashboard",
+      "page-my-tasks",
+      "page-projects",
+      "page-teams"
+    ],
+    "output": "partials/project-shell.html",
+    "sharedRegions": [
+      "global body background",
+      "brand lighting",
+      "global typography",
+      "content width shell"
+    ],
+    "privateRegions": [],
+    "mutableSlots": [
+      "shellContent"
+    ],
+    "status": "planned",
+    "children": [
+      {
+        "nodeId": "gen-app-shell",
+        "kind": "shared-branch",
+        "pageIds": [
+          "page-dashboard",
+          "page-my-tasks",
+          "page-projects",
+          "page-teams"
+        ],
+        "output": "partials/app-shell.html",
+        "sharedRegions": [
+          "left navigation",
+          "top command bar",
+          "workspace header band",
+          "content wrapper"
+        ],
+        "privateRegions": [],
+        "mutableSlots": [
+          "activeNavItem",
+          "pageTitle",
+          "pageSubtitle",
+          "pageBody"
+        ],
+        "status": "planned",
+        "children": [
+          {
+            "nodeId": "gen-page-dashboard",
+            "kind": "page-leaf",
+            "pageIds": [
+              "page-dashboard"
+            ],
+            "output": "pages/dashboard.html",
+            "sharedRegions": [],
+            "privateRegions": [
+              "dashboard hero metrics",
+              "focus list",
+              "project health",
+              "activity stream"
+            ],
+            "mutableSlots": [
+              "activeNavItem",
+              "pageTitle",
+              "pageSubtitle",
+              "pageBody"
+            ],
+            "status": "planned",
+            "children": []
+          },
+          {
+            "nodeId": "gen-page-my-tasks",
+            "kind": "page-leaf",
+            "pageIds": [
+              "page-my-tasks"
+            ],
+            "output": "pages/my-tasks.html",
+            "sharedRegions": [],
+            "privateRegions": [
+              "task toolbar",
+              "task board summary",
+              "priority list",
+              "upcoming work rail"
+            ],
+            "mutableSlots": [
+              "activeNavItem",
+              "pageTitle",
+              "pageSubtitle",
+              "pageBody"
+            ],
+            "status": "planned",
+            "children": []
+          },
+          {
+            "nodeId": "gen-page-projects",
+            "kind": "page-leaf",
+            "pageIds": [
+              "page-projects"
+            ],
+            "output": "pages/projects.html",
+            "sharedRegions": [],
+            "privateRegions": [
+              "project portfolio overview",
+              "delivery timeline",
+              "risk board",
+              "budget and ownership cards"
+            ],
+            "mutableSlots": [
+              "activeNavItem",
+              "pageTitle",
+              "pageSubtitle",
+              "pageBody"
+            ],
+            "status": "planned",
+            "children": []
+          },
+          {
+            "nodeId": "gen-page-teams",
+            "kind": "page-leaf",
+            "pageIds": [
+              "page-teams"
+            ],
+            "output": "pages/teams.html",
+            "sharedRegions": [],
+            "privateRegions": [
+              "team roster",
+              "capacity board",
+              "team highlights",
+              "membership actions"
+            ],
+            "mutableSlots": [
+              "activeNavItem",
+              "pageTitle",
+              "pageSubtitle",
+              "pageBody"
+            ],
+            "status": "planned",
+            "children": []
+          }
+        ]
+      },
+      {
+        "nodeId": "gen-page-sign-in",
+        "kind": "page-leaf",
+        "pageIds": [
+          "page-sign-in"
+        ],
+        "output": "pages/sign-in.html",
+        "sharedRegions": [],
+        "privateRegions": [
+          "auth hero split",
+          "trust strip",
+          "sign-in form",
+          "security notes"
+        ],
+        "mutableSlots": [
+          "shellContent"
+        ],
+        "status": "planned",
+        "children": []
+      }
+    ]
+  }
+}

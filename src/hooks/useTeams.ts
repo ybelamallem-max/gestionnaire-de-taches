@@ -121,6 +121,71 @@ export function useTeams() {
     }
   }, [replaceTeam])
 
+  const cancelRequest = useCallback(async (teamId: Team["id"]) => {
+    setError(null)
+    try {
+      const res = await api.delete<{ team: ApiTeam }>(`/teams/${teamId}/request`)
+      const returnedTeam = res.data.team ? normalizeTeam(res.data.team) : null
+      if (returnedTeam?.id != null) replaceTeam(returnedTeam)
+      return returnedTeam
+    } catch (err: unknown) {
+      setError(getApiMessage(err, "Erreur lors de l'annulation."))
+      throw err
+    }
+  }, [replaceTeam])
+
+  const leaveTeam = useCallback(async (teamId: Team["id"]) => {
+    setError(null)
+    try {
+      const res = await api.delete<{ team: ApiTeam }>(`/teams/${teamId}/leave`)
+      const returnedTeam = res.data.team ? normalizeTeam(res.data.team) : null
+      if (returnedTeam?.id != null) replaceTeam(returnedTeam)
+      return returnedTeam
+    } catch (err: unknown) {
+      setError(getApiMessage(err, "Erreur lors du départ."))
+      throw err
+    }
+  }, [replaceTeam])
+
+  const cancelInvite = useCallback(async (teamId: Team["id"], userId: string | number) => {
+    setError(null)
+    try {
+      const res = await api.delete<{ team: ApiTeam }>(`/teams/${teamId}/invite/${userId}`)
+      const returnedTeam = res.data.team ? normalizeTeam(res.data.team) : null
+      if (returnedTeam?.id != null) replaceTeam(returnedTeam)
+      return returnedTeam
+    } catch (err: unknown) {
+      setError(getApiMessage(err, "Erreur lors de l'annulation."))
+      throw err
+    }
+  }, [replaceTeam])
+
+  const acceptInvite = useCallback(async (teamId: Team["id"]) => {
+    setError(null)
+    try {
+      const res = await api.post<{ team: ApiTeam }>(`/teams/${teamId}/invite/accept`)
+      const returnedTeam = res.data.team ? normalizeTeam(res.data.team) : null
+      if (returnedTeam?.id != null) replaceTeam(returnedTeam)
+      return returnedTeam
+    } catch (err: unknown) {
+      setError(getApiMessage(err, "Erreur lors de l'acceptation."))
+      throw err
+    }
+  }, [replaceTeam])
+
+  const rejectInvite = useCallback(async (teamId: Team["id"]) => {
+    setError(null)
+    try {
+      const res = await api.post<{ team: ApiTeam }>(`/teams/${teamId}/invite/reject`)
+      const returnedTeam = res.data.team ? normalizeTeam(res.data.team) : null
+      if (returnedTeam?.id != null) replaceTeam(returnedTeam)
+      return returnedTeam
+    } catch (err: unknown) {
+      setError(getApiMessage(err, "Erreur lors du refus."))
+      throw err
+    }
+  }, [replaceTeam])
+
   const acceptMembership = useCallback(async (teamId: Team["id"], userId: string | number) => {
     setError(null)
     try {
@@ -174,6 +239,11 @@ export function useTeams() {
     removeMember,
     invite,
     requestToJoin,
+    cancelRequest,
+    leaveTeam,
+    cancelInvite,
+    acceptInvite,
+    rejectInvite,
     acceptMembership,
     rejectMembership,
     deleteTeam,

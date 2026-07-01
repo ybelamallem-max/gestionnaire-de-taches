@@ -1,0 +1,41 @@
+<div class="tm-app-shell">
+  <aside class="tm-app-shell__rail tm-panel">
+    <div class="tm-app-shell__brand">
+      <!-- SLOT: brandBlock -->
+      <span class="tm-kicker">Taskflow</span>
+      <h1 class="tm-h4">Calm execution for high-stakes work.</h1>
+    </div>
+
+    <nav class="tm-app-shell__nav" aria-label="Primary">
+      <!-- SLOT: navItems -->
+      <a class="tm-app-shell__nav-item is-active" href="#">Dashboard</a>
+      <a class="tm-app-shell__nav-item" href="#">My Tasks</a>
+      <a class="tm-app-shell__nav-item" href="#">Projects</a>
+      <a class="tm-app-shell__nav-item" href="#">Teams</a>
+    </nav>
+
+    <section class="tm-app-shell__workspace tm-panel-strong">
+      <!-- SLOT: workspaceSummary -->
+      <p class="tm-label">Workspace</p>
+      <h2 class="tm-h4">Northstar Studio</h2>
+      <p class="tm-small">Delivery is steady, with 84% of milestones on track this quarter.</p>
+    </section>
+  </aside>
+
+  <div class="tm-app-shell__main">
+    <header class="tm-app-shell__topbar tm-panel">
+      <!-- SLOT: commandBar -->
+      <div class="tm-app-shell__search">Search work, people, or updates</div>
+      <div class="tm-app-shell__chips">
+        <span class="tm-chip tm-small">Workspace chip</span>
+        <span class="tm-chip tm-small">Quick action</span>
+      </div>
+      <div class="tm-app-shell__profile">AB</div>
+    </header>
+
+    <section class="tm-app-shell__page">
+      <!-- SLOT: pageTitle -->
+      <!-- SLOT: pageBody -->
+    </section>
+  </div>
+</div>

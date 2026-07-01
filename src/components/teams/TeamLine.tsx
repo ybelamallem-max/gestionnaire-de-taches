@@ -1,4 +1,4 @@
-import { MoreHorizontal, Users, Send, Trash2 } from "lucide-react"
+import { MoreHorizontal, Users, Send, Trash2, X, Check } from "lucide-react"
 
 import { TeamMembersDialog } from "@/components/teams/TeamMembersDialog"
 import { Badge } from "@/components/ui/badge"
@@ -20,7 +20,12 @@ type TeamLineProps = {
   ) => Promise<void>
   onRemoveMember: (teamId: string | number, userId: string | number) => Promise<void>
   onRequestToJoin?: (teamId: string | number) => Promise<void>
+  onCancelRequest?: (teamId: string | number) => Promise<void>
+  onLeaveTeam?: (teamId: string | number) => Promise<void>
   onInvite?: (teamId: string | number, identifier: string) => Promise<void>
+  onCancelInvite?: (teamId: string | number, userId: string | number) => Promise<void>
+  onAcceptInvite?: (teamId: string | number) => Promise<void>
+  onRejectInvite?: (teamId: string | number) => Promise<void>
   onAcceptMembership?: (teamId: string | number, userId: string | number) => Promise<void>
   onRejectMembership?: (teamId: string | number, userId: string | number) => Promise<void>
   onDeleteTeam?: (teamId: string | number) => Promise<void>
@@ -32,7 +37,12 @@ export function TeamLine({
   onUpdateRole,
   onRemoveMember,
   onRequestToJoin,
+  onCancelRequest,
+  onLeaveTeam,
   onInvite,
+  onCancelInvite,
+  onAcceptInvite,
+  onRejectInvite,
   onAcceptMembership,
   onRejectMembership,
   onDeleteTeam,
@@ -48,6 +58,7 @@ export function TeamLine({
   const isOwner = membership?.role === "owner"
   const canDelete = isOwner && memberCount === 1
   const canManage = currentUser?.role === 'admin' || membership?.role === 'owner' || membership?.role === 'admin'
+  const canLeave = isMember && !isOwner
 
   return (
     <div className="group issue-line border-b border-border last:border-b-0">
@@ -63,11 +74,6 @@ export function TeamLine({
               Membre
             </Badge>
           )}
-          {isPendingRequest && (
-            <Badge variant="outline" className="text-xs">
-              Demande en attente
-            </Badge>
-          )}
           {isPendingInvite && (
             <Badge variant="outline" className="text-xs">
               Invitation en attente
@@ -77,11 +83,6 @@ export function TeamLine({
         {team.description ? (
           <div className="truncate text-xs text-muted-foreground">{team.description}</div>
         ) : null}
-        {team.owner && (
-          <div className="truncate text-xs text-muted-foreground">
-            Par {formatDisplayName(team.owner)}
-          </div>
-        )}
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-3">
@@ -99,6 +100,59 @@ export function TeamLine({
           >
             <Trash2 className="mr-1 size-3" />
             Supprimer
+          </Button>
+        )}
+
+        {isPendingRequest && onCancelRequest && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => void onCancelRequest(team.id)}
+            className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <X className="mr-1 size-3" />
+            Annuler
+          </Button>
+        )}
+
+        {isPendingInvite && (
+          <div className="flex gap-2">
+            {onAcceptInvite && (
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={() => void onAcceptInvite(team.id)}
+                className="size-7 text-green-600 hover:text-green-700 hover:bg-green-50"
+              >
+                <Check className="size-4" />
+              </Button>
+            )}
+            {onRejectInvite && (
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={() => void onRejectInvite(team.id)}
+                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <X className="size-4" />
+              </Button>
+            )}
+          </div>
+        )}
+
+        {canLeave && onLeaveTeam && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => void onLeaveTeam(team.id)}
+            className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <X className="mr-1 size-3" />
+            Quitter
           </Button>
         )}
 
@@ -120,6 +174,9 @@ export function TeamLine({
           onUpdateRole={onUpdateRole}
           onRemoveMember={onRemoveMember}
           onInvite={onInvite}
+          onCancelInvite={onCancelInvite}
+          onAcceptInvite={onAcceptInvite}
+          onRejectInvite={onRejectInvite}
           onAcceptMembership={onAcceptMembership}
           onRejectMembership={onRejectMembership}
           canManage={canManage}

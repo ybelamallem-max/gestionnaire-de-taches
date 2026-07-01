@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskflow | My Tasks</title>
+    <style id="theme-vars">
+:root {
+  --tm-font-title: "Geist", "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --tm-font-body: "Geist", "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --tm-font-mono: "Geist Mono", "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  --tm-bg: #ffffff;
+  --tm-bg-elevated: #ffffff;
+  --tm-bg-soft: #f5f5f5;
+  --tm-surface: rgba(255, 255, 255, 0.94);
+  --tm-surface-strong: #ffffff;
+  --tm-border: #e8e8e8;
+  --tm-border-strong: #d4d4d4;
+  --tm-text: #0a0a0a;
+  --tm-text-muted: #525252;
+  --tm-text-soft: #858585;
+
+  --tm-primary: #121212;
+  --tm-primary-strong: #0a0a0a;
+  --tm-primary-soft: rgba(18, 18, 18, 0.08);
+  --tm-primary-tint: #f5f5f5;
+
+  --state-success: #15803d;
+  --state-warning: #b45309;
+  --state-error: #e7000b;
+  --state-info: #2563ef;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  --shadow-static: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 0 rgba(0, 0, 0, 0);
+
+  --grid-max: 1440px;
+}
+
+.dark {
+  --tm-bg: #0a0a0a;
+  --tm-bg-elevated: #171717;
+  --tm-bg-soft: #262626;
+  --tm-surface: rgba(23, 23, 23, 0.92);
+  --tm-surface-strong: #171717;
+  --tm-border: #282828;
+  --tm-border-strong: #404040;
+  --tm-text: #fafafa;
+  --tm-text-muted: #a1a1a1;
+  --tm-text-soft: #737373;
+  --tm-primary: #e5e5e5;
+  --tm-primary-strong: #fafafa;
+  --tm-primary-soft: rgba(229, 229, 229, 0.1);
+  --tm-primary-tint: #262626;
+  --state-success: #22c55e;
+  --state-warning: #f59e0b;
+  --state-error: #ff6467;
+  --state-info: #3a81f6;
+  --shadow-static: 0 1px 2px rgba(0, 0, 0, 0);
+  --shadow-floating: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+html,
+body {
+  font-family: var(--tm-font-body);
+  color: var(--tm-text);
+  background:
+    radial-gradient(circle at top center, rgba(10, 10, 10, 0.03), transparent 36%),
+    radial-gradient(circle at bottom right, rgba(10, 10, 10, 0.02), transparent 28%),
+    var(--tm-bg);
+}
+
+body {
+  letter-spacing: 0;
+}
+
+.tm-h1,
+.tm-h2,
+.tm-h3,
+.tm-h4,
+.tm-kicker,
+.tm-label {
+  font-family: var(--tm-font-title);
+}
+
+.tm-h1 {
+  font-size: clamp(2.4rem, 4vw, 3.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+.tm-h2 {
+  font-size: clamp(1.75rem, 2vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 650;
+}
+
+.tm-h3 {
+  font-size: 1.25rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+}
+
+.tm-h4 {
+  font-size: 1rem;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.tm-body {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.tm-small {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.tm-kicker {
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+.tm-label {
+  font-size: 0.75rem;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.tm-panel {
+  background: var(--tm-surface);
+  border: 1px solid var(--tm-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-static);
+  backdrop-filter: none;
+}
+
+.tm-panel-strong {
+  background: var(--tm-surface-strong);
+  border: 1px solid var(--tm-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-static);
+}
+
+.tm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--tm-border);
+  background: var(--tm-bg-soft);
+  padding: 0.45rem 0.8rem;
+  color: var(--tm-text-muted);
+}
+
+.tm-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0 1rem;
+  font-family: var(--tm-font-title);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.tm-cta-primary {
+  background: var(--tm-primary);
+  color: var(--tm-bg-elevated);
+  border-color: var(--tm-primary);
+}
+
+.tm-cta-secondary {
+  background: var(--tm-bg-soft);
+  color: var(--tm-text);
+  border-color: var(--tm-border);
+}
+
+.tm-grid-shell {
+  width: min(100%, var(--grid-max));
+  margin-inline: auto;
+}
+
+.tm-metric-value {
+  font-family: var(--tm-font-title);
+  font-size: clamp(1.7rem, 2vw, 2.25rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-weight: 700;
+}
+
+.tm-separator {
+  border-color: var(--tm-border);
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--tm-primary);
+    --color-border: var(--tm-border);
+  }
+  @layer base {
+    body { background: var(--tm-surface); color: var(--tm-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div>
+        <span class="brand-badge">T</span>
+        <p class="tm-kicker">Taskflow</p>
+        <h1 class="tm-h3">Personal execution lane</h1>
+        <p class="tm-body">Your focused queue with strong priority signals and calm scanning.</p>
+      </div>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#" data-dom-id="nav-dashboard">
+          <span class="nav-dot"></span>
+          <span><strong>Dashboard</strong><br><small>Workspace overview</small></span>
+        </a>
+        <a class="active" href="#">
+          <span class="nav-dot"></span>
+          <span><strong>My Tasks</strong><br><small>Priority list</small></span>
+        </a>
+        <a href="#" data-dom-id="nav-projects">
+          <span class="nav-dot"></span>
+          <span><strong>Projects</strong><br><small>Portfolio layer</small></span>
+        </a>
+        <a href="#" data-dom-id="nav-teams">
+          <span class="nav-dot"></span>
+          <span><strong>Teams</strong><br><small>Coordination view</small></span>
+        </a>
+      </nav>
+
+      <section class="workspace-card">
+        <p class="tm-label">Workspace rhythm</p>
+        <h2 class="tm-h4">You are ahead on delivery.</h2>
+        <p class="tm-small">Five critical tasks remain for the week, with two dependencies needing proactive follow-up.</p>
+      </section>
+    </aside>
+
+    <main class="main">
+      <header class="topbar tm-panel">
+        <label class="search" aria-label="Search">
+          <span>Search</span>
+          <input type="search" placeholder="Find tasks, comments, or due dates">
+        </label>
+        <div class="chip-row">
+          <span class="tm-chip tm-small">Today</span>
+          <span class="tm-chip tm-small">Assigned to me</span>
+          <span class="tm-chip tm-small">2 waiting on review</span>
+        </div>
+        <div class="profile">
+          <span class="tm-chip tm-small">Quick add</span>
+          <div class="avatar">AL</div>
+        </div>
+      </header>
+
+      <section class="header tm-panel">
+        <div class="header-top">
+          <div>
+            <p class="tm-kicker">Personal task workspace</p>
+            <h1 class="tm-h2">My Tasks</h1>
+            <p class="tm-body">A refined working view for what matters now, what is due soon, and what needs ownership clarity.</p>
+          </div>
+          <div class="header-actions">
+            <a class="tm-cta tm-cta-secondary" href="#" data-dom-id="cta-projects">Move to projects</a>
+            <a class="tm-cta tm-cta-primary" href="#">New Task</a>
+          </div>
+        </div>
+
+        <div class="segment" aria-label="View controls">
+          <span class="active">List</span>
+          <span>Board</span>
+          <span>Timeline</span>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-left">
+            <span class="tm-chip tm-small">Priority</span>
+            <span class="tm-chip tm-small">Due date</span>
+            <span class="tm-chip tm-small">Project</span>
+            <span class="tm-chip tm-small">Status</span>
+          </div>
+          <div class="filter-right">
+            <label class="filter-search">
+              <span>Search</span>
+              <input type="search" placeholder="Filter this list">
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="content">
+        <article class="tasks-panel tm-panel">
+          <div>
+            <p class="tm-kicker">Prioritized queue</p>
+            <h2 class="tm-h3">Elegant scanning with emphasis where it matters.</h2>
+          </div>
+
+          <div class="task-row">
+            <div class="task-rank">1</div>
+            <div class="task-copy">
+              <strong>Finalize launch-readiness review for Client Portal v2</strong>
+              <p class="tm-small">Confirm the final stakeholder approvals, validate support coverage, and publish the release brief before noon.</p>
+              <div class="task-meta">
+                <span class="status">In review</span>
+                <span class="priority high">High priority</span>
+                <span class="tm-chip tm-small">Due today</span>
+                <span class="tm-chip tm-small">Project: Client Portal</span>
+              </div>
+            </div>
+            <div class="task-actions">
+              <span class="tm-chip tm-small">Owner: Alex</span>
+            </div>
+          </div>
+
+          <div class="task-row">
+            <div class="task-rank">2</div>
+            <div class="task-copy">
+              <strong>Resolve migration data-mapping questions with implementation lead</strong>
+              <p class="tm-small">Capture the remaining field exceptions and align the workaround before afternoon cutover planning.</p>
+              <div class="task-meta">
+                <span class="status">Needs action</span>
+                <span class="priority high">High priority</span>
+                <span class="tm-chip tm-small">Due 2:00 PM</span>
+                <span class="tm-chip tm-small">Project: Migration</span>
+              </div>
+            </div>
+            <div class="task-actions">
+              <span class="tm-chip tm-small">Blocked by vendor</span>
+            </div>
+          </div>
+
+          <div class="task-row">
+            <div class="task-rank">3</div>
+            <div class="task-copy">
+              <strong>Review sprint carryover recommendations for onboarding improvements</strong>
+              <p class="tm-small">Balance scope against available capacity and confirm which enhancements move into the next planning cycle.</p>
+              <div class="task-meta">
+                <span class="status">Scheduled</span>
+                <span class="priority medium">Medium priority</span>
+                <span class="tm-chip tm-small">Due tomorrow</span>
+                <span class="tm-chip tm-small">Project: Onboarding</span>
+              </div>
+            </div>
+            <div class="task-actions">
+              <span class="tm-chip tm-small">2 collaborators</span>
+            </div>
+          </div>
+
+          <div class="task-row">
+            <div class="task-rank">4</div>
+            <div class="task-copy">
+              <strong>Prepare concise executive note for weekly operating review</strong>
+              <p class="tm-small">Summarize project confidence, risk movement, and one staffing decision for leadership visibility.</p>
+              <div class="task-meta">
+                <span class="status">Drafting</span>
+                <span class="priority medium">Medium priority</span>
+                <span class="tm-chip tm-small">Due Friday</span>
+                <span class="tm-chip tm-small">Project: Ops Review</span>
+              </div>
+            </div>
+            <div class="task-actions">
+              <span class="tm-chip tm-small">6 comments</span>
+            </div>
+          </div>
+        </article>
+
+        <aside class="sidebar">
+          <section class="panel tm-panel">
+            <p class="tm-kicker">Ownership summary</p>
+            <h2 class="tm-h3">Balanced, with a few critical handoffs.</h2>
+            <div class="summary-grid">
+              <article>
+                <p class="tm-label">Open now</p>
+                <strong class="tm-h3">14</strong>
+                <p class="tm-small">Tasks currently in your lane.</p>
+              </article>
+              <article>
+                <p class="tm-label">Waiting</p>
+                <strong class="tm-h3">03</strong>
+                <p class="tm-small">Dependent on another owner.</p>
+              </article>
+              <article>
+                <p class="tm-label">Review cycles</p>
+                <strong class="tm-h3">05</strong>
+                <p class="tm-small">Approvals and feedback loops.</p>
+              </article>
+              <article>
+                <p class="tm-label">Completed</p>
+                <strong class="tm-h3">27</strong>
+                <p class="tm-small">Finished this week.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel tm-panel">
+            <p class="tm-kicker">Due soon</p>
+            <h2 class="tm-h3">Keep the next 48 hours protected.</h2>
+            <ul class="due-list">
+              <li><strong>11:00 AM</strong><br>Release checklist approval closes for Client Portal v2.</li>
+              <li><strong>2:00 PM</strong><br>Migration exception decision due before the implementation review.</li>
+              <li><strong>Tomorrow, 9:30 AM</strong><br>Onboarding sprint carryover recommendation presented to product ops.</li>
+            </ul>
+          </section>
+
+          <section class="milestone-card">
+            <p class="tm-kicker">Next milestone</p>
+            <h2 class="tm-h3">Client Portal launch readiness</h2>
+            <p class="tm-body">One final pass through support, release, and stakeholder sign-off keeps Friday’s release smooth.</p>
+            <div class="meter"><span></span></div>
+            <p class="tm-small">72% complete · Final sign-off window opens today at 4:30 PM.</p>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+    <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .app {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 22px;
+      width: min(100%, 1540px);
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .rail {
+      position: sticky;
+      top: 24px;
+      height: calc(100vh - 48px);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border-radius: 26px;
+      background: var(--tm-surface);
+      border: 1px solid var(--tm-border);
+      box-shadow: var(--shadow-floating);
+      backdrop-filter: blur(20px);
+    }
+    .brand-badge,
+    .avatar,
+    .task-rank {
+      display: grid;
+      place-items: center;
+      color: var(--tm-bg-elevated);
+      font-weight: 700;
+    }
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--tm-primary), var(--tm-primary-strong));
+      box-shadow: var(--shadow-floating);
+    }
+    .nav { display: grid; gap: 8px; }
+    .nav a {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--tm-text);
+      border: 1px solid transparent;
+    }
+    .nav a.active {
+      background: var(--tm-primary-soft);
+      color: var(--tm-primary-strong);
+      border-color: var(--tm-border);
+    }
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--tm-border-strong);
+    }
+    .nav a.active .nav-dot { background: var(--tm-primary); }
+    .workspace-card,
+    .panel,
+    .task-row,
+    .milestone-card {
+      border-radius: 22px;
+    }
+    .workspace-card {
+      margin-top: auto;
+      padding: 18px;
+      border: 1px solid var(--tm-border);
+      background: linear-gradient(180deg, var(--tm-surface-strong), var(--tm-bg-soft));
+    }
+    .workspace-card p,
+    .nav small,
+    .header p,
+    .task-copy p,
+    .panel p,
+    .summary-grid p,
+    .due-list li,
+    .capacity-card p { color: var(--tm-text-muted); }
+    .main { display: grid; gap: 20px; }
+    .topbar,
+    .header,
+    .tasks-panel,
+    .panel,
+    .milestone-card {
+      padding: 18px 20px;
+    }
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(240px,1fr) auto auto;
+      gap: 16px;
+      align-items: center;
+      border-radius: 24px;
+    }
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 14px;
+      border-radius: 16px;
+      background: var(--tm-bg-soft);
+      border: 1px solid var(--tm-border);
+    }
+    .search input,
+    .filter-search input {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font: inherit;
+      color: var(--tm-text-muted);
+    }
+    .chip-row,
+    .profile,
+    .header-actions,
+    .segment,
+    .filter-bar,
+    .task-meta,
+    .task-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--tm-text), var(--tm-text-muted));
+    }
+    .header {
+      display: grid;
+      gap: 18px;
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, var(--tm-surface-strong), var(--tm-surface)),
+        radial-gradient(circle at top right, var(--tm-primary-soft), transparent 30%);
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+    }
+    .segment {
+      padding: 6px;
+      border-radius: 16px;
+      background: var(--tm-bg-soft);
+      border: 1px solid var(--tm-border);
+      width: fit-content;
+    }
+    .segment span {
+      padding: 10px 14px;
+      border-radius: 12px;
+      color: var(--tm-text-muted);
+    }
+    .segment .active {
+      background: var(--tm-surface-strong);
+      color: var(--tm-text);
+      box-shadow: var(--shadow-static);
+    }
+    .filter-bar {
+      justify-content: space-between;
+    }
+    .filter-left,
+    .filter-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .filter-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 240px;
+      min-height: 42px;
+      padding: 0 12px;
+      border-radius: 14px;
+      border: 1px solid var(--tm-border);
+      background: var(--tm-surface);
+    }
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) 340px;
+      gap: 18px;
+    }
+    .tasks-panel {
+      border-radius: 24px;
+      display: grid;
+      gap: 14px;
+    }
+    .task-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 16px;
+      padding: 18px;
+      border: 1px solid var(--tm-border);
+      background: var(--tm-surface);
+      align-items: start;
+    }
+    .task-rank {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--tm-primary-soft);
+      color: var(--tm-primary-strong);
+    }
+    .task-copy strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+    .task-meta span,
+    .tag,
+    .tm-chip {
+      white-space: nowrap;
+    }
+    .status,
+    .priority {
+      padding: 0.42rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .status {
+      background: rgba(2,132,199,0.1);
+      color: var(--state-info);
+    }
+    .priority.high {
+      background: rgba(220,38,38,0.08);
+      color: var(--state-error);
+    }
+    .priority.medium {
+      background: rgba(217,119,6,0.09);
+      color: var(--state-warning);
+    }
+    .task-actions {
+      justify-content: flex-end;
+    }
+    .sidebar {
+      display: grid;
+      gap: 18px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .summary-grid article {
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--tm-surface);
+      border: 1px solid var(--tm-border);
+    }
+    .due-list {
+      display: grid;
+      gap: 12px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .due-list li {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: var(--tm-surface);
+      border: 1px solid var(--tm-border);
+      line-height: 1.6;
+    }
+    .milestone-card {
+      background: linear-gradient(180deg, var(--tm-primary-soft), var(--tm-surface-strong));
+      border: 1px solid var(--tm-border-strong);
+    }
+    .meter {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--tm-primary-soft);
+      margin: 14px 0 12px;
+    }
+    .meter span {
+      display: block;
+      width: 72%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--tm-primary), var(--tm-primary-strong));
+    }
+    @media (max-width: 1240px) {
+      .app,
+      .content { grid-template-columns: 1fr; }
+      .rail { position: relative; top: auto; height: auto; }
+    }
+    @media (max-width: 840px) {
+      .app { padding: 16px; }
+      .topbar,
+      .filter-bar,
+      .header-top,
+      .task-row { grid-template-columns: 1fr; }
+      .topbar { display: grid; }
+      .task-row { display: grid; }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</body>
+</html>

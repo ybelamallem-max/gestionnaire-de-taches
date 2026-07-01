@@ -19,7 +19,7 @@ import type { ApiValidationErrors } from "@/services/apiErrors"
 import { getValidationErrors } from "@/services/apiErrors"
 
 export default function Teams() {
-  const { teams, isLoading, error, createTeam, addMember, updateMemberRole, removeMember, requestToJoin, invite, acceptMembership, rejectMembership, deleteTeam } =
+  const { teams, isLoading, error, createTeam, addMember, updateMemberRole, removeMember, requestToJoin, cancelRequest, leaveTeam, cancelInvite, acceptInvite, rejectInvite, invite, acceptMembership, rejectMembership, deleteTeam } =
     useTeams()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -65,6 +65,28 @@ export default function Teams() {
 
   async function handleRequestToJoin(teamId: string | number) {
     await requestToJoin(teamId)
+  }
+
+  async function handleCancelRequest(teamId: string | number) {
+    await cancelRequest(teamId)
+  }
+
+  async function handleLeaveTeam(teamId: string | number) {
+    if (confirm("Êtes-vous sûr de vouloir quitter cette équipe ?")) {
+      await leaveTeam(teamId)
+    }
+  }
+
+  async function handleCancelInvite(teamId: string | number, userId: string | number) {
+    await cancelInvite(teamId, userId)
+  }
+
+  async function handleAcceptInvite(teamId: string | number) {
+    await acceptInvite(teamId)
+  }
+
+  async function handleRejectInvite(teamId: string | number) {
+    await rejectInvite(teamId)
   }
 
   async function handleInvite(teamId: string | number, identifier: string) {
@@ -122,18 +144,15 @@ export default function Teams() {
         </Dialog>
       </div>
 
-      <div className="page-section space-y-5">
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">{teams.length} total</Badge>
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher une équipe..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+      <div className="page-section space-y-6">
+        <div className="relative max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher une équipe..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
 
         {error ? (
@@ -156,7 +175,12 @@ export default function Teams() {
                 onUpdateRole={handleUpdateRole}
                 onRemoveMember={handleRemoveMember}
                 onRequestToJoin={handleRequestToJoin}
+                onCancelRequest={handleCancelRequest}
+                onLeaveTeam={handleLeaveTeam}
                 onInvite={handleInvite}
+                onCancelInvite={handleCancelInvite}
+                onAcceptInvite={handleAcceptInvite}
+                onRejectInvite={handleRejectInvite}
                 onAcceptMembership={handleAcceptMembership}
                 onRejectMembership={handleRejectMembership}
                 onDeleteTeam={handleDeleteTeam}

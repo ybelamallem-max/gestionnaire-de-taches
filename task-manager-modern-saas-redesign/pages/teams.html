@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskflow | Teams</title>
+    <style id="theme-vars">
+:root {
+  --tm-font-title: "Geist", "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --tm-font-body: "Geist", "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --tm-font-mono: "Geist Mono", "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  --tm-bg: #ffffff;
+  --tm-bg-elevated: #ffffff;
+  --tm-bg-soft: #f5f5f5;
+  --tm-surface: rgba(255, 255, 255, 0.94);
+  --tm-surface-strong: #ffffff;
+  --tm-border: #e8e8e8;
+  --tm-border-strong: #d4d4d4;
+  --tm-text: #0a0a0a;
+  --tm-text-muted: #525252;
+  --tm-text-soft: #858585;
+
+  --tm-primary: #121212;
+  --tm-primary-strong: #0a0a0a;
+  --tm-primary-soft: rgba(18, 18, 18, 0.08);
+  --tm-primary-tint: #f5f5f5;
+
+  --state-success: #15803d;
+  --state-warning: #b45309;
+  --state-error: #e7000b;
+  --state-info: #2563ef;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  --shadow-static: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 0 rgba(0, 0, 0, 0);
+
+  --grid-max: 1440px;
+}
+
+.dark {
+  --tm-bg: #0a0a0a;
+  --tm-bg-elevated: #171717;
+  --tm-bg-soft: #262626;
+  --tm-surface: rgba(23, 23, 23, 0.92);
+  --tm-surface-strong: #171717;
+  --tm-border: #282828;
+  --tm-border-strong: #404040;
+  --tm-text: #fafafa;
+  --tm-text-muted: #a1a1a1;
+  --tm-text-soft: #737373;
+  --tm-primary: #e5e5e5;
+  --tm-primary-strong: #fafafa;
+  --tm-primary-soft: rgba(229, 229, 229, 0.1);
+  --tm-primary-tint: #262626;
+  --state-success: #22c55e;
+  --state-warning: #f59e0b;
+  --state-error: #ff6467;
+  --state-info: #3a81f6;
+  --shadow-static: 0 1px 2px rgba(0, 0, 0, 0);
+  --shadow-floating: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+html,
+body {
+  font-family: var(--tm-font-body);
+  color: var(--tm-text);
+  background:
+    radial-gradient(circle at top center, rgba(10, 10, 10, 0.03), transparent 36%),
+    radial-gradient(circle at bottom right, rgba(10, 10, 10, 0.02), transparent 28%),
+    var(--tm-bg);
+}
+
+body {
+  letter-spacing: 0;
+}
+
+.tm-h1,
+.tm-h2,
+.tm-h3,
+.tm-h4,
+.tm-kicker,
+.tm-label {
+  font-family: var(--tm-font-title);
+}
+
+.tm-h1 {
+  font-size: clamp(2.4rem, 4vw, 3.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+.tm-h2 {
+  font-size: clamp(1.75rem, 2vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 650;
+}
+
+.tm-h3 {
+  font-size: 1.25rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+}
+
+.tm-h4 {
+  font-size: 1rem;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.tm-body {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.tm-small {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.tm-kicker {
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+.tm-label {
+  font-size: 0.75rem;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.tm-panel {
+  background: var(--tm-surface);
+  border: 1px solid var(--tm-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-static);
+  backdrop-filter: none;
+}
+
+.tm-panel-strong {
+  background: var(--tm-surface-strong);
+  border: 1px solid var(--tm-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-static);
+}
+
+.tm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--tm-border);
+  background: var(--tm-bg-soft);
+  padding: 0.45rem 0.8rem;
+  color: var(--tm-text-muted);
+}
+
+.tm-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0 1rem;
+  font-family: var(--tm-font-title);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.tm-cta-primary {
+  background: var(--tm-primary);
+  color: var(--tm-bg-elevated);
+  border-color: var(--tm-primary);
+}
+
+.tm-cta-secondary {
+  background: var(--tm-bg-soft);
+  color: var(--tm-text);
+  border-color: var(--tm-border);
+}
+
+.tm-grid-shell {
+  width: min(100%, var(--grid-max));
+  margin-inline: auto;
+}
+
+.tm-metric-value {
+  font-family: var(--tm-font-title);
+  font-size: clamp(1.7rem, 2vw, 2.25rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-weight: 700;
+}
+
+.tm-separator {
+  border-color: var(--tm-border);
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--tm-primary);
+    --color-border: var(--tm-border);
+  }
+  @layer base {
+    body { background: var(--tm-surface); color: var(--tm-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div>
+        <span class="brand-badge">T</span>
+        <p class="tm-kicker">Taskflow</p>
+        <h1 class="tm-h3">Team coordination layer</h1>
+        <p class="tm-body">Capability, capacity, and people context arranged for calm, premium collaboration.</p>
+      </div>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#" data-dom-id="nav-dashboard">
+          <span class="nav-dot"></span>
+          <span><strong>Dashboard</strong><br><small>Workspace overview</small></span>
+        </a>
+        <a href="#" data-dom-id="nav-my-tasks">
+          <span class="nav-dot"></span>
+          <span><strong>My Tasks</strong><br><small>Priority queue</small></span>
+        </a>
+        <a href="#" data-dom-id="nav-projects">
+          <span class="nav-dot"></span>
+          <span><strong>Projects</strong><br><small>Portfolio layer</small></span>
+        </a>
+        <a class="active" href="#">
+          <span class="nav-dot"></span>
+          <span><strong>Teams</strong><br><small>Collaboration view</small></span>
+        </a>
+      </nav>
+
+      <section class="workspace-card">
+        <p class="tm-label">Capability pulse</p>
+        <h2 class="tm-h4">Collaboration remains healthy</h2>
+        <p class="tm-small">Most teams have balanced capacity, with implementation support nearing its weekly threshold.</p>
+      </section>
+    </aside>
+
+    <main class="main">
+      <header class="topbar tm-panel">
+        <label class="search" aria-label="Search people">
+          <span>Search</span>
+          <input type="search" placeholder="People, roles, squads, capability">
+        </label>
+        <div class="chip-row">
+          <span class="tm-chip tm-small">All teams</span>
+          <span class="tm-chip tm-small">Capacity review</span>
+          <span class="tm-chip tm-small">4 teams active today</span>
+        </div>
+        <div class="profile">
+          <span class="tm-chip tm-small">Invite member</span>
+          <div class="avatar">AL</div>
+        </div>
+      </header>
+
+      <section class="hero tm-panel">
+        <div class="hero-main">
+          <div class="hero-header">
+            <div>
+              <p class="tm-kicker">Collaborative people view</p>
+              <h1 class="tm-h2">Teams with clear strengths, room, and action paths.</h1>
+              <p class="tm-body">A warmer collaboration layer that still keeps the enterprise structure, hierarchy, and operating clarity of the rest of the product.</p>
+            </div>
+            <div class="hero-actions">
+              <span class="tm-chip tm-small">People ops synced</span>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <article class="metric primary">
+              <p class="tm-label">Capability coverage</p>
+              <div class="tm-metric-value">94%</div>
+              <p class="tm-small">Core program capabilities are staffed with strong overlap in delivery-critical roles.</p>
+            </article>
+            <article class="metric">
+              <p class="tm-label">Active members</p>
+              <div class="tm-metric-value">38</div>
+              <p class="tm-small">Across product, design, delivery, and operations.</p>
+            </article>
+            <article class="metric">
+              <p class="tm-label">Near capacity</p>
+              <div class="tm-metric-value">06</div>
+              <p class="tm-small">Members whose workload needs closer planning.</p>
+            </article>
+            <article class="metric">
+              <p class="tm-label">Open roles</p>
+              <div class="tm-metric-value">02</div>
+              <p class="tm-small">Specialized roles currently being recruited.</p>
+            </article>
+          </div>
+        </div>
+
+        <aside class="hero-side">
+          <div>
+            <p class="tm-kicker">Capacity board</p>
+            <h2 class="tm-h3">Utilization is active but still steady.</h2>
+            <p class="tm-body">Implementation and client delivery need the most care in the next planning cycle.</p>
+          </div>
+          <div class="capacity-dial">
+            <strong class="tm-h3">74%</strong>
+          </div>
+          <div class="chip-row">
+            <span class="tm-chip tm-small">Design stable</span>
+            <span class="tm-chip tm-small">Support rising</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="content">
+        <div class="stack">
+          <article class="panel tm-panel">
+            <p class="tm-kicker">Member roster</p>
+            <h2 class="tm-h3">A premium roster that feels operational, not generic.</h2>
+            <div class="member-list">
+              <div class="member-row">
+                <div class="member-avatar">PS</div>
+                <div class="member-copy">
+                  <strong>Priya Shah · Program Lead</strong>
+                  <p class="tm-small">Owns launch readiness across client-facing initiatives and coordinates milestone risk reviews.</p>
+                  <div class="member-tags">
+                    <span class="tm-chip tm-small">Client Portal</span>
+                    <span class="tm-chip tm-small">Leadership reviews</span>
+                  </div>
+                </div>
+                <div class="member-meta">
+                  <span class="tm-chip tm-small">Capacity 68%</span>
+                </div>
+              </div>
+              <div class="member-row">
+                <div class="member-avatar">MR</div>
+                <div class="member-copy">
+                  <strong>Marco Reyes · Implementation Director</strong>
+                  <p class="tm-small">Handles migration readiness, vendor coordination, and high-pressure cutover planning.</p>
+                  <div class="member-tags">
+                    <span class="tm-chip tm-small">Migration</span>
+                    <span class="tm-chip tm-small">Vendor management</span>
+                  </div>
+                </div>
+                <div class="member-meta">
+                  <span class="tm-chip tm-small">Capacity 86%</span>
+                </div>
+              </div>
+              <div class="member-row">
+                <div class="member-avatar">DW</div>
+                <div class="member-copy">
+                  <strong>Dana Wells · Finance Operations</strong>
+                  <p class="tm-small">Stewards automation rollout, budget monitoring, and process integrity for billing operations.</p>
+                  <div class="member-tags">
+                    <span class="tm-chip tm-small">Finance ops</span>
+                    <span class="tm-chip tm-small">Automation</span>
+                  </div>
+                </div>
+                <div class="member-meta">
+                  <span class="tm-chip tm-small">Capacity 61%</span>
+                </div>
+              </div>
+              <div class="member-row">
+                <div class="member-avatar">AC</div>
+                <div class="member-copy">
+                  <strong>Avery Chen · Product Operations</strong>
+                  <p class="tm-small">Shapes onboarding system priorities and keeps stakeholder communication structured and actionable.</p>
+                  <div class="member-tags">
+                    <span class="tm-chip tm-small">Onboarding</span>
+                    <span class="tm-chip tm-small">Planning</span>
+                  </div>
+                </div>
+                <div class="member-meta">
+                  <span class="tm-chip tm-small">Capacity 72%</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel tm-panel">
+            <p class="tm-kicker">Capacity board</p>
+            <h2 class="tm-h3">Workload treated as a planning tool.</h2>
+            <div class="capacity-grid">
+              <article class="capacity-card">
+                <p class="tm-label">Design</p>
+                <h3 class="tm-h4">Stable capacity</h3>
+                <p class="tm-small">Current sprint leaves room for one additional refinement cycle.</p>
+                <div class="bar"><span style="width: 62%"></span></div>
+              </article>
+              <article class="capacity-card">
+                <p class="tm-label">Implementation</p>
+                <h3 class="tm-h4">Needs buffer</h3>
+                <p class="tm-small">Migration work and support overlap are pushing utilization upward.</p>
+                <div class="bar"><span style="width: 86%"></span></div>
+              </article>
+              <article class="capacity-card">
+                <p class="tm-label">Customer success</p>
+                <h3 class="tm-h4">Comfortable</h3>
+                <p class="tm-small">Automation has reduced follow-up load and improved schedule flexibility.</p>
+                <div class="bar"><span style="width: 58%"></span></div>
+              </article>
+              <article class="capacity-card">
+                <p class="tm-label">Operations</p>
+                <h3 class="tm-h4">Active but healthy</h3>
+                <p class="tm-small">Weekly review prep raises load briefly without tipping the team past threshold.</p>
+                <div class="bar"><span style="width: 73%"></span></div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <div class="stack">
+          <article class="panel tm-panel">
+            <p class="tm-kicker">Action panels</p>
+            <h2 class="tm-h3">What helps collaboration move forward.</h2>
+            <div class="action-grid">
+              <article class="action-card">
+                <p class="tm-label">Coverage</p>
+                <h3 class="tm-h4">Add one support engineer for migration week</h3>
+                <p class="tm-small">A short-term shift reduces pressure on implementation during cutover preparation.</p>
+              </article>
+              <article class="action-card">
+                <p class="tm-label">Coaching</p>
+                <h3 class="tm-h4">Pair onboarding ops with finance automation lead</h3>
+                <p class="tm-small">Cross-training increases backup coverage ahead of the next planning cycle.</p>
+              </article>
+              <article class="action-card">
+                <p class="tm-label">Hiring</p>
+                <h3 class="tm-h4">Open specialist search for integration analyst</h3>
+                <p class="tm-small">This closes a recurring dependency gap in migration and systems work.</p>
+              </article>
+              <article class="action-card">
+                <p class="tm-label">Rituals</p>
+                <h3 class="tm-h4">Keep Friday portfolio-to-team handoff review</h3>
+                <p class="tm-small">The meeting continues to reduce ambiguity and preserve week-over-week coordination quality.</p>
+              </article>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+    <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .app {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 22px;
+      width: min(100%, 1540px);
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .rail {
+      position: sticky;
+      top: 24px;
+      height: calc(100vh - 48px);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border-radius: 26px;
+      background: var(--tm-surface);
+      border: 1px solid var(--tm-border);
+      box-shadow: var(--shadow-floating);
+      backdrop-filter: blur(20px);
+    }
+    .brand-badge,
+    .avatar,
+    .member-avatar {
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--tm-primary), var(--tm-primary-strong));
+      color: var(--tm-bg-elevated);
+      box-shadow: var(--shadow-floating);
+    }
+    .nav { display: grid; gap: 8px; }
+    .nav a {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--tm-text);
+      border: 1px solid transparent;
+    }
+    .nav a.active {
+      background: var(--tm-primary-soft);
+      color: var(--tm-primary-strong);
+      border-color: var(--tm-border);
+    }
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--tm-border-strong);
+    }
+    .nav a.active .nav-dot { background: var(--tm-primary); }
+    .workspace-card,
+    .topbar,
+    .hero,
+    .panel,
+    .member-row,
+    .capacity-card,
+    .action-card {
+      border-radius: 24px;
+    }
+    .workspace-card {
+      margin-top: auto;
+      padding: 18px;
+      border: 1px solid var(--tm-border);
+      background: linear-gradient(180deg, var(--tm-surface-strong), var(--tm-bg-soft));
+    }
+    .workspace-card p,
+    .hero p,
+    .panel p,
+    .member-copy p,
+    .capacity-card p,
+    .action-card p { color: var(--tm-text-muted); }
+    .main { display: grid; gap: 20px; }
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(240px,1fr) auto auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 20px;
+    }
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 14px;
+      border-radius: 16px;
+      background: var(--tm-bg-soft);
+      border: 1px solid var(--tm-border);
+    }
+    .search input {
+      border: none;
+      outline: none;
+      width: 100%;
+      background: transparent;
+      font: inherit;
+      color: var(--tm-text-muted);
+    }
+    .chip-row,
+    .profile,
+    .hero-actions,
+    .member-meta,
+    .member-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--tm-text), var(--tm-text-muted));
+      color: var(--tm-bg-elevated);
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) 380px;
+      gap: 18px;
+      padding: 22px;
+      background:
+        linear-gradient(180deg, var(--tm-surface-strong), var(--tm-surface)),
+        radial-gradient(circle at top right, var(--tm-primary-soft), transparent 28%);
+    }
+    .hero-main {
+      display: grid;
+      gap: 22px;
+    }
+    .hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .metric {
+      padding: 18px;
+      border-radius: 20px;
+      background: var(--tm-surface);
+      border: 1px solid var(--tm-border);
+    }
+    .metric.primary {
+      background: linear-gradient(180deg, var(--tm-primary-soft), var(--tm-surface-strong));
+      border-color: var(--tm-border-strong);
+    }
+    .hero-side {
+      padding: 20px;
+      border-radius: 22px;
+      background: var(--tm-bg-soft);
+      border: 1px solid var(--tm-border);
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+    .capacity-dial {
+      width: 152px;
+      height: 152px;
+      margin: 0 auto;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, var(--tm-surface-strong) 49%, transparent 50%),
+        conic-gradient(var(--tm-primary) 0 266deg, var(--tm-border) 266deg 360deg);
+    }
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+      gap: 18px;
+    }
+    .stack { display: grid; gap: 18px; }
+    .panel { padding: 20px; }
+    .member-list,
+    .capacity-grid,
+    .action-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .member-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px;
+      background: var(--tm-surface-strong);
+      border: 1px solid var(--tm-border);
+    }
+    .member-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background: var(--tm-primary-soft);
+      color: var(--tm-primary-strong);
+    }
+    .member-copy strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+    .capacity-grid,
+    .action-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .capacity-card,
+    .action-card {
+      padding: 18px;
+      background: var(--tm-surface-strong);
+      border: 1px solid var(--tm-border);
+    }
+    .bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--tm-primary-soft);
+      margin-top: 14px;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--tm-primary), var(--tm-primary-strong));
+    }
+    @media (max-width: 1240px) {
+      .app,
+      .hero,
+      .content { grid-template-columns: 1fr; }
+      .rail { position: relative; top: auto; height: auto; }
+      .metrics,
+      .capacity-grid,
+      .action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 860px) {
+      .app { padding: 16px; }
+      .topbar { grid-template-columns: 1fr; }
+      .metrics,
+      .capacity-grid,
+      .action-grid { grid-template-columns: 1fr; }
+      .hero-header,
+      .member-row { grid-template-columns: 1fr; }
+      .hero-header { display: flex; flex-direction: column; }
+      .member-row { display: grid; }
+    }
+  </style>
+</body>
+</html>

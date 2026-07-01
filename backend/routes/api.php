@@ -58,6 +58,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/teams/{team}/members', [TeamController::class, 'addMember']);
     Route::post('/teams/{team}/invite', [TeamController::class, 'invite']);
     Route::post('/teams/{team}/request', [TeamController::class, 'requestToJoin']);
+    Route::delete('/teams/{team}/request', [TeamController::class, 'cancelRequest']);
+    Route::delete('/teams/{team}/leave', [TeamController::class, 'leaveTeam']);
+    Route::delete('/teams/{team}/invite/{userId}', [TeamController::class, 'cancelInvite']);
+    Route::post('/teams/{team}/invite/accept', [TeamController::class, 'acceptInvite']);
+    Route::post('/teams/{team}/invite/reject', [TeamController::class, 'rejectInvite']);
     Route::put('/teams/{team}/members/{userId}/accept', [TeamController::class, 'acceptMembership']);
     Route::put('/teams/{team}/members/{userId}/reject', [TeamController::class, 'rejectMembership']);
     Route::delete('/teams/{team}/members/{userId}', [TeamController::class, 'removeMember']);

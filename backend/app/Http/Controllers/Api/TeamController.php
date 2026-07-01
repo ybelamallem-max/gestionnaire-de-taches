@@ -32,6 +32,32 @@ class TeamController extends Controller
         ];
     }
 
+    private function loadTeamWithCount(Team $team): Team
+    {
+        return $team->load($this->teamRelationsWithPending())
+            ->loadCount(['members as members_count' => function ($query) {
+                $query->where('status', 'accepted');
+            }]);
+    }
+
+    private function loadTeamWithCountAndMembership(Request $request, Team $team): Team
+    {
+        $team = $this->loadTeamWithCount($team);
+
+        // Add user's membership status
+        $userId = $request->user()->id;
+        $membership = TeamMember::where('team_id', $team->id)
+            ->where('user_id', $userId)
+            ->first();
+
+        $team->user_membership = $membership ? [
+            'status' => $membership->status,
+            'role' => $membership->role,
+        ] : null;
+
+        return $team;
+    }
+
     private function canAccessTeam(Request $request, Team $team): bool
     {
         $userId = $request->user()->id;
@@ -68,6 +94,9 @@ class TeamController extends Controller
             return null;
         }
 
+        // Remove @ symbol if present at the beginning
+        $identifier = ltrim($identifier, '@');
+
         [$name, $tag] = explode('#', $identifier, 2);
         $tag = str_pad($tag, 3, '0', STR_PAD_LEFT);
 
@@ -90,7 +119,7 @@ class TeamController extends Controller
             $membership = TeamMember::where('team_id', $team->id)
                 ->where('user_id', $userId)
                 ->first();
-
+             
             $team->user_membership = $membership ? [
                 'status' => $membership->status,
                 'role' => $membership->role,
@@ -141,7 +170,7 @@ class TeamController extends Controller
         ]);
 
         return response()->json([
-            'team' => $team->load($this->teamRelationsWithPending()),
+            'team' => $this->loadTeamWithCount($team),
         ]);
     }
 
@@ -170,7 +199,7 @@ class TeamController extends Controller
         ]);
 
         return response()->json([
-            'team' => $team->load($this->teamRelationsWithPending()),
+            'team' => $this->loadTeamWithCount($team),
         ]);
     }
 
@@ -238,7 +267,7 @@ class TeamController extends Controller
                 ]);
 
                 return response()->json([
-                    'team' => $team->load($this->teamRelations()),
+                    'team' => $this->loadTeamWithCount($team),
                 ]);
             }
         }
@@ -259,7 +288,7 @@ class TeamController extends Controller
         ]);
 
         return response()->json([
-            'team' => $team->load($this->teamRelationsWithPending()),
+            'team' => $this->loadTeamWithCount($team),
         ]);
     }
 
@@ -282,6 +311,40 @@ class TeamController extends Controller
 
             if ($existingMembership->status === 'pending_invite') {
                 return response()->json(['message' => 'Vous avez déjà une invitation en attente'], 422);
+            }
+
+            // If rejected, update to pending_request instead of creating new record
+            if ($existingMembership->status === 'rejected') {
+                $existingMembership->update(['status' => 'pending_request']);
+
+                // Notify team admins and owner
+                $admins = TeamMember::where('team_id', $team->id)
+                    ->where('status', 'accepted')
+                    ->where('role', 'admin')
+                    ->with('user')
+                    ->get();
+
+                // Add owner to notification list
+                $owner = User::find($team->owner_id);
+
+                $notifyUserIds = $admins->pluck('user_id')->toArray();
+                if ($owner) {
+                    $notifyUserIds[] = $owner->id;
+                }
+
+                foreach ($notifyUserIds as $userId) {
+                    Notification::create([
+                        'user_id' => $userId,
+                        'type' => 'team_request',
+                        'title' => 'Demande pour rejoindre une équipe',
+                        'message' => "{$request->user()->name} souhaite rejoindre l'équipe {$team->name}",
+                        'data' => json_encode(['team_id' => $team->id, 'team_name' => $team->name, 'user_id' => $request->user()->id]),
+                    ]);
+                }
+
+                return response()->json([
+                    'team' => $this->loadTeamWithCountAndMembership($request, $team),
+                ]);
             }
         }
 
@@ -318,7 +381,179 @@ class TeamController extends Controller
         }
 
         return response()->json([
-            'team' => $team->load($this->teamRelationsWithPending()),
+            'team' => $this->loadTeamWithCountAndMembership($request, $team),
+        ]);
+    }
+
+    public function cancelRequest(Request $request, Team $team): JsonResponse
+    {
+        $userId = $request->user()->id;
+
+        $membership = TeamMember::where('team_id', $team->id)
+            ->where('user_id', $userId)
+            ->where('status', 'pending_request')
+            ->first();
+
+        if (! $membership) {
+            return response()->json(['message' => 'Aucune demande en attente'], 404);
+        }
+
+        $membership->delete();
+
+        return response()->json([
+            'team' => $this->loadTeamWithCountAndMembership($request, $team),
+        ]);
+    }
+
+    public function leaveTeam(Request $request, Team $team): JsonResponse
+    {
+        $userId = $request->user()->id;
+
+        if ($team->owner_id === $userId) {
+            return response()->json(['message' => 'Le propriétaire ne peut pas quitter l\'équipe'], 422);
+        }
+
+        $membership = TeamMember::where('team_id', $team->id)
+            ->where('user_id', $userId)
+            ->where('status', 'accepted')
+            ->first();
+
+        if (! $membership) {
+            return response()->json(['message' => 'Vous n\'êtes pas membre de cette équipe'], 404);
+        }
+
+        $membership->delete();
+
+        Notification::create([
+            'user_id' => $userId,
+            'type' => 'team_left',
+            'title' => 'Quitté l\'équipe',
+            'message' => "Vous avez quitté l'équipe {$team->name}",
+            'data' => json_encode(['team_id' => $team->id, 'team_name' => $team->name]),
+        ]);
+
+        return response()->json([
+            'team' => $this->loadTeamWithCountAndMembership($request, $team),
+        ]);
+    }
+
+    public function cancelInvite(Request $request, Team $team, int $userId): JsonResponse
+    {
+        if (! $this->canManageTeam($request, $team)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $membership = TeamMember::where('team_id', $team->id)
+            ->where('user_id', $userId)
+            ->where('status', 'pending_invite')
+            ->first();
+
+        if (! $membership) {
+            return response()->json(['message' => 'Aucune invitation en attente'], 404);
+        }
+
+        $membership->delete();
+
+        Notification::create([
+            'user_id' => $userId,
+            'type' => 'team_invite_cancelled',
+            'title' => 'Invitation annulée',
+            'message' => "L'invitation à rejoindre l'équipe {$team->name} a été annulée",
+            'data' => json_encode(['team_id' => $team->id, 'team_name' => $team->name]),
+        ]);
+
+        return response()->json([
+            'team' => $this->loadTeamWithCount($team),
+        ]);
+    }
+
+    public function acceptInvite(Request $request, Team $team): JsonResponse
+    {
+        $userId = $request->user()->id;
+
+        $membership = TeamMember::where('team_id', $team->id)
+            ->where('user_id', $userId)
+            ->where('status', 'pending_invite')
+            ->first();
+
+        if (! $membership) {
+            return response()->json(['message' => 'Aucune invitation en attente'], 404);
+        }
+
+        $membership->update(['status' => 'accepted']);
+
+        // Notify team admins and owner
+        $admins = TeamMember::where('team_id', $team->id)
+            ->where('status', 'accepted')
+            ->where('role', 'admin')
+            ->with('user')
+            ->get();
+
+        // Add owner to notification list
+        $owner = User::find($team->owner_id);
+
+        $notifyUserIds = $admins->pluck('user_id')->toArray();
+        if ($owner) {
+            $notifyUserIds[] = $owner->id;
+        }
+
+        foreach ($notifyUserIds as $notifyUserId) {
+            Notification::create([
+                'user_id' => $notifyUserId,
+                'type' => 'team_invite_accepted',
+                'title' => 'Invitation acceptée',
+                'message' => "{$request->user()->name} a accepté l'invitation à rejoindre l'équipe {$team->name}",
+                'data' => json_encode(['team_id' => $team->id, 'team_name' => $team->name, 'user_id' => $userId]),
+            ]);
+        }
+
+        return response()->json([
+            'team' => $this->loadTeamWithCountAndMembership($request, $team),
+        ]);
+    }
+
+    public function rejectInvite(Request $request, Team $team): JsonResponse
+    {
+        $userId = $request->user()->id;
+
+        $membership = TeamMember::where('team_id', $team->id)
+            ->where('user_id', $userId)
+            ->where('status', 'pending_invite')
+            ->first();
+
+        if (! $membership) {
+            return response()->json(['message' => 'Aucune invitation en attente'], 404);
+        }
+
+        $membership->update(['status' => 'rejected']);
+
+        // Notify team admins and owner
+        $admins = TeamMember::where('team_id', $team->id)
+            ->where('status', 'accepted')
+            ->where('role', 'admin')
+            ->with('user')
+            ->get();
+
+        // Add owner to notification list
+        $owner = User::find($team->owner_id);
+
+        $notifyUserIds = $admins->pluck('user_id')->toArray();
+        if ($owner) {
+            $notifyUserIds[] = $owner->id;
+        }
+
+        foreach ($notifyUserIds as $notifyUserId) {
+            Notification::create([
+                'user_id' => $notifyUserId,
+                'type' => 'team_invite_rejected',
+                'title' => 'Invitation refusée',
+                'message' => "{$request->user()->name} a refusé l'invitation à rejoindre l'équipe {$team->name}",
+                'data' => json_encode(['team_id' => $team->id, 'team_name' => $team->name, 'user_id' => $userId]),
+            ]);
+        }
+
+        return response()->json([
+            'team' => $this->loadTeamWithCountAndMembership($request, $team),
         ]);
     }
 
@@ -353,7 +588,7 @@ class TeamController extends Controller
         ]);
 
         return response()->json([
-            'team' => $team->load($this->teamRelationsWithPending()),
+            'team' => $this->loadTeamWithCount($team),
         ]);
     }
 
@@ -388,7 +623,7 @@ class TeamController extends Controller
         ]);
 
         return response()->json([
-            'team' => $team->load($this->teamRelationsWithPending()),
+            'team' => $this->loadTeamWithCount($team),
         ]);
     }
 
@@ -419,7 +654,7 @@ class TeamController extends Controller
         ]);
 
         return response()->json([
-            'team' => $team->load($this->teamRelationsWithPending()),
+            'team' => $this->loadTeamWithCount($team),
         ]);
     }
 
