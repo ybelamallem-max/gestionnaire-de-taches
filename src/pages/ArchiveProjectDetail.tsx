@@ -2,13 +2,13 @@ import { useMemo, useState } from "react"
 import { ArrowLeft, ArchiveRestore } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 
-import { TaskBoard } from "@/components/tasks/TaskBoard"
 import { TaskDetailsPanel } from "@/components/tasks/TaskDetailsPanel"
 import { TaskFilters } from "@/components/tasks/TaskFilters"
 import type {
   TaskPriorityFilter,
   TaskStatusFilter,
 } from "@/components/tasks/TaskFilters"
+import { TaskForm } from "@/components/tasks/TaskForm"
 import { TaskList } from "@/components/tasks/TaskList"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,12 +20,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import type { Task, TaskTag } from "@/types/task"
-import type { Project } from "@/types/project"
+import type { Task, TaskTag, TaskUpsertPayload } from "@/types/task"
 import { useArchive } from "@/hooks/useArchive"
 import { useTasks } from "@/hooks/useTasks"
 import { useTeams } from "@/hooks/useTeams"
 import { useUsers } from "@/hooks/useUsers"
+import type { ApiValidationErrors } from "@/services/apiErrors"
+import { getValidationErrors } from "@/services/apiErrors"
+import { canManageProject } from "@/lib/permissions"
 import { canViewAll } from "@/lib/roles"
 import { useAuthStore } from "@/stores/authStore"
 import {
@@ -43,12 +45,19 @@ export default function ArchiveProjectDetail() {
   const currentUser = useAuthStore((s) => s.user)
   const dataScope = canViewAll(currentUser?.role) ? "all" : undefined
   const { projects, isLoading: projectsLoading, unarchiveProject } = useArchive()
-  const { tasks } = useTasks(dataScope)
+  const { tasks, updateTask, deleteTask, toggleTask, assignTask, replaceTask } = useTasks(
+    dataScope,
+    undefined,
+    { includeArchived: true }
+  )
   const { teams } = useTeams()
   const { users } = useUsers()
 
   const [isUnarchiveDialogOpen, setIsUnarchiveDialogOpen] = useState(false)
   const [isUnarchiving, setIsUnarchiving] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editErrors, setEditErrors] = useState<ApiValidationErrors | null>(null)
 
   const canUnarchive = currentUser?.role === "admin"
 
@@ -126,7 +135,51 @@ export default function ArchiveProjectDetail() {
   }, [currentUser?.email, currentUser?.id, currentUser?.name, project, selectedTask, teams])
 
   function syncTaskTags(taskId: Task["id"], tags: TaskTag[]) {
-    // Archive is read-only, so we don't sync tags
+    const task = projectTasks.find((item) => item.id === taskId)
+    if (!task) return
+    const nextTask = { ...task, tags }
+    replaceTask(nextTask)
+    setSelectedTask((prev) => (prev && prev.id === taskId ? nextTask : prev))
+  }
+
+  async function handleAssign(taskId: Task["id"], userId: string | number) {
+    const updated = await assignTask(taskId, userId)
+    if (updated) {
+      replaceTask(updated)
+      setSelectedTask((prev) => (prev && prev.id === taskId ? updated : prev))
+    }
+  }
+
+  async function handleUpdate(payload: TaskUpsertPayload) {
+    if (!editingTask) return
+    setIsSubmitting(true)
+    setEditErrors(null)
+    try {
+      const updated = await updateTask(editingTask.id, payload)
+      if (updated) {
+        replaceTask(updated)
+        setSelectedTask((prev) => (prev && prev.id === editingTask.id ? updated : prev))
+      }
+      setEditingTask(null)
+    } catch (err: unknown) {
+      setEditErrors(getValidationErrors(err))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleToggle(taskId: Task["id"]) {
+    const updated = await toggleTask(taskId)
+    if (updated) {
+      replaceTask(updated)
+      setSelectedTask((prev) => (prev && prev.id === taskId ? updated : prev))
+    }
+  }
+
+  async function handleDelete(taskId: Task["id"]) {
+    await deleteTask(taskId)
+    setSelectedTask((prev) => (prev && prev.id === taskId ? null : prev))
+    setEditingTask((prev) => (prev && prev.id === taskId ? null : prev))
   }
 
   if (projectsLoading) {
@@ -148,6 +201,7 @@ export default function ArchiveProjectDetail() {
     )
   }
 
+  const canManageArchivedProject = canManageProject(currentUser, project, teams)
   const teamName = getProjectTeamName(project)
   const ownerName = getProjectOwnerName(project)
   const displayName = (project.team_id === null || project.team === null) ? ownerName : teamName
@@ -240,24 +294,49 @@ export default function ArchiveProjectDetail() {
 
           <TaskFilters value={filters} onChange={setFilters} />
 
-          <TaskList
-            tasks={filteredTasks}
-            onToggle={() => {}}
-            onDelete={() => {}}
-            onEdit={() => {}}
-            onOpenDetails={(task) => setSelectedTask(task)}
-          />
+          <div className="mt-4">
+            <TaskList
+              tasks={filteredTasks}
+              onToggle={canManageArchivedProject ? (id) => void handleToggle(id) : undefined}
+              onDelete={canManageArchivedProject ? (id) => void handleDelete(id) : undefined}
+              onEdit={canManageArchivedProject ? (task) => setEditingTask(task) : undefined}
+              onOpenDetails={(task) => setSelectedTask(task)}
+            />
+          </div>
         </div>
       </div>
+
+      <Dialog
+        open={!!editingTask}
+        onOpenChange={(open) => {
+          if (!open) setEditingTask(null)
+          if (open) setEditErrors(null)
+        }}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Modifier la tâche</DialogTitle>
+          </DialogHeader>
+          <TaskForm
+            projects={[project]}
+            initialTask={editingTask}
+            isSubmitting={isSubmitting}
+            errors={editErrors}
+            onCancel={() => setEditingTask(null)}
+            onSubmit={handleUpdate}
+          />
+        </DialogContent>
+      </Dialog>
 
       <TaskDetailsPanel
         task={selectedTask}
         open={!!selectedTask}
         mentionUsers={mentionUsers}
         assignableUsers={assignableUsers}
-        onAssign={() => {}}
+        onAssign={canManageArchivedProject ? handleAssign : async () => {}}
         onClose={() => setSelectedTask(null)}
         onTagsChange={syncTaskTags}
+        canManageTask={canManageArchivedProject}
       />
 
       <Dialog open={isUnarchiveDialogOpen} onOpenChange={setIsUnarchiveDialogOpen}>

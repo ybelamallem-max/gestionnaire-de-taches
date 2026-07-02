@@ -28,9 +28,9 @@ import type { Task } from "@/types/task"
 
 type TaskLineProps = {
   task: Task
-  onToggle: (id: Task["id"]) => void
-  onDelete: (id: Task["id"]) => void
-  onEdit: (task: Task) => void
+  onToggle?: (id: Task["id"]) => void
+  onDelete?: (id: Task["id"]) => void
+  onEdit?: (task: Task) => void
   onOpenDetails: (task: Task) => void
   compact?: boolean
 }
@@ -69,6 +69,7 @@ export function TaskLine({
 }: TaskLineProps) {
   const deadline = formatDeadline(task.deadline)
   const assigneeInitials = getAssigneeInitials(task)
+  const canManageTask = Boolean(onToggle || onDelete || onEdit)
 
   return (
     <div
@@ -86,16 +87,22 @@ export function TaskLine({
       role="button"
       tabIndex={0}
     >
-      <button
-        type="button"
-        onClick={(event) => {
-          event.stopPropagation()
-          onToggle(task.id)
-        }}
-        className="flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground mt-0.5"
-      >
-        <StatusIcon status={task.status} />
-      </button>
+      {onToggle ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            onToggle(task.id)
+          }}
+          className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <StatusIcon status={task.status} />
+        </button>
+      ) : (
+        <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center text-muted-foreground">
+          <StatusIcon status={task.status} />
+        </div>
+      )}
 
       <div className="min-w-0 flex-1">
         <div className="text-sm font-medium text-foreground">{task.title}</div>
@@ -130,84 +137,94 @@ export function TaskLine({
           </div>
         )}
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <MoreHorizontal className="size-3.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem
-              onClick={(event) => {
-                event.stopPropagation()
-                onOpenDetails(task)
-              }}
-            >
-              Détails
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={(event) => {
-                event.stopPropagation()
-                onEdit(task)
-              }}
-            >
-              Modifier
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={(event) => {
-                event.stopPropagation()
-                onToggle(task.id)
-              }}
-            >
-              {toggleLabel(task.status)}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <Dialog>
-              <DialogTrigger asChild>
+        {canManageTask ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <MoreHorizontal className="size-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onOpenDetails(task)
+                }}
+              >
+                Détails
+              </DropdownMenuItem>
+              {onEdit ? (
                 <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={(event) => event.preventDefault()}
-                  onClick={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onEdit(task)
+                  }}
                 >
-                  Supprimer
+                  Modifier
                 </DropdownMenuItem>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Supprimer la tâche</DialogTitle>
-                  <DialogDescription>
-                    Cette action est irréversible. Voulez-vous supprimer « {task.title} » ?
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button type="button" variant="outline">
-                      Annuler
-                    </Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        onDelete(task.id)
-                      }}
-                    >
-                      Supprimer
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              ) : null}
+              {onToggle ? (
+                <DropdownMenuItem
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onToggle(task.id)
+                  }}
+                >
+                  {toggleLabel(task.status)}
+                </DropdownMenuItem>
+              ) : null}
+              {onDelete ? (
+                <>
+                  <DropdownMenuSeparator />
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onSelect={(event) => event.preventDefault()}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        Supprimer
+                      </DropdownMenuItem>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Supprimer la tâche</DialogTitle>
+                        <DialogDescription>
+                          Cette action est irréversible. Voulez-vous supprimer « {task.title} » ?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button type="button" variant="outline">
+                            Annuler
+                          </Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              onDelete(task.id)
+                            }}
+                          >
+                            Supprimer
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
       </div>
     </div>
   )

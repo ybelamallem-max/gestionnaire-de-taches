@@ -57,7 +57,7 @@
 }
 
 .dark {
-  --background: 0 0 0;
+  --background: 220 13% 18%;
   --foreground: 0.95 0 0;
   --card: 0.1 0 0;
   --card-foreground: 0.95 0 0;
@@ -84,7 +84,7 @@
   --sidebar-accent-foreground: 0.9 0 0;
   --sidebar-border: 0.15 0 0;
   --sidebar-ring: 0.65 0.15 240;
-  --container: #0a0a0a;
+  --container: #1a1a1a;
 
   --status-healthy: 0.6 0.2 150;
   --status-at-risk: 0.7 0.25 45;

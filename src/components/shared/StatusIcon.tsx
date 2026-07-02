@@ -20,11 +20,11 @@ const statusColors: Record<TaskStatus, string> = {
 }
 
 export function StatusIcon({ status, className }: StatusIconProps) {
-  const Icon = statusIcons[status]
+  const Icon = statusIcons[status] ?? Circle
   return (
     <div title={status}>
       <Icon
-        className={cn("size-4 shrink-0", statusColors[status], className)}
+        className={cn("size-4 shrink-0", statusColors[status] ?? "text-muted-foreground", className)}
       />
     </div>
   )

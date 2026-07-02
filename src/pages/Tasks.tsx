@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { LayoutGrid, LayoutList, Plus, Search } from "lucide-react"
+import { LayoutGrid, LayoutList, Plus, Search, Circle, Clock, CircleCheck } from "lucide-react"
 
 import { TaskBoard } from "@/components/tasks/TaskBoard"
 import { TaskDetailsPanel } from "@/components/tasks/TaskDetailsPanel"
@@ -283,17 +283,49 @@ export default function Tasks({ scope }: TasksProps) {
               onOpenDetails={(task) => setSelectedTask(task)}
             />
           ) : (
-            <div className="space-y-1">
-              {filteredTasks.map((task) => (
-                <TaskLine
-                  key={String(task.id)}
-                  task={task}
-                  onToggle={(id) => void toggleTask(id)}
-                  onDelete={(id) => void deleteTask(id)}
-                  onEdit={(task) => setEditingTask(task)}
-                  onOpenDetails={(task) => setSelectedTask(task)}
-                />
-              ))}
+            <div className="space-y-4">
+              {["todo", "in_progress", "done"].map((status) => {
+                const statusTasks = filteredTasks.filter((t) => t.status === status)
+                if (statusTasks.length === 0) return null
+
+                const bgColors = {
+                  todo: "bg-slate-50 dark:bg-[#4f545c]/30",
+                  in_progress: "bg-amber-50 dark:bg-[#faa61a]/20",
+                  done: "bg-emerald-50 dark:bg-[#3ba55c]/20"
+                }
+
+                const iconColors = {
+                  todo: "text-slate-500 dark:text-[#b9bbbe]",
+                  in_progress: "text-amber-600 dark:text-[#faa61a]",
+                  done: "text-emerald-600 dark:text-[#3ba55c]"
+                }
+
+                const StatusIcon = status === "todo" ? Circle : status === "in_progress" ? Clock : CircleCheck
+
+                return (
+                  <div key={status} className="space-y-2">
+                    <div className={`flex items-center gap-2 rounded-lg px-4 py-3 ${bgColors[status]}`}>
+                      <StatusIcon className={`size-4 ${iconColors[status]}`} />
+                      <h3 className="text-sm font-semibold capitalize">
+                        {status === "todo" ? "À faire" : status === "in_progress" ? "En cours" : "Terminé"}
+                      </h3>
+                      <Badge variant="secondary">{statusTasks.length}</Badge>
+                    </div>
+                    <div className="space-y-1">
+                      {statusTasks.map((task) => (
+                        <TaskLine
+                          key={String(task.id)}
+                          task={task}
+                          onToggle={(id) => void toggleTask(id)}
+                          onDelete={(id) => void deleteTask(id)}
+                          onEdit={(task) => setEditingTask(task)}
+                          onOpenDetails={(task) => setSelectedTask(task)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
 

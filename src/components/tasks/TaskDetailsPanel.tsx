@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select"
 import { useTaskDetails } from "@/hooks/useTaskDetails"
 import type { TaskComment } from "@/hooks/useTaskDetails"
-import type { Task, TaskTag } from "@/hooks/useTasks"
+import type { Task, TaskTag } from "@/types/task"
 import { useAuthStore } from "@/stores/authStore"
 import {
   priorityBadgeClass,
@@ -45,6 +45,7 @@ type TaskDetailsPanelProps = {
   onAssign: (taskId: Task["id"], userId: string | number) => Promise<void> | void
   onClose: () => void
   onTagsChange: (taskId: Task["id"], tags: TaskTag[]) => void
+  canManageTask?: boolean
 }
 
 function formatDate(value: string | null | undefined) {
@@ -80,6 +81,7 @@ export function TaskDetailsPanel({
   onAssign,
   onClose,
   onTagsChange,
+  canManageTask = true,
 }: TaskDetailsPanelProps) {
   const currentUser = useAuthStore((state) => state.user)
   const { comments, tags, isLoading, error, addComment, deleteComment, addTag, deleteTag } =
@@ -223,7 +225,7 @@ export function TaskDetailsPanel({
 
           <section className="space-y-3">
             <div className="text-sm font-medium text-foreground">Assignation</div>
-            {assignableUsers.length ? (
+            {canManageTask && assignableUsers.length ? (
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Select value={assigneeId} onValueChange={setAssigneeId}>
                   <SelectTrigger className="h-9 w-full">
@@ -249,9 +251,13 @@ export function TaskDetailsPanel({
                   {isAssigning ? "Assignation..." : "Assigner"}
                 </Button>
               </div>
-            ) : (
+            ) : canManageTask ? (
               <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-xs">
                 Aucun membre disponible pour assigner cette tâche.
+              </div>
+            ) : (
+              <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-xs">
+                Modification de l’assignation réservée aux gestionnaires du projet.
               </div>
             )}
           </section>
@@ -270,40 +276,47 @@ export function TaskDetailsPanel({
                   <button
                     key={String(tag.id)}
                     type="button"
-                    className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs transition-opacity hover:opacity-90"
+                    className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-100"
                     style={tagStyle(tag)}
                     onClick={() => void handleDeleteTag(tag.id)}
+                    disabled={!canManageTask}
                   >
                     <span>{tag.name}</span>
-                    <span className="text-[10px] opacity-80">Supprimer</span>
+                    {canManageTask ? <span className="text-[10px] opacity-80">Supprimer</span> : null}
                   </button>
                 ))
               ) : (
                 <div className="text-sm text-muted-foreground">Aucun tag</div>
               )}
             </div>
-            <form onSubmit={handleAddTag} className="flex flex-col gap-3 sm:flex-row">
-              <Input
-                value={tagName}
-                onChange={(e) => setTagName(e.target.value)}
-                placeholder="Nom du tag"
-              />
-              <label className="flex h-9 w-full items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-xs sm:w-36">
-                <span>Couleur</span>
-                <input
-                  value={tagColor}
-                  onChange={(e) => setTagColor(e.target.value)}
-                  type="color"
-                  className="h-6 w-8 cursor-pointer border-0 bg-transparent p-0"
+            {canManageTask ? (
+              <form onSubmit={handleAddTag} className="flex flex-col gap-3 sm:flex-row">
+                <Input
+                  value={tagName}
+                  onChange={(e) => setTagName(e.target.value)}
+                  placeholder="Nom du tag"
                 />
-              </label>
-              <Button
-                type="submit"
-                disabled={isSubmittingTag || !tagName.trim()}
-              >
-                {isSubmittingTag ? "Ajout..." : "Ajouter"}
-              </Button>
-            </form>
+                <label className="flex h-9 w-full items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-xs sm:w-36">
+                  <span>Couleur</span>
+                  <input
+                    value={tagColor}
+                    onChange={(e) => setTagColor(e.target.value)}
+                    type="color"
+                    className="h-6 w-8 cursor-pointer border-0 bg-transparent p-0"
+                  />
+                </label>
+                <Button
+                  type="submit"
+                  disabled={isSubmittingTag || !tagName.trim()}
+                >
+                  {isSubmittingTag ? "Ajout..." : "Ajouter"}
+                </Button>
+              </form>
+            ) : (
+              <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-xs">
+                Gestion des tags réservée aux gestionnaires du projet.
+              </div>
+            )}
           </section>
 
           <section className="space-y-4">

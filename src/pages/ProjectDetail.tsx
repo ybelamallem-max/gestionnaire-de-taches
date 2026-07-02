@@ -257,7 +257,7 @@ export default function ProjectDetail() {
       </div>
 
       <div className="page-section space-y-5">
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <div className="rounded-lg border bg-background p-4 shadow-sm">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <Badge className={cn("border-0", projectStatusBadgeClass(project.status))}>
               {projectStatusLabel(project.status)}
@@ -269,18 +269,18 @@ export default function ProjectDetail() {
             </div>
           )}
           <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-            <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/50 px-3 py-2">
+            <div className="flex items-center justify-between gap-2 rounded-lg border bg-card px-3 py-2">
               <span className="text-muted-foreground">{project.team_id === null || project.team === null ? 'Propriétaire' : 'Équipe'}</span>
               <span className="truncate font-medium">{displayName}</span>
             </div>
             {project.deadline && (
-              <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/50 px-3 py-2">
+              <div className="flex items-center justify-between gap-2 rounded-lg border bg-card px-3 py-2">
                 <span className="text-muted-foreground">Deadline</span>
                 <span className="font-medium">{project.deadline}</span>
               </div>
             )}
           </div>
-          <div className="mt-3 space-y-2 rounded-lg border bg-muted/50 px-3 py-2">
+          <div className="mt-3 space-y-2 rounded-lg border bg-card px-3 py-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Progression</span>
               <span className="font-medium">
@@ -356,7 +356,8 @@ export default function ProjectDetail() {
 
           <TaskFilters value={filters} onChange={setFilters} />
 
-          {view === "board" ? (
+          <div className="mt-4">
+            {view === "board" ? (
             <TaskBoard
               tasks={filteredTasks}
               onMove={(task, status) => void handleMoveTask(task, status)}
@@ -374,6 +375,7 @@ export default function ProjectDetail() {
               onOpenDetails={(task) => setSelectedTask(task)}
             />
           )}
+          </div>
         </div>
       </div>
 

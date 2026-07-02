@@ -29,7 +29,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => $user,
+            'user' => $user->toApiUser(),
         ], 201);
     }
 
@@ -52,7 +52,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => $user,
+            'user' => $user->toApiUser(),
         ]);
     }
 
@@ -67,8 +67,10 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
+        $user = $request->user()->fresh();
+
         return response()->json([
-            'user' => $request->user(),
+            'user' => $user?->toApiUser(),
         ]);
     }
 }

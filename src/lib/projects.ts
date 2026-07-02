@@ -1,4 +1,4 @@
-import type { Project, ProjectStatus } from "@/hooks/useProjects"
+import type { Project, ProjectStatus } from "@/types/project"
 
 export function projectStatusLabel(status: ProjectStatus) {
   if (status === "completed") return "Terminé"

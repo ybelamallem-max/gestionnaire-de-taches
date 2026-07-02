@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+﻿import { Link } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,14 +22,39 @@ const PROJECT_STATUS_MAP: Record<string, "healthy" | "at-risk" | "on-pace" | "ne
   archived: "needs-review",
 }
 
+const TASK_STATUS_LABELS: Record<string, string> = {
+  todo: "À faire",
+  in_progress: "En cours",
+  done: "Terminée",
+}
+
+function formatActivityDate(value?: string | null) {
+  if (!value) return null
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date)
+}
+
 export default function Dashboard() {
   const { stats, isLoading, error, refresh } = useDashboardStats()
   const isGlobal = stats?.scope === "global"
   const user = useAuthStore((s) => s.user)
 
-  const completionRate = stats?.tasks_total && stats?.tasks_total > 0
-    ? Math.round((stats.tasks_done / stats.tasks_total) * 100)
-    : 0
+  const completionRate = stats?.completion_rate ?? 0
+  const overdueCount = stats?.tasks_overdue ?? 0
+  const workloadValue = isGlobal
+    ? `${stats?.workload_average_active_tasks ?? 0}`
+    : `${stats?.workload_percent ?? 0}%`
+  const workloadDescription = isGlobal
+    ? `${stats?.active_tasks_total ?? 0} tâches actives pour ${stats?.users_total ?? 0} membre${(stats?.users_total ?? 0) > 1 ? "s" : ""}`
+    : `${stats?.active_assigned_tasks ?? 0} tâche${(stats?.active_assigned_tasks ?? 0) > 1 ? "s" : ""} active${(stats?.active_assigned_tasks ?? 0) > 1 ? "s" : ""} sur ${stats?.assigned_tasks_total ?? 0} assignée${(stats?.assigned_tasks_total ?? 0) > 1 ? "s" : ""}`
 
   return (
     <div className="h-full">
@@ -77,22 +102,26 @@ export default function Dashboard() {
                 <MetricCard
                   label="Confiance d'exécution"
                   value={`${completionRate}%`}
-                  description="Taux de complétion global"
+                  description={isGlobal ? "Taux de complétion global" : "Taux de complétion personnel"}
                 />
                 <MetricCard
                   label="À faire aujourd'hui"
                   value={stats?.tasks_todo ?? 0}
-                  description="Tâches en attente"
+                  description="Tâches en attente dans le scope actif"
                 />
                 <MetricCard
                   label="Bloqueurs critiques"
-                  value="0"
-                  description="Aucun bloqueur actif"
+                  value={overdueCount}
+                  description={
+                    overdueCount > 0
+                      ? `${overdueCount} tâche${overdueCount > 1 ? "s" : ""} en retard`
+                      : "Aucune tâche en retard"
+                  }
                 />
                 <MetricCard
-                  label="Charge d'équipe"
-                  value="76%"
-                  description="Capacité utilisée"
+                  label={isGlobal ? "Charge d'équipe" : "% d'avancement"}
+                  value={workloadValue}
+                  description={workloadDescription}
                 />
               </div>
             </div>
@@ -135,8 +164,8 @@ export default function Dashboard() {
                 </div>
                 <ProgressCard
                   title="Progression globale"
-                  description="Tâches terminées cette semaine"
-                  progress={completionRate}
+                  description={`${stats?.tasks_done_this_week ?? 0} tâche${(stats?.tasks_done_this_week ?? 0) > 1 ? "s" : ""} terminée${(stats?.tasks_done_this_week ?? 0) > 1 ? "s" : ""} cette semaine`}
+                  progress={stats?.weekly_completion_rate ?? 0}
                 />
               </div>
             </div>
@@ -200,8 +229,8 @@ export default function Dashboard() {
                     </>
                   ) : (
                     <div className="flex items-center justify-between">
-                      <span>Équipes actives</span>
-                      <span className="font-medium text-foreground">{stats?.teams_total ?? 0}</span>
+                      <span>Tâches en retard</span>
+                      <span className="font-medium text-foreground">{stats?.tasks_overdue ?? 0}</span>
                     </div>
                   )}
                 </CardContent>
@@ -212,7 +241,33 @@ export default function Dashboard() {
                   <CardTitle>Activité récente</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  <div>Aucune activité récente.</div>
+                  {stats?.recent_activity?.length ? (
+                    stats.recent_activity.map((activity) => {
+                      const updatedAt = formatActivityDate(activity.updated_at)
+
+                      return (
+                        <div
+                          key={`${activity.type}-${activity.id}`}
+                          className="flex items-start justify-between gap-3"
+                        >
+                          <div className="min-w-0">
+                            <div className="truncate font-medium text-foreground">
+                              {activity.title}
+                            </div>
+                            <div className="truncate">
+                              {activity.project_name ? `${activity.project_name} • ` : ""}
+                              {updatedAt || "Mise à jour récente"}
+                            </div>
+                          </div>
+                          <Badge variant="outline">
+                            {TASK_STATUS_LABELS[activity.status] || activity.status}
+                          </Badge>
+                        </div>
+                      )
+                    })
+                  ) : (
+                    <div>Aucune activité récente.</div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -251,3 +306,5 @@ function TaskStatusBar({
     </div>
   )
 }
+
+

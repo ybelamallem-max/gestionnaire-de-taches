@@ -3,8 +3,8 @@ import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { FieldError } from "@/components/ui/field-error"
 import { Input } from "@/components/ui/input"
-import type { Team, TeamPayload } from "@/hooks/useTeams"
 import type { ApiValidationErrors } from "@/services/apiErrors"
+import type { Team, TeamPayload } from "@/types/team"
 
 type TeamFormProps = {
   initialTeam?: Team | null

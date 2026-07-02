@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Task extends Model
 {
     use HasFactory;
+
+    public const EXCLUDED_PROJECT_STATUSES = ['completed', 'archived'];
 
     protected $fillable = [
         'project_id',
@@ -56,5 +59,16 @@ class Task extends Model
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
+    }
+
+    public function scopeVisibleInGlobalLists(Builder $query, bool $includeArchived = false): Builder
+    {
+        if ($includeArchived) {
+            return $query;
+        }
+
+        return $query->whereHas('project', function (Builder $projectQuery) {
+            $projectQuery->whereNotIn('status', self::EXCLUDED_PROJECT_STATUSES);
+        });
     }
 }

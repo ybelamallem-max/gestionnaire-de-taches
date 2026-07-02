@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useRef, useState } from "react"
 import { User, Mail, Shield, Camera, Key, Save, Upload, Settings, Eye, EyeOff } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { api } from "@/services/api"
+import { getApiMessage, getValidationErrors } from "@/services/apiErrors"
 import { useAuthStore } from "@/stores/authStore"
 import { formatDisplayName, getAvatarInitials } from "@/lib/users"
 import { useToast } from "@/hooks/use-toast"
@@ -37,6 +38,15 @@ export default function Profile() {
   // Avatar file state
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
 
+  function getRequestErrorMessage(error: unknown, fallback: string) {
+    const validationErrors = getValidationErrors(error)
+    const firstValidationMessage = validationErrors
+      ? Object.values(validationErrors).flat().find((message) => typeof message === "string" && message.trim())
+      : null
+
+    return firstValidationMessage || getApiMessage(error, fallback)
+  }
+
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -50,11 +60,11 @@ export default function Profile() {
         title: "Succès",
         description: "Votre profil a été mis à jour.",
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: error.response?.data?.message || "Une erreur est survenue.",
+        description: getRequestErrorMessage(error, "Une erreur est survenue."),
       })
     } finally {
       setLoading(false)
@@ -76,11 +86,11 @@ export default function Profile() {
         title: "Succès",
         description: "Votre mot de passe a été mis à jour.",
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: error.response?.data?.message || "Une erreur est survenue.",
+        description: getRequestErrorMessage(error, "Une erreur est survenue."),
       })
     } finally {
       setLoading(false)
@@ -125,22 +135,29 @@ export default function Profile() {
     formData.append("avatar", avatarFile)
 
     try {
-      await api.post("/profile/avatar", formData, {
+      const uploadResponse = await api.post("/profile/avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
-      const response = await api.get("/me")
-      setUser(response.data.user)
+      const response = await api.get("/me", {
+        params: { t: Date.now() },
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      })
+      setUser(response.data.user ?? uploadResponse.data.user)
       setAvatarFile(null)
       setAvatarPreview(null)
       toast({
         title: "Succès",
         description: "Votre photo de profil a été mise à jour.",
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error("Avatar upload failed:", error)
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: error.response?.data?.message || "Une erreur est survenue.",
+        description: getRequestErrorMessage(error, "Le téléversement de l'avatar a échoué."),
       })
     } finally {
       setLoading(false)
@@ -165,11 +182,32 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="profile">Informations</TabsTrigger>
-          <TabsTrigger value="security">Sécurité</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="profile" className="gap-6">
+        <div className="space-y-3">
+          <div className="px-1">
+            <h2 className="text-sm font-semibold tracking-tight">Sections du profil</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Accédez rapidement à vos informations personnelles et à vos réglages de sécurité.
+            </p>
+          </div>
+
+          <TabsList className="h-auto w-full flex-col items-stretch gap-2 rounded-xl border bg-card p-2 shadow-sm sm:grid sm:grid-cols-2 sm:gap-2">
+            <TabsTrigger
+              value="profile"
+              className="min-h-12 justify-start gap-2.5 rounded-lg border border-transparent px-4 py-3 text-left font-semibold text-foreground/80 data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:justify-center sm:text-center"
+            >
+              <User className="size-4" />
+              <span>Informations</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="security"
+              className="min-h-12 justify-start gap-2.5 rounded-lg border border-transparent px-4 py-3 text-left font-semibold text-foreground/80 data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:justify-center sm:text-center"
+            >
+              <Shield className="size-4" />
+              <span>Sécurité</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="profile" className="space-y-6">
           <Card>
@@ -319,7 +357,7 @@ export default function Profile() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="security">
+        <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Changer le mot de passe</CardTitle>

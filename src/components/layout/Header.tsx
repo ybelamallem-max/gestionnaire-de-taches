@@ -2,7 +2,7 @@ import { Bell, ChevronRight, Search } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import { api } from "@/services/api"
 import { useAuthStore } from "@/stores/authStore"
 import { formatDisplayName, getAvatarInitials } from "@/lib/users"
@@ -48,18 +47,6 @@ export function Header() {
           : pathname.startsWith("/admin")
             ? "Admin"
             : "Dashboard"
-
-  const subtitle = pathname.startsWith("/tasks")
-    ? "Gérez vos tâches et priorités"
-    : pathname.startsWith("/projects")
-      ? "Suivez vos projets et leur progression"
-      : pathname.startsWith("/teams")
-        ? "Organisez vos équipes et leurs membres"
-        : pathname.startsWith("/notifications")
-          ? "Suivez les dernières activités"
-          : pathname.startsWith("/admin")
-            ? "Gestion des utilisateurs"
-            : "Vue d'ensemble de votre activité"
 
   async function handleLogout() {
     try {
@@ -117,6 +104,7 @@ export function Header() {
               className="rounded-full transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Avatar className="size-9">
+                <AvatarImage src={user?.avatar} alt={formatDisplayName(user)} />
                 <AvatarFallback>
                   {getAvatarInitials(user)}
                 </AvatarFallback>

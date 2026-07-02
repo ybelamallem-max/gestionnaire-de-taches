@@ -22,11 +22,11 @@ const priorityColors: Record<TaskPriority, string> = {
 }
 
 export function PriorityDot({ priority, className }: PriorityDotProps) {
-  const Icon = priorityIcons[priority]
+  const Icon = priorityIcons[priority] ?? Signal
   return (
     <div title={priority}>
       <Icon
-        className={cn("size-4 shrink-0", priorityColors[priority], className)}
+        className={cn("size-4 shrink-0", priorityColors[priority] ?? "text-muted-foreground", className)}
       />
     </div>
   )

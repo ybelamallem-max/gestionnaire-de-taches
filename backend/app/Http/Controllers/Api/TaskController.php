@@ -38,10 +38,12 @@ class TaskController extends Controller
             'scope' => ['sometimes', 'string', 'in:me,mine,team,all'],
             'status' => ['sometimes', 'string', 'in:todo,in_progress,done'],
             'priority' => ['sometimes', 'string', 'in:low,medium,high,urgent'],
+            'include_archived' => ['sometimes', 'in:true,false,1,0,on,off,yes,no'],
         ]);
 
         $user = $request->user();
         $scope = $validated['scope'] ?? 'me';
+        $includeArchived = $request->boolean('include_archived');
 
         if ($scope === 'all') {
             if (! $user->canViewAll()) {
@@ -62,6 +64,8 @@ class TaskController extends Controller
                     });
             }
         }
+
+        $query->visibleInGlobalLists($includeArchived);
 
         if (array_key_exists('status', $validated)) {
             $query->where('status', $validated['status']);
@@ -91,6 +95,7 @@ class TaskController extends Controller
             'created_by' => $request->user()->id,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'status' => 'todo',
             'priority' => $validated['priority'] ?? 'medium',
             'due_date' => $validated['deadline'] ?? null,
         ]);

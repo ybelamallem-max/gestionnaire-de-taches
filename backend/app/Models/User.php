@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -107,6 +109,53 @@ class User extends Authenticatable
     public function getDisplayNameAttribute(): string
     {
         return $this->name . '#' . str_pad($this->tag ?? '000', 3, '0', STR_PAD_LEFT);
+    }
+
+    public function getAvatarPath(): ?string
+    {
+        $avatar = $this->getRawOriginal('avatar');
+
+        return is_string($avatar) && $avatar !== '' ? $avatar : null;
+    }
+
+    public function getAvatarUrl(): ?string
+    {
+        return self::resolveAvatarUrl($this->getAvatarPath());
+    }
+
+    public static function resolveAvatarUrl(?string $avatarPath): ?string
+    {
+        if (! $avatarPath) {
+            return null;
+        }
+
+        if (Str::startsWith($avatarPath, ['http://', 'https://', '//', 'data:'])) {
+            return $avatarPath;
+        }
+
+        $storageUrl = Storage::disk('public')->url(ltrim($avatarPath, '/'));
+
+        if (Str::startsWith($storageUrl, ['http://', 'https://', '//', 'data:'])) {
+            return $storageUrl;
+        }
+
+        $root = request()?->root();
+        if (is_string($root) && $root !== '') {
+            return rtrim($root, '/') . '/' . ltrim($storageUrl, '/');
+        }
+
+        return url($storageUrl);
+    }
+
+    public function toApiUser(): array
+    {
+        $payload = $this->toArray();
+        $avatarUrl = $this->getAvatarUrl();
+
+        $payload['avatar'] = $avatarUrl;
+        $payload['avatar_url'] = $avatarUrl;
+
+        return $payload;
     }
 
     protected static function boot()

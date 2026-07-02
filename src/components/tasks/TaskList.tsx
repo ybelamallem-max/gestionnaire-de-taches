@@ -3,9 +3,9 @@ import { TaskLine } from "@/components/tasks/TaskLine"
 
 type TaskListProps = {
   tasks: Task[]
-  onToggle: (id: Task["id"]) => void
-  onDelete: (id: Task["id"]) => void
-  onEdit: (task: Task) => void
+  onToggle?: (id: Task["id"]) => void
+  onDelete?: (id: Task["id"]) => void
+  onEdit?: (task: Task) => void
   onOpenDetails: (task: Task) => void
 }
 

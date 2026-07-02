@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { api } from "@/services/api"
-import type { TaskTag } from "@/hooks/useTasks"
+import type { TaskTag } from "@/types/task"
 
 export type TaskCommentAuthor = {
   id?: string | number

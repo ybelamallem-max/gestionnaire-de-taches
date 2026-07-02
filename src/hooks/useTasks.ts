@@ -15,17 +15,28 @@ import type {
 } from "@/types/task"
 import { normalizeTask } from "@/types/task"
 
+type UseTasksOptions = {
+  includeArchived?: boolean
+}
 
-export function useTasks(scope?: DataScope, onProjectCompleted?: () => void) {
+export function useTasks(
+  scope?: DataScope,
+  onProjectCompleted?: () => void,
+  options?: UseTasksOptions
+) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const includeArchived = options?.includeArchived ?? false
 
   const refresh = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
-      const params = scope ? { scope } : {}
+      const params = {
+        ...(scope ? { scope } : {}),
+        ...(includeArchived ? { include_archived: true } : {}),
+      }
       const res = await api.get<{ tasks: ApiTask[] }>("/tasks", { params })
       setTasks((res.data.tasks ?? []).map(normalizeTask))
     } catch (err: unknown) {
@@ -33,7 +44,7 @@ export function useTasks(scope?: DataScope, onProjectCompleted?: () => void) {
     } finally {
       setIsLoading(false)
     }
-  }, [scope])
+  }, [includeArchived, scope])
 
   const replaceTask = useCallback((nextTask: Task) => {
     setTasks((prev) => prev.map((task) => (task.id === nextTask.id ? nextTask : task)))
@@ -67,6 +78,10 @@ export function useTasks(scope?: DataScope, onProjectCompleted?: () => void) {
         if (res.data.project && onProjectCompleted) {
           onProjectCompleted()
         }
+
+        if (res.data.project) {
+          await refresh()
+        }
         
         return updated
       } catch (err: unknown) {
@@ -74,7 +89,7 @@ export function useTasks(scope?: DataScope, onProjectCompleted?: () => void) {
         throw err
       }
     },
-    [onProjectCompleted]
+    [onProjectCompleted, refresh]
   )
 
   const deleteTask = useCallback(async (id: Task["id"]) => {
@@ -100,6 +115,10 @@ export function useTasks(scope?: DataScope, onProjectCompleted?: () => void) {
         if (res.data.project && onProjectCompleted) {
           onProjectCompleted()
         }
+
+        if (res.data.project) {
+          await refresh()
+        }
         
         return updated
       } catch (err: unknown) {
@@ -107,7 +126,7 @@ export function useTasks(scope?: DataScope, onProjectCompleted?: () => void) {
         throw err
       }
     },
-    [onProjectCompleted]
+    [onProjectCompleted, refresh]
   )
 
   const assignTask = useCallback(

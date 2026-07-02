@@ -20,10 +20,10 @@ import { useAuthStore } from "@/stores/authStore"
 import { canViewAll } from "@/lib/roles"
 import { selectUnreadCount, useNotificationsStore } from "@/stores/notificationsStore"
 import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { formatDisplayName } from "@/lib/users"
+import { formatDisplayName, getAvatarInitials } from "@/lib/users"
 
 type NavItem = {
   key: string
@@ -83,9 +83,12 @@ export function Sidebar() {
     )}>
       <div className={cn("flex items-center px-5 py-4", isCollapsed && "justify-center")}>
         <div className={cn("flex min-w-0 items-center gap-3", isCollapsed && "justify-center")}>
-          <div className="flex size-10 items-center justify-center rounded-lg bg-sidebar-primary shrink-0">
-            <span className="text-lg font-bold text-sidebar-primary-foreground">T</span>
-          </div>
+          <Avatar className="size-10 shrink-0 rounded-lg">
+            <AvatarImage src={currentUser?.avatar} alt={formatDisplayName(currentUser)} />
+            <AvatarFallback className="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              {getAvatarInitials(currentUser)}
+            </AvatarFallback>
+          </Avatar>
           {!isCollapsed && (
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold tracking-tight text-sidebar-foreground">

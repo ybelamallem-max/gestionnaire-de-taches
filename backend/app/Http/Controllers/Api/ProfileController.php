@@ -16,7 +16,7 @@ class ProfileController extends Controller
         $user = $request->user()->load(['teams', 'ownedTeams']);
 
         return response()->json([
-            'user' => $user,
+            'user' => $user->toApiUser(),
         ]);
     }
 
@@ -42,7 +42,7 @@ class ProfileController extends Controller
         ]);
 
         return response()->json([
-            'user' => $user->fresh(),
+            'user' => $user->fresh()->toApiUser(),
         ]);
     }
 
@@ -74,12 +74,18 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'avatar.required' => 'Veuillez sélectionner une image à envoyer.',
+            'avatar.image' => 'Le fichier sélectionné doit être une image valide.',
+            'avatar.mimes' => 'Formats acceptés : JPG, PNG ou WebP.',
+            'avatar.max' => "L'image ne doit pas dépasser 2 Mo.",
         ]);
 
         $user = $request->user();
+        $previousAvatarPath = $user->getAvatarPath();
 
-        if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+        if ($previousAvatarPath) {
+            Storage::disk('public')->delete($previousAvatarPath);
         }
 
         $path = $validated['avatar']->store('avatars', 'public');
@@ -88,9 +94,14 @@ class ProfileController extends Controller
             'avatar' => $path,
         ]);
 
+        $freshUser = $user->fresh();
+        $avatarUrl = $freshUser->getAvatarUrl();
+
         return response()->json([
-            'user' => $user->fresh(),
-            'avatar_url' => Storage::disk('public')->url($path),
+            'message' => 'Avatar mis à jour avec succès.',
+            'user' => $freshUser->toApiUser(),
+            'avatar' => $avatarUrl,
+            'avatar_url' => $avatarUrl,
         ]);
     }
 }
