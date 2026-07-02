@@ -109,89 +109,91 @@ export default function Teams() {
 
   return (
     <div className="h-full">
-      <div className="page-header">
-        <div>
-          <div className="page-title">Équipes</div>
-          <div className="page-subtitle">
-            {teams.length} équipe{teams.length > 1 ? "s" : ""}
+      <div className="px-6 py-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Équipes</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {teams.length} équipe{teams.length > 1 ? "s" : ""}
+            </p>
           </div>
-        </div>
 
-        <Dialog
-          open={isCreateOpen}
-          onOpenChange={(open) => {
-            setIsCreateOpen(open)
-            if (open) setCreateErrors(null)
-          }}
-        >
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="size-4" />
-              Nouvelle équipe
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Nouvelle équipe</DialogTitle>
-            </DialogHeader>
-            <TeamForm
-              isSubmitting={isSubmitting}
-              errors={createErrors}
-              onCancel={() => setIsCreateOpen(false)}
-              onSubmit={handleCreate}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="page-section space-y-6">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher une équipe..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-
-        {error ? (
-          <div className="panel-muted text-destructive">
-            {error}
-          </div>
-        ) : null}
-
-        {isLoading ? (
-          <div className="empty-state">
-            Chargement...
-          </div>
-        ) : filteredTeams.length ? (
-          <div className="list-shell divide-y">
-            {filteredTeams.map((team) => (
-              <TeamLine
-                key={String(team.id)}
-                team={team}
-                onAddMember={handleAddMember}
-                onUpdateRole={handleUpdateRole}
-                onRemoveMember={handleRemoveMember}
-                onRequestToJoin={handleRequestToJoin}
-                onCancelRequest={handleCancelRequest}
-                onLeaveTeam={handleLeaveTeam}
-                onInvite={handleInvite}
-                onCancelInvite={handleCancelInvite}
-                onAcceptInvite={handleAcceptInvite}
-                onRejectInvite={handleRejectInvite}
-                onAcceptMembership={handleAcceptMembership}
-                onRejectMembership={handleRejectMembership}
-                onDeleteTeam={handleDeleteTeam}
+          <Dialog
+            open={isCreateOpen}
+            onOpenChange={(open) => {
+              setIsCreateOpen(open)
+              if (open) setCreateErrors(null)
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="size-4" />
+                Nouvelle équipe
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Nouvelle équipe</DialogTitle>
+              </DialogHeader>
+              <TeamForm
+                isSubmitting={isSubmitting}
+                errors={createErrors}
+                onCancel={() => setIsCreateOpen(false)}
+                onSubmit={handleCreate}
               />
-            ))}
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="space-y-6">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher une équipe..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
-        ) : (
-          <div className="empty-state">
-            {searchQuery ? "Aucune équipe ne correspond à votre recherche." : "Aucune équipe pour le moment."}
-          </div>
-        )}
+
+          {error ? (
+            <div className="panel-muted text-destructive">
+              {error}
+            </div>
+          ) : null}
+
+          {isLoading ? (
+            <div className="empty-state">
+              Chargement...
+            </div>
+          ) : filteredTeams.length ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredTeams.map((team) => (
+                <TeamLine
+                  key={String(team.id)}
+                  team={team}
+                  onAddMember={handleAddMember}
+                  onUpdateRole={handleUpdateRole}
+                  onRemoveMember={handleRemoveMember}
+                  onRequestToJoin={handleRequestToJoin}
+                  onCancelRequest={handleCancelRequest}
+                  onLeaveTeam={handleLeaveTeam}
+                  onInvite={handleInvite}
+                  onCancelInvite={handleCancelInvite}
+                  onAcceptInvite={handleAcceptInvite}
+                  onRejectInvite={handleRejectInvite}
+                  onAcceptMembership={handleAcceptMembership}
+                  onRejectMembership={handleRejectMembership}
+                  onDeleteTeam={handleDeleteTeam}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              {searchQuery ? "Aucune équipe ne correspond à votre recherche." : "Aucune équipe pour le moment."}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

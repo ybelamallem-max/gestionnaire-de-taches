@@ -37,7 +37,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'scope' => ['sometimes', 'string', 'in:me,mine,team,all'],
             'status' => ['sometimes', 'string', 'in:todo,in_progress,done'],
-            'priority' => ['sometimes', 'string', 'in:low,medium,high'],
+            'priority' => ['sometimes', 'string', 'in:low,medium,high,urgent'],
         ]);
 
         $user = $request->user();
@@ -81,7 +81,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'priority' => ['nullable', 'string', 'in:low,medium,high'],
+            'priority' => ['nullable', 'string', 'in:low,medium,high,urgent'],
             'deadline' => ['nullable', 'date'],
             'project_id' => ['required', 'integer', 'exists:projects,id'],
         ]);
@@ -109,7 +109,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string'],
-            'priority' => ['sometimes', 'nullable', 'string', 'in:low,medium,high'],
+            'priority' => ['sometimes', 'nullable', 'string', 'in:low,medium,high,urgent'],
             'deadline' => ['sometimes', 'nullable', 'date'],
             'project_id' => ['sometimes', 'integer', 'exists:projects,id'],
             'status' => ['sometimes', 'string', 'in:todo,in_progress,done'],

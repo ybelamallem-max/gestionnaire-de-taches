@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { Project } from "@/hooks/useProjects"
-import type { Task, TaskPriority, TaskUpsertPayload } from "@/hooks/useTasks"
+import type { Project } from "@/types/project"
+import type { Task, TaskPriority, TaskUpsertPayload } from "@/types/task"
 import type { ApiValidationErrors } from "@/services/apiErrors"
 
 type TaskFormProps = {
@@ -125,6 +125,7 @@ export function TaskForm({
               <SelectItem value="low">Faible</SelectItem>
               <SelectItem value="medium">Moyenne</SelectItem>
               <SelectItem value="high">Haute</SelectItem>
+              <SelectItem value="urgent">Urgent</SelectItem>
             </SelectContent>
           </Select>
           <FieldError errors={errors?.priority} />

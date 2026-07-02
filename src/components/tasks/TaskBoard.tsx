@@ -52,7 +52,7 @@ export function TaskBoard({
         return (
           <section
             key={status}
-            className={`kanban-column ${isOver ? "ring-1 ring-ring/50" : ""}`}
+            className={`kanban-column ${isOver ? "ring-2 ring-primary/50" : ""}`}
             onDragOver={(event) => {
               event.preventDefault()
               if (overStatus !== status) setOverStatus(status)
@@ -72,9 +72,9 @@ export function TaskBoard({
               await onMove(task, status)
             }}
           >
-            <div className="flex items-center justify-between border-b px-4 py-3">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3 bg-muted/30">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{statusLabel(status)}</span>
+                <span className="text-sm font-semibold">{statusLabel(status)}</span>
                 <span className="text-sm text-muted-foreground">{items.length}</span>
               </div>
               <Badge variant="secondary" className="h-5 min-w-5 px-1.5 text-[10px]">
@@ -90,7 +90,7 @@ export function TaskBoard({
                     role="button"
                     tabIndex={0}
                     draggable
-                    className={`kanban-card text-left ${draggedTaskId === String(task.id) ? "opacity-60" : ""}`}
+                    className={`kanban-card text-left ${draggedTaskId === String(task.id) ? "opacity-60 ring-2 ring-primary/50" : ""}`}
                     onClick={() => onOpenDetails(task)}
                     onDragStart={(event) => {
                       setDraggedTaskId(String(task.id))
@@ -112,7 +112,7 @@ export function TaskBoard({
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <GripVertical className="size-4 shrink-0 text-muted-foreground" />
-                          <div className="truncate text-sm font-medium">{task.title}</div>
+                          <div className="truncate text-sm font-medium text-foreground">{task.title}</div>
                         </div>
                         {task.description ? (
                           <div className="mt-1 line-clamp-2 pl-6 text-xs text-muted-foreground">
@@ -137,17 +137,17 @@ export function TaskBoard({
                     <div className="mt-3 flex items-center gap-2">
                       <button
                         type="button"
-                        className="inline-flex h-7 items-center rounded-md border px-2 text-xs hover:bg-accent"
+                        className="inline-flex h-7 items-center rounded-md border border-border px-2 text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                         onClick={(event) => {
                           event.stopPropagation()
                           onToggle(task.id)
                         }}
                       >
-                        Changer d’état
+                        Changer d'état
                       </button>
                       <button
                         type="button"
-                        className="inline-flex h-7 items-center rounded-md border px-2 text-xs hover:bg-accent"
+                        className="inline-flex h-7 items-center rounded-md border border-border px-2 text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                         onClick={(event) => {
                           event.stopPropagation()
                           onEdit(task)
@@ -157,7 +157,7 @@ export function TaskBoard({
                       </button>
                       <button
                         type="button"
-                        className="inline-flex h-7 items-center rounded-md border border-destructive/20 px-2 text-xs text-destructive hover:bg-destructive/10"
+                        className="inline-flex h-7 items-center rounded-md border border-destructive/30 px-2 text-xs text-destructive hover:bg-destructive/10 transition-colors"
                         onClick={(event) => {
                           event.stopPropagation()
                           onDelete(task.id)
@@ -170,7 +170,7 @@ export function TaskBoard({
                 ))
               ) : (
                 <div
-                  className={`flex flex-1 items-center justify-center rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground ${isOver ? "border-ring bg-accent/40" : ""}`}
+                  className={`flex flex-1 items-center justify-center rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground ${isOver ? "border-primary bg-primary/5" : "border-border"}`}
                 >
                   {isOver ? "Déposez la tâche ici." : "Aucune tâche dans cette colonne."}
                 </div>

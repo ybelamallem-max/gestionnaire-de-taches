@@ -71,7 +71,7 @@ export function Header() {
   }
 
   return (
-    <header className="page-header-compact">
+    <header className="flex h-16 items-center justify-between border-b border-border bg-container px-6">
       <div className="flex min-w-0 items-center gap-3">
         <div className="hidden min-w-0 items-center gap-2 text-sm text-muted-foreground md:flex">
           <span>Workspace</span>
@@ -83,17 +83,17 @@ export function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <button
           onClick={() => setSearchOpen(true)}
-          className="hidden w-64 items-center md:flex"
+          className="hidden w-80 items-center md:flex"
         >
           <div className="relative w-full">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <div className="flex h-8 w-full items-center rounded-md border border-border bg-background px-8 text-sm text-muted-foreground shadow-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="flex h-9 w-full items-center rounded-lg border border-border bg-background px-10 text-sm text-muted-foreground shadow-sm">
               Rechercher...
             </div>
-            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
               Ctrl+K
             </span>
           </div>
@@ -102,15 +102,13 @@ export function Header() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-9 w-9"
           onClick={() => navigate("/notifications")}
         >
           <Bell className="size-4" />
         </Button>
 
-        <div className="lg:hidden">
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -118,7 +116,7 @@ export function Header() {
               type="button"
               className="rounded-full transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              <Avatar className="size-8">
+              <Avatar className="size-9">
                 <AvatarFallback>
                   {getAvatarInitials(user)}
                 </AvatarFallback>

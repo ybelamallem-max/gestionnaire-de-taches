@@ -9,6 +9,8 @@ import {
   Users,
   CheckSquare2,
   Archive,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react"
 import type { ComponentType } from "react"
 import { useEffect, useState } from "react"
@@ -47,6 +49,10 @@ export function Sidebar() {
     const saved = localStorage.getItem('sidebar_accordion')
     return saved === 'tasks' || saved === 'projects' ? saved : null
   })
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebar_collapsed')
+    return saved === 'true'
+  })
 
   useEffect(() => {
     void fetchNotifications()
@@ -55,6 +61,10 @@ export function Sidebar() {
   useEffect(() => {
     localStorage.setItem('sidebar_accordion', openAccordion || 'null')
   }, [openAccordion])
+
+  useEffect(() => {
+    localStorage.setItem('sidebar_collapsed', String(isCollapsed))
+  }, [isCollapsed])
 
   const visibleItems = navItems.filter((item) => {
     if (item.key === "admin") return currentUser?.role === "admin"
@@ -67,192 +77,223 @@ export function Sidebar() {
   const showAllScope = canViewAll(currentUser?.role)
 
   return (
-    <aside className="hidden h-svh w-[244px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex size-8 items-center justify-center rounded-md border bg-background">
-            <div className="size-2 rounded-full bg-foreground/80" />
+    <aside className={cn(
+      "hidden h-svh shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex transition-all duration-300",
+      isCollapsed ? "w-[70px]" : "w-[260px]"
+    )}>
+      <div className={cn("flex items-center px-5 py-4", isCollapsed && "justify-center")}>
+        <div className={cn("flex min-w-0 items-center gap-3", isCollapsed && "justify-center")}>
+          <div className="flex size-10 items-center justify-center rounded-lg bg-sidebar-primary shrink-0">
+            <span className="text-lg font-bold text-sidebar-primary-foreground">T</span>
           </div>
-          <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-sidebar-foreground">
-              Gestionnaire de tâches
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold tracking-tight text-sidebar-foreground">
+                TASKFLOW
+              </div>
+              <div className="truncate text-xs text-sidebar-foreground/60">
+                {formatDisplayName(currentUser) || "Workspace"}
+              </div>
             </div>
-            <div className="truncate text-xs text-muted-foreground">
-              {formatDisplayName(currentUser) || "Workspace"}
-            </div>
-          </div>
-        </div>
-        <ThemeToggle />
-      </div>
-
-      <Separator />
-
-      <div className="px-3 pb-2">
-        <div className="rounded-lg border bg-background px-3 py-3 shadow-xs">
-          <div className="text-sm font-semibold">{currentUser?.name || "Espace principal"}</div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            Navigation, tâches, projets et équipes.
-          </div>
+          )}
         </div>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 px-3 py-2">
+      <Separator className="bg-sidebar-border" />
+
+      <nav className={cn("flex flex-1 flex-col gap-0.5 px-4 py-2", isCollapsed && "px-2")}>
         {/* Dashboard */}
         <NavLink
           to="/"
           className={({ isActive }) =>
             cn(
-              "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
-              "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+              "flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+              "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+              isCollapsed && "justify-center px-2"
             )
           }
+          title="Dashboard"
         >
           <LayoutDashboard className="size-4 shrink-0" />
-          <span className="min-w-0 flex-1 truncate">Dashboard</span>
+          {!isCollapsed && <span className="min-w-0 flex-1 truncate">Dashboard</span>}
         </NavLink>
 
         {/* Tâches Accordion */}
-        <div>
-          <button
-            type="button"
-            onClick={() => setOpenAccordion(openAccordion === "tasks" ? null : "tasks")}
-            className={cn(
-              "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-left text-sm transition-colors",
-              "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            )}
+        {!isCollapsed ? (
+          <div>
+            <button
+              type="button"
+              onClick={() => setOpenAccordion(openAccordion === "tasks" ? null : "tasks")}
+              className={cn(
+                "flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm transition-colors",
+                "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              )}
+            >
+              <CheckSquare2 className="size-4 shrink-0" />
+              <span className="min-w-0 flex-1 truncate">Tâches</span>
+              <ChevronDown
+                className={cn(
+                  "size-4 shrink-0 transition-transform duration-200",
+                  openAccordion === "tasks" && "rotate-180"
+                )}
+              />
+            </button>
+            <div
+              className={cn(
+                "overflow-hidden transition-all duration-200",
+                openAccordion === "tasks" ? "max-h-52" : "max-h-0"
+              )}
+            >
+              <div className="flex flex-col gap-0.5 py-1 pl-7">
+                <NavLink
+                  to="/tasks/mine"
+                  className={({ isActive }) =>
+                    cn(
+                      "flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                      "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                    )
+                  }
+                >
+                  <User className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">Mes tâches</span>
+                </NavLink>
+                <NavLink
+                  to="/tasks/team"
+                  className={({ isActive }) =>
+                    cn(
+                      "flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                      "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                    )
+                  }
+                >
+                  <Users className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">Tâches équipe</span>
+                </NavLink>
+                {showAllScope ? (
+                  <NavLink
+                    to="/tasks/all"
+                    className={({ isActive }) =>
+                      cn(
+                        "flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                        "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                      )
+                    }
+                  >
+                    <Eye className="size-4 shrink-0" />
+                    <span className="min-w-0 flex-1 truncate">Toutes les tâches</span>
+                  </NavLink>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <NavLink
+            to="/tasks/mine"
+            className={({ isActive }) =>
+              cn(
+                "flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+                "justify-center px-2"
+              )
+            }
+            title="Mes tâches"
           >
             <CheckSquare2 className="size-4 shrink-0" />
-            <span className="min-w-0 flex-1 truncate">Tâches</span>
-            <ChevronDown
-              className={cn(
-                "size-4 shrink-0 transition-transform duration-200",
-                openAccordion === "tasks" && "rotate-180"
-              )}
-            />
-          </button>
-          <div
-            className={cn(
-              "overflow-hidden transition-all duration-200",
-              openAccordion === "tasks" ? "max-h-52" : "max-h-0"
-            )}
-          >
-            <div className="flex flex-col gap-1 py-1 pl-6">
-              <NavLink
-                to="/tasks/mine"
-                className={({ isActive }) =>
-                  cn(
-                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
-                    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                  )
-                }
-              >
-                <User className="size-4 shrink-0" />
-                <span className="min-w-0 flex-1 truncate">Mes tâches</span>
-              </NavLink>
-              <NavLink
-                to="/tasks/team"
-                className={({ isActive }) =>
-                  cn(
-                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
-                    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                  )
-                }
-              >
-                <Users className="size-4 shrink-0" />
-                <span className="min-w-0 flex-1 truncate">Tâches équipe</span>
-              </NavLink>
-              {showAllScope ? (
-                <NavLink
-                  to="/tasks/all"
-                  className={({ isActive }) =>
-                    cn(
-                      "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
-                      "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                    )
-                  }
-                >
-                  <Eye className="size-4 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">Toutes les tâches</span>
-                </NavLink>
-              ) : null}
-            </div>
-          </div>
-        </div>
+          </NavLink>
+        )}
 
         {/* Projets Accordion */}
-        <div>
-          <button
-            type="button"
-            onClick={() => setOpenAccordion(openAccordion === "projects" ? null : "projects")}
-            className={cn(
-              "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-left text-sm transition-colors",
-              "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            )}
-          >
-            <FolderKanban className="size-4 shrink-0" />
-            <span className="min-w-0 flex-1 truncate">Projets</span>
-            <ChevronDown
+        {!isCollapsed ? (
+          <div>
+            <button
+              type="button"
+              onClick={() => setOpenAccordion(openAccordion === "projects" ? null : "projects")}
               className={cn(
-                "size-4 shrink-0 transition-transform duration-200",
-                openAccordion === "projects" && "rotate-180"
+                "flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm transition-colors",
+                "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
-            />
-          </button>
-          <div
-            className={cn(
-              "overflow-hidden transition-all duration-200",
-              openAccordion === "projects" ? "max-h-52" : "max-h-0"
-            )}
-          >
-            <div className="flex flex-col gap-1 py-1 pl-6">
-              <NavLink
-                to="/projects/me"
-                className={({ isActive }) =>
-                  cn(
-                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
-                    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                  )
-                }
-              >
-                <User className="size-4 shrink-0" />
-                <span className="min-w-0 flex-1 truncate">Mes projets</span>
-              </NavLink>
-              <NavLink
-                to="/projects/team"
-                className={({ isActive }) =>
-                  cn(
-                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
-                    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                  )
-                }
-              >
-                <Users className="size-4 shrink-0" />
-                <span className="min-w-0 flex-1 truncate">Projets équipe</span>
-              </NavLink>
-              {showAllScope ? (
+            >
+              <FolderKanban className="size-4 shrink-0" />
+              <span className="min-w-0 flex-1 truncate">Projets</span>
+              <ChevronDown
+                className={cn(
+                  "size-4 shrink-0 transition-transform duration-200",
+                  openAccordion === "projects" && "rotate-180"
+                )}
+              />
+            </button>
+            <div
+              className={cn(
+                "overflow-hidden transition-all duration-200",
+                openAccordion === "projects" ? "max-h-52" : "max-h-0"
+              )}
+            >
+              <div className="flex flex-col gap-0.5 py-1 pl-7">
                 <NavLink
-                  to="/projects/all"
+                  to="/projects/me"
                   className={({ isActive }) =>
                     cn(
-                      "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
-                      "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      "flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                      "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                       isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
                     )
                   }
                 >
-                  <Eye className="size-4 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">Tous les projets</span>
+                  <User className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">Mes projets</span>
                 </NavLink>
-              ) : null}
+                <NavLink
+                  to="/projects/team"
+                  className={({ isActive }) =>
+                    cn(
+                      "flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                      "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                    )
+                  }
+                >
+                  <Users className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">Projets équipe</span>
+                </NavLink>
+                {showAllScope ? (
+                  <NavLink
+                    to="/projects/all"
+                    className={({ isActive }) =>
+                      cn(
+                        "flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                        "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                      )
+                    }
+                  >
+                    <Eye className="size-4 shrink-0" />
+                    <span className="min-w-0 flex-1 truncate">Tous les projets</span>
+                  </NavLink>
+                ) : null}
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <NavLink
+            to="/projects/me"
+            className={({ isActive }) =>
+              cn(
+                "flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+                "justify-center px-2"
+              )
+            }
+            title="Mes projets"
+          >
+            <FolderKanban className="size-4 shrink-0" />
+          </NavLink>
+        )}
 
         {visibleItems.map((item) => {
           const Icon = item.icon
@@ -264,16 +305,18 @@ export function Sidebar() {
                   to={item.to}
                   className={({ isActive }) =>
                     cn(
-                      "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
-                      "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                      "flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors",
+                      "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+                      isCollapsed && "justify-center px-2"
                     )
                   }
+                  title={item.label}
                 >
                   <Icon className="size-4 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  {item.badge ? (
-                    <Badge variant="secondary" className="bg-background text-foreground">
+                  {!isCollapsed && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
+                  {!isCollapsed && item.badge ? (
+                    <Badge variant="secondary" className="bg-sidebar-primary text-sidebar-primary-foreground">
                       {item.badge}
                     </Badge>
                   ) : null}
@@ -283,12 +326,14 @@ export function Sidebar() {
                   type="button"
                   disabled={item.disabled}
                   className={cn(
-                    "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-left text-sm text-sidebar-foreground/70 transition-colors",
-                    item.disabled && "cursor-not-allowed opacity-60"
+                    "flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm text-sidebar-foreground/50 transition-colors",
+                    item.disabled && "cursor-not-allowed opacity-60",
+                    isCollapsed && "justify-center px-2"
                   )}
+                  title={item.label}
                 >
                   <Icon className="size-4 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  {!isCollapsed && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
                 </button>
               )}
             </div>
@@ -296,13 +341,18 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto px-3 pb-4 pt-2">
-        <div className="rounded-lg border bg-background p-4 text-sm shadow-xs">
-          <div className="font-semibold">Espace de travail</div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            Style Circle, logique métier conservée.
-          </div>
-        </div>
+      <div className={cn("mt-auto px-4 pb-5 pt-3", isCollapsed && "px-2")}>
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={cn(
+            "w-full p-2 rounded-md hover:bg-sidebar-accent transition-colors text-sidebar-foreground flex items-center justify-center",
+            isCollapsed && "w-full"
+          )}
+          title={isCollapsed ? "Ouvrir la sidebar" : "Fermer la sidebar"}
+        >
+          {isCollapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+        </button>
       </div>
     </aside>
   )

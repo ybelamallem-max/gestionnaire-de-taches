@@ -1,4 +1,4 @@
-import type { Task } from "@/hooks/useTasks"
+import type { Task } from "@/types/task"
 import { TaskLine } from "@/components/tasks/TaskLine"
 
 type TaskListProps = {

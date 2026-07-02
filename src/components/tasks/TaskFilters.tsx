@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { TaskPriority, TaskStatus } from "@/hooks/useTasks"
+import type { TaskPriority, TaskStatus } from "@/types/task"
 
 export type TaskStatusFilter = "toutes" | TaskStatus
 export type TaskPriorityFilter = "toutes" | TaskPriority
@@ -59,6 +59,7 @@ export function TaskFilters({ value, onChange }: TaskFiltersProps) {
             <SelectItem value="low">Faible</SelectItem>
             <SelectItem value="medium">Moyenne</SelectItem>
             <SelectItem value="high">Haute</SelectItem>
+            <SelectItem value="urgent">Urgent</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -70,112 +70,114 @@ export default function Projects({ scope }: ProjectsProps) {
 
   return (
     <div className="h-full">
-      <div className="page-header">
-        <div>
-          <div className="page-title">
-            {scope === "all"
-              ? "Tous les projets"
-              : scope === "me"
-                ? "Mes projets"
-                : scope === "team"
-                  ? "Projets équipe"
-                  : "Projets"}
+      <div className="px-6 py-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {scope === "all"
+                ? "Tous les projets"
+                : scope === "me"
+                  ? "Mes projets"
+                  : scope === "team"
+                    ? "Projets équipe"
+                    : "Projets"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {projects.length} projet{projects.length > 1 ? "s" : ""}
+            </p>
           </div>
-          <div className="page-subtitle">
-            {projects.length} projet{projects.length > 1 ? "s" : ""}
-          </div>
-        </div>
 
-        <Dialog
-          open={isCreateOpen}
-          onOpenChange={(open) => {
-            setIsCreateOpen(open)
-            if (open) setCreateErrors(null)
-          }}
-        >
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="size-4" />
-              Nouveau projet
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Nouveau projet</DialogTitle>
-            </DialogHeader>
-            <ProjectForm
-              teams={teams}
-              isSubmitting={isSubmitting}
-              errors={createErrors}
-              onCancel={() => setIsCreateOpen(false)}
-              onSubmit={handleCreate}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="page-section space-y-5">
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">{projects.length} total</Badge>
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher un projet..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </div>
-
-        {error ? (
-          <div className="panel-muted text-destructive">
-            {error}
-          </div>
-        ) : null}
-
-        {isLoading ? (
-          <div className="empty-state">
-            Chargement...
-          </div>
-        ) : filteredProjects.length ? (
-          <div className="list-shell divide-y">
-            {filteredProjects.map((project) => (
-              <ProjectLine
-                key={String(project.id)}
-                project={project}
-                onEdit={setEditingProject}
-                onDelete={(id) => void deleteProject(id)}
+          <Dialog
+            open={isCreateOpen}
+            onOpenChange={(open) => {
+              setIsCreateOpen(open)
+              if (open) setCreateErrors(null)
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="size-4" />
+                Nouveau projet
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Nouveau projet</DialogTitle>
+              </DialogHeader>
+              <ProjectForm
+                teams={teams}
+                isSubmitting={isSubmitting}
+                errors={createErrors}
+                onCancel={() => setIsCreateOpen(false)}
+                onSubmit={handleCreate}
               />
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            {searchQuery ? "Aucun projet ne correspond à votre recherche." : "Aucun projet pour le moment."}
-          </div>
-        )}
+            </DialogContent>
+          </Dialog>
+        </div>
 
-        <Dialog
-          open={!!editingProject}
-          onOpenChange={(open) => {
-            if (!open) setEditingProject(null)
-            if (open) setEditErrors(null)
-          }}
-        >
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Modifier le projet</DialogTitle>
-            </DialogHeader>
-            <ProjectForm
-              teams={teams}
-              initialProject={editingProject}
-              isSubmitting={isSubmitting}
-              errors={editErrors}
-              onCancel={() => setEditingProject(null)}
-              onSubmit={handleUpdate}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <Badge variant="secondary">{projects.length} total</Badge>
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un projet..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          {error ? (
+            <div className="panel-muted text-destructive">
+              {error}
+            </div>
+          ) : null}
+
+          {isLoading ? (
+            <div className="empty-state">
+              Chargement...
+            </div>
+          ) : filteredProjects.length ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProjects.map((project) => (
+                <ProjectLine
+                  key={String(project.id)}
+                  project={project}
+                  onEdit={setEditingProject}
+                  onDelete={(id) => void deleteProject(id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              {searchQuery ? "Aucun projet ne correspond à votre recherche." : "Aucun projet pour le moment."}
+            </div>
+          )}
+
+          <Dialog
+            open={!!editingProject}
+            onOpenChange={(open) => {
+              if (!open) setEditingProject(null)
+              if (open) setEditErrors(null)
+            }}
+          >
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Modifier le projet</DialogTitle>
+              </DialogHeader>
+              <ProjectForm
+                teams={teams}
+                initialProject={editingProject}
+                isSubmitting={isSubmitting}
+                errors={editErrors}
+                onCancel={() => setEditingProject(null)}
+                onSubmit={handleUpdate}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   )

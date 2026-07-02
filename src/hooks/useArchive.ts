@@ -50,6 +50,19 @@ export function useArchive() {
     }
   }, [])
 
+  const unarchiveProject = useCallback(async (id: Project["id"]) => {
+    setError(null)
+    try {
+      const res = await api.put<{ project: ApiProject }>(`/projects/${id}`, { status: "active" })
+      const updated = res.data.project ? normalizeProject(res.data.project) : null
+      if (updated?.id != null) setProjects((prev) => prev.filter((project) => project.id !== id))
+      return updated
+    } catch (err: unknown) {
+      setError(getApiMessage(err, "Erreur lors du désarchivage du projet."))
+      throw err
+    }
+  }, [])
+
   useEffect(() => {
     void refresh()
   }, [refresh])
@@ -61,5 +74,6 @@ export function useArchive() {
     refresh,
     updateProject,
     deleteProject,
+    unarchiveProject,
   }
 }

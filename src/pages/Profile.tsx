@@ -148,15 +148,15 @@ export default function Profile() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profil</h1>
-        <p className="text-muted-foreground">
+    <div className="px-6 py-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold tracking-tight">Profil</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Gérez vos informations personnelles et votre sécurité.
         </p>
       </div>
 
-      <Card>
+      <Card className="mb-6">
         <CardContent className="p-4">
           <Link to="/settings" className="flex items-center gap-3 text-sm font-medium hover:text-primary transition-colors">
             <Settings className="size-4" />
@@ -166,7 +166,7 @@ export default function Profile() {
       </Card>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList>
+        <TabsList className="bg-muted/50">
           <TabsTrigger value="profile">Informations</TabsTrigger>
           <TabsTrigger value="security">Sécurité</TabsTrigger>
         </TabsList>
@@ -182,20 +182,20 @@ export default function Profile() {
             <CardContent>
               <div className="flex items-center gap-6">
                 <div 
-                  className="relative cursor-pointer"
+                  className="relative cursor-pointer group"
                   onClick={() => inputRef.current?.click()}
                 >
-                  <Avatar className="size-24">
+                  <Avatar className="size-24 ring-4 ring-background group-hover:ring-muted/50 transition-all">
                     <AvatarImage src={avatarPreview || user?.avatar} alt={formatDisplayName(user)} />
-                    <AvatarFallback className="text-2xl">
+                    <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
                       {getAvatarInitials(user)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="absolute bottom-0 right-0 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Camera className="size-3.5" />
+                  <div className="absolute bottom-0 right-0 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-2 ring-background">
+                    <Camera className="size-4" />
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div>
                     <Input
                       ref={inputRef}
@@ -229,16 +229,16 @@ export default function Profile() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleProfileSubmit} className="space-y-4">
+              <form onSubmit={handleProfileSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="display-name">Nom d'affichage</Label>
-                  <div className="flex items-center gap-2">
-                    <User className="size-4 text-muted-foreground" />
+                  <Label htmlFor="display-name" className="text-sm font-medium">Nom d'affichage</Label>
+                  <div className="flex items-center gap-3">
+                    <User className="size-4 text-muted-foreground shrink-0" />
                     <Input
                       id="display-name"
                       value={formatDisplayName(user)}
                       disabled
-                      className="bg-muted"
+                      className="bg-muted/50"
                     />
                     {user?.tag && (
                       <span className="text-sm text-muted-foreground">#{user.tag}</span>
@@ -247,9 +247,9 @@ export default function Profile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nom</Label>
-                  <div className="flex items-center gap-2">
-                    <User className="size-4 text-muted-foreground" />
+                  <Label htmlFor="name" className="text-sm font-medium">Nom</Label>
+                  <div className="flex items-center gap-3">
+                    <User className="size-4 text-muted-foreground shrink-0" />
                     <Input
                       id="name"
                       value={profileForm.name}
@@ -260,9 +260,9 @@ export default function Profile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="flex items-center gap-2">
-                    <Mail className="size-4 text-muted-foreground" />
+                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                  <div className="flex items-center gap-3">
+                    <Mail className="size-4 text-muted-foreground shrink-0" />
                     <Input
                       id="email"
                       type="email"
@@ -274,21 +274,22 @@ export default function Profile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="current-password-profile">Mot de passe actuel (confirmation)</Label>
-                  <div className="relative flex items-center gap-2">
-                    <Key className="size-4 text-muted-foreground" />
+                  <Label htmlFor="current-password-profile" className="text-sm font-medium">Mot de passe actuel (confirmation)</Label>
+                  <div className="relative flex items-center gap-3">
+                    <Key className="size-4 text-muted-foreground shrink-0" />
                     <Input
                       id="current-password-profile"
                       type={showPassword ? "text" : "password"}
                       value={profileForm.current_password}
                       onChange={(e) => setProfileForm({ ...profileForm, current_password: e.target.value })}
                       required
+                      className="pr-10"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 size-8"
+                      className="absolute right-1 size-8 text-muted-foreground hover:text-foreground"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -296,7 +297,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                   <Save className="mr-2 size-4" />
                   {loading ? "Enregistrement..." : "Enregistrer"}
                 </Button>
@@ -310,9 +311,9 @@ export default function Profile() {
               <CardDescription>Votre rôle dans l'application.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-2">
-                <Shield className="size-4 text-muted-foreground" />
-                <span className="capitalize">{user?.role || "user"}</span>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 w-fit">
+                <Shield className="size-4 text-muted-foreground shrink-0" />
+                <span className="capitalize font-medium">{user?.role || "user"}</span>
               </div>
             </CardContent>
           </Card>
@@ -327,11 +328,11 @@ export default function Profile() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <form onSubmit={handlePasswordSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="current-password">Mot de passe actuel</Label>
-                  <div className="flex items-center gap-2">
-                    <Key className="size-4 text-muted-foreground" />
+                  <Label htmlFor="current-password" className="text-sm font-medium">Mot de passe actuel</Label>
+                  <div className="flex items-center gap-3">
+                    <Key className="size-4 text-muted-foreground shrink-0" />
                     <Input
                       id="current-password"
                       type="password"
@@ -343,9 +344,9 @@ export default function Profile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">Nouveau mot de passe</Label>
-                  <div className="flex items-center gap-2">
-                    <Key className="size-4 text-muted-foreground" />
+                  <Label htmlFor="new-password" className="text-sm font-medium">Nouveau mot de passe</Label>
+                  <div className="flex items-center gap-3">
+                    <Key className="size-4 text-muted-foreground shrink-0" />
                     <Input
                       id="new-password"
                       type="password"
@@ -358,9 +359,9 @@ export default function Profile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirmer le nouveau mot de passe</Label>
-                  <div className="flex items-center gap-2">
-                    <Key className="size-4 text-muted-foreground" />
+                  <Label htmlFor="confirm-password" className="text-sm font-medium">Confirmer le nouveau mot de passe</Label>
+                  <div className="flex items-center gap-3">
+                    <Key className="size-4 text-muted-foreground shrink-0" />
                     <Input
                       id="confirm-password"
                       type="password"
@@ -372,7 +373,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                   <Save className="mr-2 size-4" />
                   {loading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
                 </Button>

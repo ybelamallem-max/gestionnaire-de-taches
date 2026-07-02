@@ -1,3 +1,4 @@
+import { AlertTriangle, Signal, SignalHigh, SignalLow, SignalMedium } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { TaskPriority } from "@/types/task"
 
@@ -6,17 +7,27 @@ type PriorityDotProps = {
   className?: string
 }
 
+const priorityIcons: Record<TaskPriority, React.ComponentType<{ className?: string }>> = {
+  low: SignalLow,
+  medium: SignalMedium,
+  high: SignalHigh,
+  urgent: AlertTriangle,
+}
+
 const priorityColors: Record<TaskPriority, string> = {
-  low: "bg-blue-400",
-  medium: "bg-orange-400",
-  high: "bg-red-500",
+  low: "text-blue-500",
+  medium: "text-orange-500",
+  high: "text-red-500",
+  urgent: "text-red-700",
 }
 
 export function PriorityDot({ priority, className }: PriorityDotProps) {
+  const Icon = priorityIcons[priority]
   return (
-    <div
-      className={cn("size-2 shrink-0 rounded-full", priorityColors[priority], className)}
-      title={priority}
-    />
+    <div title={priority}>
+      <Icon
+        className={cn("size-4 shrink-0", priorityColors[priority], className)}
+      />
+    </div>
   )
 }

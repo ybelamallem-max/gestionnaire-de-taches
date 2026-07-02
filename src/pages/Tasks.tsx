@@ -9,7 +9,7 @@ import type {
   TaskStatusFilter,
 } from "@/components/tasks/TaskFilters"
 import { TaskForm } from "@/components/tasks/TaskForm"
-import { TaskList } from "@/components/tasks/TaskList"
+import { TaskLine } from "@/components/tasks/TaskLine"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -169,147 +169,156 @@ export default function Tasks({ scope }: TasksProps) {
 
   return (
     <div className="h-full w-full">
-      <div className="page-header">
-        <div className="min-w-0">
-          <div className="page-title">
-            {scope === "all"
-              ? "Toutes les tâches"
-              : scope === "me"
-                ? "Mes tâches"
-                : scope === "mine"
-                  ? "Mes tâches assignées"
-                  : scope === "team"
-                    ? "Tâches équipe"
-                    : "Tâches"}
+      <div className="px-6 py-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {scope === "all"
+                ? "Toutes les tâches"
+                : scope === "me"
+                  ? "Mes tâches"
+                  : scope === "mine"
+                    ? "Mes tâches assignées"
+                    : scope === "team"
+                      ? "Tâches équipe"
+                      : "Tâches"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {remainingCount} tâche{remainingCount > 1 ? "s" : ""} restante
+              {remainingCount > 1 ? "s" : ""}
+            </p>
           </div>
-          <div className="page-subtitle">
-            {remainingCount} tâche{remainingCount > 1 ? "s" : ""} restante
-            {remainingCount > 1 ? "s" : ""}
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center rounded-lg border bg-card p-1 shadow-sm">
+              <Button
+                type="button"
+                variant={view === "list" ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setView("list")}
+              >
+                <LayoutList className="size-4" />
+                Liste
+              </Button>
+              <Button
+                type="button"
+                variant={view === "board" ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setView("board")}
+              >
+                <LayoutGrid className="size-4" />
+                Board
+              </Button>
+            </div>
+
+            <Dialog
+              open={isCreateOpen}
+              onOpenChange={(open) => {
+                setIsCreateOpen(open)
+                if (open) setCreateErrors(null)
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="size-4" />
+                  Nouvelle tâche
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Nouvelle tâche</DialogTitle>
+                </DialogHeader>
+                <TaskForm
+                  projects={projects}
+                  isSubmitting={isSubmitting}
+                  errors={createErrors}
+                  onCancel={() => setIsCreateOpen(false)}
+                  onSubmit={handleCreate}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center rounded-md border bg-card p-1 shadow-xs">
-            <Button
-              type="button"
-              variant={view === "list" ? "secondary" : "ghost"}
-              size="xs"
-              onClick={() => setView("list")}
-            >
-              <LayoutList className="size-4" />
-              Liste
-            </Button>
-            <Button
-              type="button"
-              variant={view === "board" ? "secondary" : "ghost"}
-              size="xs"
-              onClick={() => setView("board")}
-            >
-              <LayoutGrid className="size-4" />
-              Board
-            </Button>
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{tasks.length} total</Badge>
+              <Badge variant="outline">{remainingCount} restantes</Badge>
+            </div>
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher une tâche..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </div>
 
+          <TaskFilters value={filters} onChange={setFilters} />
+
+          {error ? (
+            <div className="panel-muted text-destructive">
+              {error}
+            </div>
+          ) : null}
+
+          {isLoading ? (
+            <div className="empty-state">
+              Chargement...
+            </div>
+          ) : filteredTasks.length === 0 ? (
+            <div className="empty-state">
+              {scope === 'mine' ? 'Aucune tâche ne vous est assignée pour le moment.' : 'Aucune tâche trouvée.'}
+            </div>
+          ) : view === "board" ? (
+            <TaskBoard
+              tasks={filteredTasks}
+              onMove={(task, status) => void handleMoveTask(task, status)}
+              onToggle={(id) => void toggleTask(id)}
+              onDelete={(id) => void deleteTask(id)}
+              onEdit={(task) => setEditingTask(task)}
+              onOpenDetails={(task) => setSelectedTask(task)}
+            />
+          ) : (
+            <div className="space-y-1">
+              {filteredTasks.map((task) => (
+                <TaskLine
+                  key={String(task.id)}
+                  task={task}
+                  onToggle={(id) => void toggleTask(id)}
+                  onDelete={(id) => void deleteTask(id)}
+                  onEdit={(task) => setEditingTask(task)}
+                  onOpenDetails={(task) => setSelectedTask(task)}
+                />
+              ))}
+            </div>
+          )}
+
           <Dialog
-            open={isCreateOpen}
+            open={!!editingTask}
             onOpenChange={(open) => {
-              setIsCreateOpen(open)
-              if (open) setCreateErrors(null)
+              if (!open) setEditingTask(null)
+              if (open) setEditErrors(null)
             }}
           >
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="size-4" />
-                Nouvelle tâche
-              </Button>
-            </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>Nouvelle tâche</DialogTitle>
+                <DialogTitle>Modifier la tâche</DialogTitle>
               </DialogHeader>
               <TaskForm
                 projects={projects}
+                initialTask={editingTask}
                 isSubmitting={isSubmitting}
-                errors={createErrors}
-                onCancel={() => setIsCreateOpen(false)}
-                onSubmit={handleCreate}
+                errors={editErrors}
+                onCancel={() => setEditingTask(null)}
+                onSubmit={handleUpdate}
               />
             </DialogContent>
           </Dialog>
         </div>
-      </div>
-
-      <div className="page-section space-y-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge variant="secondary">{tasks.length} total</Badge>
-          <Badge variant="outline">{remainingCount} restantes</Badge>
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher une tâche..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </div>
-
-        <TaskFilters value={filters} onChange={setFilters} />
-
-        {error ? (
-          <div className="panel-muted text-destructive">
-            {error}
-          </div>
-        ) : null}
-
-        {isLoading ? (
-          <div className="empty-state">
-            Chargement...
-          </div>
-        ) : filteredTasks.length === 0 ? (
-          <div className="empty-state">
-            {scope === 'mine' ? 'Aucune tâche ne vous est assignée pour le moment.' : 'Aucune tâche trouvée.'}
-          </div>
-        ) : view === "board" ? (
-          <TaskBoard
-            tasks={filteredTasks}
-            onMove={(task, status) => void handleMoveTask(task, status)}
-            onToggle={(id) => void toggleTask(id)}
-            onDelete={(id) => void deleteTask(id)}
-            onEdit={(task) => setEditingTask(task)}
-            onOpenDetails={(task) => setSelectedTask(task)}
-          />
-        ) : (
-          <TaskList
-            tasks={filteredTasks}
-            onToggle={(id) => void toggleTask(id)}
-            onDelete={(id) => void deleteTask(id)}
-            onEdit={(task) => setEditingTask(task)}
-            onOpenDetails={(task) => setSelectedTask(task)}
-          />
-        )}
-
-        <Dialog
-          open={!!editingTask}
-          onOpenChange={(open) => {
-            if (!open) setEditingTask(null)
-            if (open) setEditErrors(null)
-          }}
-        >
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Modifier la tâche</DialogTitle>
-            </DialogHeader>
-            <TaskForm
-              projects={projects}
-              initialTask={editingTask}
-              isSubmitting={isSubmitting}
-              errors={editErrors}
-              onCancel={() => setEditingTask(null)}
-              onSubmit={handleUpdate}
-            />
-          </DialogContent>
-        </Dialog>
       </div>
 
       <TaskDetailsPanel

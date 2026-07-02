@@ -11,35 +11,41 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
 
-  --background: 1 0 0;
-  --foreground: 0.145 0 0;
+  --background: 0.98 0 0;
+  --foreground: 0.2 0 0;
   --card: 1 0 0;
-  --card-foreground: 0.145 0 0;
+  --card-foreground: 0.2 0 0;
   --popover: 1 0 0;
-  --popover-foreground: 0.145 0 0;
-  --primary: 0.205 0 0;
-  --primary-foreground: 0.985 0 0;
-  --secondary: 0.97 0 0;
-  --secondary-foreground: 0.205 0 0;
-  --muted: 0.97 0 0;
-  --muted-foreground: 0.556 0 0;
-  --accent: 0.97 0 0;
-  --accent-foreground: 0.205 0 0;
-  --destructive: 0.577 0.245 27.325;
-  --destructive-foreground: 0.985 0 0;
-  --border: 0.922 0 0;
-  --input: 0.922 0 0;
-  --ring: 0.708 0 0;
-  --radius: 0.625rem;
-  --sidebar: 0.985 0 0;
-  --sidebar-foreground: 0.145 0 0;
-  --sidebar-primary: 0.205 0 0;
-  --sidebar-primary-foreground: 0.985 0 0;
-  --sidebar-accent: 0.97 0 0;
-  --sidebar-accent-foreground: 0.205 0 0;
-  --sidebar-border: 0.922 0 0;
-  --sidebar-ring: 0.708 0 0;
-  --container: #ffffff;
+  --popover-foreground: 0.2 0 0;
+  --primary: 0.45 0.05 240;
+  --primary-foreground: 0.98 0 0;
+  --secondary: 0.94 0.01 240;
+  --secondary-foreground: 0.2 0 0;
+  --muted: 0.96 0.01 240;
+  --muted-foreground: 0.5 0 0;
+  --accent: 0.94 0.01 240;
+  --accent-foreground: 0.2 0 0;
+  --destructive: 0.6 0.25 25;
+  --destructive-foreground: 0.98 0 0;
+  --border: 0.9 0 0;
+  --input: 0.9 0 0;
+  --ring: 0.45 0.05 240;
+  --radius: 0.5rem;
+  --sidebar: 0.97 0 0;
+  --sidebar-foreground: 0.2 0 0;
+  --sidebar-primary: 0.45 0.05 240;
+  --sidebar-primary-foreground: 0.98 0 0;
+  --sidebar-accent: 0.92 0 0;
+  --sidebar-accent-foreground: 0.2 0 0;
+  --sidebar-border: 0.9 0 0;
+  --sidebar-ring: 0.45 0.05 240;
+  --container: #f8fafc;
+
+  --status-healthy: 0.55 0.15 150;
+  --status-at-risk: 0.65 0.2 45;
+  --status-on-pace: 0.55 0.15 220;
+  --status-needs-review: 0.65 0.2 45;
+  --status-critical: 0.6 0.25 0;
 
   font-family: var(--font-sans);
   line-height: 1.5;
@@ -51,34 +57,40 @@
 }
 
 .dark {
-  --background: 0.145 0 0;
-  --foreground: 0.985 0 0;
-  --card: 0.205 0 0;
-  --card-foreground: 0.985 0 0;
-  --popover: 0.205 0 0;
-  --popover-foreground: 0.985 0 0;
-  --primary: 0.922 0 0;
-  --primary-foreground: 0.205 0 0;
-  --secondary: 0.269 0 0;
-  --secondary-foreground: 0.985 0 0;
-  --muted: 0.269 0 0;
-  --muted-foreground: 0.708 0 0;
-  --accent: 0.269 0 0;
-  --accent-foreground: 0.985 0 0;
-  --destructive: 0.704 0.191 22.216;
-  --destructive-foreground: 0.985 0 0;
-  --border: 1 0 0 / 0.1;
-  --input: 1 0 0 / 0.15;
-  --ring: 0.556 0 0;
-  --sidebar: 0.205 0 0;
-  --sidebar-foreground: 0.985 0 0;
-  --sidebar-primary: 0.922 0 0;
-  --sidebar-primary-foreground: 0.205 0 0;
-  --sidebar-accent: 0.269 0 0;
-  --sidebar-accent-foreground: 0.985 0 0;
-  --sidebar-border: 1 0 0 / 0.1;
-  --sidebar-ring: 0.556 0 0;
-  --container: #101011;
+  --background: 0 0 0;
+  --foreground: 0.95 0 0;
+  --card: 0.1 0 0;
+  --card-foreground: 0.95 0 0;
+  --popover: 0.1 0 0;
+  --popover-foreground: 0.95 0 0;
+  --primary: 0.65 0.15 240;
+  --primary-foreground: 0.98 0 0;
+  --secondary: 0.2 0 0;
+  --secondary-foreground: 0.95 0 0;
+  --muted: 0.15 0 0;
+  --muted-foreground: 0.6 0 0;
+  --accent: 0.2 0 0;
+  --accent-foreground: 0.95 0 0;
+  --destructive: 0.65 0.25 25;
+  --destructive-foreground: 0.98 0 0;
+  --border: 0.2 0 0;
+  --input: 0.2 0 0;
+  --ring: 0.65 0.15 240;
+  --sidebar: 0.08 0 0;
+  --sidebar-foreground: 0.9 0 0;
+  --sidebar-primary: 0.65 0.15 240;
+  --sidebar-primary-foreground: 0.98 0 0;
+  --sidebar-accent: 0.15 0 0;
+  --sidebar-accent-foreground: 0.9 0 0;
+  --sidebar-border: 0.15 0 0;
+  --sidebar-ring: 0.65 0.15 240;
+  --container: #0a0a0a;
+
+  --status-healthy: 0.6 0.2 150;
+  --status-at-risk: 0.7 0.25 45;
+  --status-on-pace: 0.6 0.2 220;
+  --status-needs-review: 0.7 0.25 45;
+  --status-critical: 0.65 0.3 0;
 }
 
 @layer base {
@@ -123,7 +135,7 @@
   }
 
   .app-panel {
-    @apply flex h-full w-full min-w-0 flex-col overflow-hidden bg-container lg:rounded-md lg:border;
+    @apply flex h-full w-full min-w-0 flex-col overflow-hidden bg-container lg:rounded-lg lg:border;
   }
 
   .page-scroll {

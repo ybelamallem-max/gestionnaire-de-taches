@@ -73,7 +73,7 @@ export function TaskLine({
   return (
     <div
       className={cn(
-        "group issue-line",
+        "group flex items-start gap-4 px-4 py-3 border-b border-border hover:bg-muted/50 transition-colors cursor-pointer last:border-b-0",
         compact && "h-auto px-3 py-2 sm:px-3"
       )}
       onClick={() => onOpenDetails(task)}
@@ -92,39 +92,41 @@ export function TaskLine({
           event.stopPropagation()
           onToggle(task.id)
         }}
-        className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+        className="flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground mt-0.5"
       >
         <StatusIcon status={task.status} />
       </button>
 
-      <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-        {task.title}
-      </span>
-
-      <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-        {task.project && !compact ? (
-          <span className="hidden max-w-[120px] truncate text-xs text-muted-foreground lg:inline-block">
-            {task.project}
-          </span>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium text-foreground">{task.title}</div>
+        {task.description ? (
+          <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+            {task.description}
+          </div>
         ) : null}
+        <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+          {task.project && (
+            <span className="truncate">{task.project}</span>
+          )}
+          {deadline && (
+            <>
+              {task.project && <span>•</span>}
+              <span>{deadline}</span>
+            </>
+          )}
+        </div>
+      </div>
 
+      <div className="flex shrink-0 items-center gap-2">
         <PriorityDot priority={task.priority} />
 
-        {deadline ? (
-          <span className="hidden w-14 shrink-0 text-right text-xs text-muted-foreground sm:inline-block">
-            {deadline}
-          </span>
-        ) : (
-          <span className="hidden w-14 shrink-0 sm:inline-block" />
-        )}
-
         {assigneeInitials ? (
-          <Avatar className="size-6 shrink-0">
-            <AvatarFallback className="text-[10px]">{assigneeInitials}</AvatarFallback>
+          <Avatar className="size-5 shrink-0">
+            <AvatarFallback className="text-[9px]">{assigneeInitials}</AvatarFallback>
           </Avatar>
         ) : (
-          <div className="flex size-6 shrink-0 items-center justify-center">
-            <CircleUserRound className="size-4 text-muted-foreground/60" />
+          <div className="flex size-5 shrink-0 items-center justify-center">
+            <CircleUserRound className="size-3.5 text-muted-foreground/60" />
           </div>
         )}
 
@@ -134,10 +136,10 @@ export function TaskLine({
               type="button"
               variant="ghost"
               size="icon"
-              className="size-7 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
+              className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 data-[state=open]:opacity-100"
               onClick={(event) => event.stopPropagation()}
             >
-              <MoreHorizontal className="size-4" />
+              <MoreHorizontal className="size-3.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
@@ -193,7 +195,10 @@ export function TaskLine({
                     <Button
                       type="button"
                       variant="destructive"
-                      onClick={() => onDelete(task.id)}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        onDelete(task.id)
+                      }}
                     >
                       Supprimer
                     </Button>

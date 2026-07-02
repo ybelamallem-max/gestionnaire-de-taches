@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import type { Task } from "@/hooks/useTasks"
+import type { Task } from "@/types/task"
 import {
   priorityBadgeClass,
   priorityLabel,
@@ -70,7 +70,7 @@ export function TaskCard({
   const assignee = getAssigneeLabel(task)
 
   return (
-    <Card className="bg-zinc-950/40 ring-zinc-800">
+    <Card className="bg-card border-border">
       <CardHeader className="gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Badge className={cn("border-0", priorityBadgeClass(task.priority))}>
@@ -80,12 +80,12 @@ export function TaskCard({
             {statusLabel(task.status)}
           </Badge>
         </div>
-        <CardTitle className="text-base text-zinc-100">{task.title}</CardTitle>
+        <CardTitle className="text-base text-foreground">{task.title}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-3">
         {task.description ? (
-          <div className="text-sm text-zinc-300">{task.description}</div>
+          <div className="text-sm text-muted-foreground">{task.description}</div>
         ) : null}
 
         {task.tags?.length ? (
@@ -102,30 +102,29 @@ export function TaskCard({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-2 text-xs text-zinc-400 sm:grid-cols-3">
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2">
-            <span className="text-zinc-500">Deadline</span>
-            <span className="text-zinc-200">{deadline ?? "—"}</span>
+        <div className="grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
+            <span className="text-muted-foreground">Deadline</span>
+            <span className="text-foreground">{deadline ?? "—"}</span>
           </div>
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2">
-            <span className="text-zinc-500">Projet</span>
-            <span className="truncate text-zinc-200">
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
+            <span className="text-muted-foreground">Projet</span>
+            <span className="truncate text-foreground">
               {task.project ? task.project : "—"}
             </span>
           </div>
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2">
-            <span className="text-zinc-500">Assigné à</span>
-            <span className="truncate text-zinc-200">{assignee ?? "—"}</span>
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
+            <span className="text-muted-foreground">Assigné à</span>
+            <span className="truncate text-foreground">{assignee ?? "—"}</span>
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="justify-between border-zinc-800 bg-zinc-950/40">
+      <CardFooter className="justify-between border-t bg-muted/30">
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
-            className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
             onClick={() => onOpenDetails(task)}
           >
             Détails
@@ -133,14 +132,12 @@ export function TaskCard({
           <Button
             type="button"
             variant="outline"
-            className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
             onClick={() => onEdit(task)}
           >
             Modifier
           </Button>
           <Button
             type="button"
-            className="bg-zinc-100 text-zinc-950 hover:bg-zinc-100/90"
             onClick={() => onToggle(task.id)}
           >
             {toggleLabel(task.status)}
@@ -158,11 +155,11 @@ export function TaskCard({
               Supprimer
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-zinc-900 text-zinc-100 ring-zinc-800">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Supprimer la tâche</DialogTitle>
               <DialogDescription>
-                Cette action est irréversible. Voulez-vous supprimer “{task.title}” ?
+                Cette action est irréversible. Voulez-vous supprimer "{task.title}" ?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -170,7 +167,6 @@ export function TaskCard({
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-zinc-800 bg-zinc-950/40 text-zinc-100 hover:bg-zinc-900"
                 >
                   Annuler
                 </Button>
@@ -179,8 +175,10 @@ export function TaskCard({
                 <Button
                   type="button"
                   variant="destructive"
-                  className="bg-destructive/15 text-destructive hover:bg-destructive/25"
-                  onClick={() => onDelete(task.id)}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onDelete(task.id)
+                  }}
                 >
                   Supprimer
                 </Button>

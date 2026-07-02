@@ -1,11 +1,12 @@
 import { format, isValid, parseISO } from "date-fns"
 import { fr } from "date-fns/locale"
-import { FolderKanban, MoreHorizontal } from "lucide-react"
+import { FolderKanban, MoreHorizontal, ArchiveRestore } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogClose,
@@ -23,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { ProjectStatusIcon } from "@/components/projects/ProjectStatusIcon"
 import type { Project } from "@/types/project"
 import {
   getProjectProgress,
@@ -35,6 +37,8 @@ type ProjectLineProps = {
   project: Project
   onEdit: (project: Project) => void
   onDelete: (id: Project["id"]) => void
+  onClick?: (project: Project) => void
+  onUnarchive?: (project: Project) => void
 }
 
 function formatDeadline(deadline: string | null | undefined) {
@@ -44,7 +48,7 @@ function formatDeadline(deadline: string | null | undefined) {
   return format(parsed, "dd MMM yyyy", { locale: fr })
 }
 
-export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
+export function ProjectLine({ project, onEdit, onDelete, onClick, onUnarchive }: ProjectLineProps) {
   const navigate = useNavigate()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -59,86 +63,113 @@ export function ProjectLine({ project, onEdit, onDelete }: ProjectLineProps) {
     setIsDeleteDialogOpen(false)
   }
 
-  function handleLineClick(e: React.MouseEvent) {
+  function handleCardClick(e: React.MouseEvent) {
     if (isMenuOpen || isDeleteDialogOpen) {
       e.stopPropagation()
       return
     }
-    navigate(`/projects/${project.id}`)
+    if (onClick) {
+      onClick(project)
+    } else {
+      navigate(`/projects/${project.id}`)
+    }
   }
 
   return (
     <>
-      <div
-        className="group issue-line border-b border-border last:border-b-0 cursor-pointer hover:bg-muted/50"
-        onClick={handleLineClick}
+      <Card
+        className="overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
+        onClick={handleCardClick}
       >
-      <div className="inline-flex size-6 shrink-0 items-center justify-center rounded bg-muted/50">
-        <FolderKanban className="size-3.5 text-muted-foreground" />
-      </div>
+        <CardContent className="p-5">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  <FolderKanban className="size-5 text-muted-foreground" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="truncate text-sm font-semibold">{project.name}</div>
+                    {(project.team_id === null || project.team === null) && (
+                      <Badge variant="outline" className="text-xs">Personnel</Badge>
+                    )}
+                  </div>
+                  {project.description ? (
+                    <div className="mt-1 truncate text-xs text-muted-foreground">{project.description}</div>
+                  ) : null}
+                </div>
+              </div>
 
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium text-foreground">{project.name}</div>
-        {(project.team_id === null || project.team === null) && (
-          <Badge variant="outline" className="text-xs">Personnel</Badge>
-        )}
-        {project.description ? (
-          <div className="truncate text-xs text-muted-foreground">{project.description}</div>
-        ) : null}
-      </div>
+              <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 shrink-0 text-muted-foreground"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MoreHorizontal className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {onUnarchive && (
+                    <>
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation()
+                        onUnarchive(project)
+                      }}>
+                        <ArchiveRestore className="mr-2 size-4" />
+                        Désarchiver
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation()
+                    onEdit(project)
+                  }}>Modifier</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setIsDeleteDialogOpen(true)
+                    }}
+                  >
+                    Supprimer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
-      <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-4">
-        <span className="hidden text-xs text-muted-foreground md:inline-block">
-          {projectStatusLabel(project.status)}
-        </span>
-        <span className="hidden w-24 truncate text-xs text-muted-foreground lg:inline-block">
-          {displayName}
-        </span>
-        <span className="hidden w-20 text-right text-xs text-muted-foreground sm:inline-block">
-          {formatDeadline(project.deadline)}
-        </span>
-        <div className="flex w-16 items-center gap-2">
-          <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-foreground/80 transition-all"
-              style={{ width: `${progressPercent}%` }}
-            />
+            <div className="flex items-center justify-between border-t pt-4">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <ProjectStatusIcon status={project.status} />
+                  <span>{projectStatusLabel(project.status)}</span>
+                </div>
+                <span>•</span>
+                <span className="truncate">{displayName}</span>
+                <span>•</span>
+                <span>{formatDeadline(project.deadline)}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-20 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <span className="text-xs font-medium">{progressPercent}%</span>
+              </div>
+            </div>
           </div>
-          <span className="text-[10px] text-muted-foreground">{progressPercent}%</span>
-        </div>
-
-        <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-7 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={(e) => {
-              e.stopPropagation()
-              onEdit(project)
-            }}>Modifier</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                setIsDeleteDialogOpen(true)
-              }}
-            >
-              Supprimer
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
       <DialogContent>

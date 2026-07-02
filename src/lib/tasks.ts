@@ -1,6 +1,7 @@
-import type { TaskPriority, TaskStatus, TaskTag } from "@/hooks/useTasks"
+import type { TaskPriority, TaskStatus, TaskTag } from "@/types/task"
 
 export function priorityLabel(priority: TaskPriority) {
+  if (priority === "urgent") return "Urgente"
   if (priority === "high") return "Haute"
   if (priority === "medium") return "Moyenne"
   return "Faible"
@@ -13,6 +14,7 @@ export function statusLabel(status: TaskStatus) {
 }
 
 export function priorityBadgeClass(priority: TaskPriority) {
+  if (priority === "urgent") return "bg-red-600/10 text-red-700 dark:text-red-400"
   if (priority === "high") return "bg-destructive/10 text-destructive"
   if (priority === "medium") return "bg-amber-500/10 text-amber-700 dark:text-amber-300"
   return "bg-secondary text-secondary-foreground"

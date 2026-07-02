@@ -1,3 +1,4 @@
+import { Circle, CircleCheck, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { TaskStatus } from "@/types/task"
 
@@ -6,17 +7,25 @@ type StatusIconProps = {
   className?: string
 }
 
+const statusIcons: Record<TaskStatus, React.ComponentType<{ className?: string }>> = {
+  todo: Circle,
+  in_progress: Clock,
+  done: CircleCheck,
+}
+
 const statusColors: Record<TaskStatus, string> = {
-  todo: "bg-zinc-500",
-  in_progress: "bg-yellow-400",
-  done: "bg-emerald-500",
+  todo: "text-muted-foreground",
+  in_progress: "text-yellow-500",
+  done: "text-emerald-500",
 }
 
 export function StatusIcon({ status, className }: StatusIconProps) {
+  const Icon = statusIcons[status]
   return (
-    <div
-      className={cn("size-2.5 shrink-0 rounded-full", statusColors[status], className)}
-      title={status}
-    />
+    <div title={status}>
+      <Icon
+        className={cn("size-4 shrink-0", statusColors[status], className)}
+      />
+    </div>
   )
 }
